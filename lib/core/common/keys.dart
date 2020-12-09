@@ -1,0 +1,1 @@
+const String OUTLET_IN_STORAGE = "Outlet";
