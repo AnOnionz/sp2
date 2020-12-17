@@ -13,7 +13,6 @@ class AttendanceSuccess extends AttendanceState {
 
   AttendanceSuccess({this.attendanceEntity, this.message});
 }
-
 class AttendanceFailure extends AttendanceState {
   final String error;
 

@@ -5,7 +5,7 @@ import 'package:sp_2021/feature/attendance/domain/entities/attendance_entity.dar
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_response.dart';
 import 'package:sp_2021/feature/attendance/domain/repositories/attendance_repository.dart';
 
-class UseCaseCheckSP extends Usecase<AttendanceResponse, CheckSPParam>{
+class UseCaseCheckSP extends UseCase<AttendanceResponse, CheckSPParam>{
   final AttendanceRepository repository;
 
   UseCaseCheckSP({this.repository});

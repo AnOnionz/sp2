@@ -7,7 +7,7 @@ import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_response.dart';
 import 'package:sp_2021/feature/attendance/domain/repositories/attendance_repository.dart';
 
-class UseCaseCheckInOrOut extends Usecase<AttendanceResponse, CheckInOrOutParam> {
+class UseCaseCheckInOrOut extends UseCase<AttendanceResponse, CheckInOrOutParam> {
   final AttendanceRepository repository;
 
   UseCaseCheckInOrOut({this.repository});

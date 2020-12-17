@@ -3,7 +3,7 @@ import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_entity.dart';
 
@@ -14,10 +14,10 @@ class HighLightPage extends StatefulWidget {
 
 class _HighLightPageState extends State<HighLightPage> {
   List<HighlightEntity> _highlights = [
-    HighlightEntity("Những vấn đề gặp phải của buổi làm việc", "", []),
-    HighlightEntity("Thông tin đối thủ", "", []),
-    HighlightEntity("Cập nhật hiện trạng POSM", "", []),
-    HighlightEntity("Cập nhật hiện trạng quà tặng, bia tồn", "", [])
+    HighlightEntity(title: "Những vấn đề gặp phải của buổi làm việc",content: "", images: [], hint: "Chủ outlet không hợp tác, không có chỗ đứng trong outlet, trời mưa nhiều nên không bán được hàng, vắng khách,…"),
+    HighlightEntity(title: "Thông tin đối thủ", content: "", images: [], hint: "Đối thủ đang có chương trình khuyến mãi hấp dẫn hơn, Bia SàiGòn đang có chương trình mua 1 thùng tặng thẻ cào 50k,…" ),
+    HighlightEntity(title: "Cập nhật hiện trạng POSM", content: "", images: [], hint: "Tốt, standee bị hư hỏng, mất standee,…"),
+    HighlightEntity(title: "Cập nhật hiện trạng quà tặng, bia tồn", content: "", images: [], hint: "Tốt, cần thêm quà tặng, đã hết quà,…")
   ];
   final picker = ImagePicker();
   @override
@@ -50,7 +50,7 @@ class _HighLightPageState extends State<HighLightPage> {
                         ),
                         Container(
                           width: 60,
-                          height: 27,
+                          height: 30,
                           child: Material(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5),
@@ -61,7 +61,7 @@ class _HighLightPageState extends State<HighLightPage> {
                                 child: Text(
                                   'LƯU',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     color: Color(0xff008319),
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -88,42 +88,20 @@ class _HighLightPageState extends State<HighLightPage> {
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
                        Padding(
-                         padding: const EdgeInsets.only(bottom: 10, top: 10),
+                         padding: const EdgeInsets.only(bottom: 10, top: 12),
                          child: Text(_highlights[index].title, style: TextStyle(color: Colors.green, fontSize: 20, fontWeight: FontWeight.w700),),
                        ),
                        Row(crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
                          Padding(
                            padding: const EdgeInsets.only(right: 30),
-                           child: Text('Nội dung:', style:TextStyle(color: Colors.black, fontSize: 18)),
+                           child: Text('Nội dung:', style:TextStyle(color: Colors.black, fontSize: 17)),
                          ),
                          Expanded(
-                           child:
-//                           TextField(
-//                           controller: _highlights[index].controller,
-//                           decoration: InputDecoration(
-//                             contentPadding: const EdgeInsets.all(10.0),
-//                             filled: true,
-//                             fillColor: Colors.black.withOpacity(0.1),
-//                             focusedBorder: OutlineInputBorder(
-//                               borderSide: BorderSide(color: Color(0xffeaeaea)),
-//                               borderRadius: BorderRadius.all(Radius.circular(5)),
-//                             ),
-//                             enabledBorder: OutlineInputBorder(
-//                               borderRadius: BorderRadius.all(Radius.circular(5)),
-//                               borderSide: BorderSide(color: Color(0xffeaeaea)),
-//                             ),
-//                             border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.all(Radius.circular(5)),
-//                               gapPadding: double.infinity,
-//                             ),
-//                           ),
-//                           maxLines: 3,
-//                           textCapitalization: TextCapitalization.words,
-//                         ),
-                           AutoSizeTextField(
+                           child: AutoSizeTextField(
                              textInputAction: TextInputAction.done,
                              decoration: InputDecoration(
+                               hintText: _highlights[index].hint,
                                contentPadding: const EdgeInsets.all(10.0),
                                filled: true,
                                fillColor: Colors.black.withOpacity(0.1),
@@ -142,6 +120,9 @@ class _HighLightPageState extends State<HighLightPage> {
                            ),
                              fullwidth: true,
                              controller: _highlights[index].controller,
+                             onChanged: (value){
+                               _highlights[index] =  _highlights[index].copyWith(content: value);
+                             },
                              minFontSize: 15,
                              maxLines: 3,
                              textCapitalization: TextCapitalization.words,
@@ -157,7 +138,7 @@ class _HighLightPageState extends State<HighLightPage> {
                              children: [
                              Padding(
                                padding: const EdgeInsets.only(right: 30),
-                               child: Text("Hình ảnh:", style: TextStyle(color: Colors.black, fontSize: 18)),
+                               child: Text("Hình ảnh:", style: TextStyle(color: Colors.black, fontSize: 17)),
                              ),
                              Flexible(
                                child: Container(
@@ -181,8 +162,8 @@ class _HighLightPageState extends State<HighLightPage> {
                                          borderRadius: BorderRadius.all(
                                              Radius.circular(5)),
                                          child: Container(
-                                           height: 60,
-                                           width: 60,
+                                           height: 50,
+                                           width: 50,
                                            decoration: BoxDecoration(
                                              borderRadius: BorderRadius.circular(5.0),
                                              border: Border.all(

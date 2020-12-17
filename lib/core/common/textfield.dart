@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
 
 @immutable
 // ignore: must_be_immutable

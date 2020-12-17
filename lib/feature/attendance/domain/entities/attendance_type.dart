@@ -6,9 +6,9 @@ class AttendanceType {
   AttendanceType(this.index, this.name, this.value);
 }
 class CheckIn extends AttendanceType{
-    CheckIn(): super(1, "chấm công vào", "CHECK_IN");
+    CheckIn(): super(1, "Chấm công vào", "CHECK_IN");
 
 }
 class CheckOut extends AttendanceType{
-    CheckOut(): super(2, "chấm công ra", "CHECK_OUT");
+    CheckOut(): super(2, "Chấm công ra", "CHECK_OUT");
 }

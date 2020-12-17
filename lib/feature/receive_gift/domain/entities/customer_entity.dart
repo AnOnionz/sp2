@@ -1,9 +1,15 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+part 'customer_entity.g.dart';
 
-class CustomerEntity extends Equatable {
+@HiveType(typeId: 4)
+class CustomerEntity extends Equatable with HiveObject {
+  @HiveField(0)
   final String name;
+  @HiveField(1)
   final String phoneNumber;
-  final int inTurn;
+  @HiveField(2)
+  int inTurn;
 
   CustomerEntity({this.name, this.phoneNumber, this.inTurn});
 

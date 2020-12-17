@@ -1,98 +1,131 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sp_2021/app/entities/gift_entity.dart';
-import 'package:sp_2021/app/entities/product_entity.dart';
-import 'package:sp_2021/app/entities/set_gift_entity.dart';
+import 'package:hive/hive.dart';
 import 'package:sp_2021/core/common/keys.dart';
+import 'package:sp_2021/core/entities/gift_entity.dart';
+import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/storage/secure_storage.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/gifts_receive.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/handle_gift_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/handle_wheel_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
 
 import '../../../../di.dart';
 
 class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
- final SecureStorage storage;
+  final SecureStorage storage;
+  final DashBoardLocalDataSource local;
 
-  ReceiveGiftRepositoryImpl({this.storage});
+  ReceiveGiftRepositoryImpl({this.storage, this.local});
   @override
-  Future<Either<Failure, GiftCanReceive>> ExportGift({
-      List<ProductEntity> products, CustomerEntity customer}) async {
+  Future<Either<Failure, HandleGiftEntity>> handleGift(
+      {List<ProductEntity> products,
+      CustomerEntity customer,
+      SetGiftEntity setCurrent}) async {
     List<Gift> resultGift = <Gift>[];
+    //check set current
+    setCurrent = setCurrent.gifts.where((element) => element.amountCurrent > 0).toList().isEmpty ? local.fetchNewSetGift(setCurrent.index+1) : setCurrent;
     // get set gift current
-    var setGift = SetGiftEntity.giftsCurrent;
+    final gifts = local.fetchGift();
     // get all Gift can receive
-    LoginEntity outlet = await storage.readUser(key: OUTLET_IN_STORAGE);
+    LoginEntity outlet =
+        await storage.readUser(key: OUTLET_IN_STORAGE); // check province
     resultGift = await getGift(products, outlet);
-    // fixed length of result Gift
-    int len = resultGift.length;
-    resultGift = len >= customer.inTurn ? resultGift.sublist(0,  customer.inTurn) : resultGift.sublist(0, len);
+    print("it: $resultGift");
+    resultGift.map((e) => gifts[e.id - 1]);
     resultGift.sort((a, b) {
       return a.id.compareTo(b.id);
     });
-    //* UseCase Tiger & StrongBow => 2 Candle*//
+    // fixed length of result Gift
+    int len = resultGift.length;
+    resultGift = len >= customer.inTurn
+        ? resultGift.sublist(0, customer.inTurn)
+        : resultGift.sublist(0, len);
+
+    //* UseCase (HCM&HCM) Tiger & StrongBow ||(Province) Heineken & Tiger => 2 Candle*//
     //* remove one candle*//
-    if((resultGift.where((element) => element is Nen)..toList()).length > 1){
-      resultGift.removeAt(resultGift.lastIndexOf(Nen.internal()));
+    if ((resultGift.where((element) => element is Nen)..toList()).length > 1) {
+      int index = resultGift.lastIndexOf(Nen.internal());
+      resultGift.removeAt(index);
+      resultGift.insert(index, Wheel(id: 100));
     }
     // mapping vs current SetGift
     // if set not enough then change it to Wheel
     // else update amount
-    resultGift.forEach((gift){
+    resultGift.forEach((gift) {
       if (gift is Nen) {
-        if(setGift.firstWhere((element) => element is Nen).amountCurrent > 0 ) {
-
-//          int index = resultGift.indexWhere((element) => element is Nen);
-//          resultGift.removeWhere((element)=> element is Nen);
-//          resultGift.insert(index, Wheel(id:50));
-          setGift = setGift.map((e) => e is Nen ? e = e.copyWith(current: e.amountCurrent-1) :e = e).toList();
+        if (setCurrent.gifts
+                .firstWhere((element) => element is Nen)
+                .amountCurrent > 0) {
+          setCurrent = SetGiftEntity(
+              index: setCurrent.index,
+              gifts: setCurrent.gifts
+                  .map((e) => gift.giftId == e.giftId ? e.downCurrent() : e)
+                  .toList());
         }
-        if (setGift.whereType<Nen>().first.amountCurrent < 0 ) {
+        else {
           int index = resultGift.indexOf(gift);
           resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id:50));
+          resultGift.insert(index, Wheel(id: 50));
         }
       }
       if (gift is Voucher) {
-        if(setGift.whereType<Voucher>().first.amountCurrent > 0 ) {
-          setGift = setGift.map((e) => e is Voucher ?e = e.copyWith(current: e.amountCurrent-1) :e = e).toList();
+        if (setCurrent.gifts.whereType<Voucher>().first.amountCurrent > 0) {
+          setCurrent = SetGiftEntity(
+              index: setCurrent.index,
+              gifts: setCurrent.gifts
+                  .map((e) => gift.giftId == e.giftId ? e.downCurrent() : e)
+                  .toList());
         }
-        if (setGift.whereType<Voucher>().first.amountCurrent < 0 ) {
+        else {
           int index = resultGift.indexOf(gift);
           resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id:60));
+          resultGift.insert(index, Wheel(id: 60));
         }
       }
       if (gift is StrongBowGift) {
-        if(setGift.whereType<StrongBowGift>().first.amountCurrent > 0 ) {
-          setGift = setGift.map((e) => e is StrongBowGift ? e = e.copyWith(current: e.amountCurrent-1) : e = e).toList();
+        if (setCurrent.gifts.whereType<StrongBowGift>().first.amountCurrent > 0) {
+          setCurrent = SetGiftEntity(
+              index: setCurrent.index,
+              gifts: setCurrent.gifts
+                  .map((e) => gift.giftId == e.giftId ? e.downCurrent() : e)
+                  .toList());
         }
-        if (setGift.whereType<StrongBowGift>().first.amountCurrent < 0 ) {
+        else {
           int index = resultGift.indexOf(gift);
           resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id:70));
-        }
-      }
-      if (gift is Pack6) {
-        if(setGift.whereType<Pack6>().first.amountCurrent > 0 ) {
-          setGift = setGift.map((e) => e is Pack6 ? e = e.copyWith(current: e.amountCurrent-1) :e = e).toList();
-        }
-        if (setGift.whereType<Pack6>().first.amountCurrent < 0 ) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id:80));
+          resultGift.insert(index, Wheel(id: 70));
         }
       }
       if (gift is Pack4) {
-        if(setGift.whereType<Pack4>().first.amountCurrent > 0 ) {
-          setGift = setGift.map((e) => e is Pack4 ? e = e.copyWith(current: e.amountCurrent-1) :e = e).toList();
+        if (setCurrent.gifts.whereType<Pack4>().first.amountCurrent > 0) {
+          setCurrent = SetGiftEntity(
+              index: setCurrent.index,
+              gifts: setCurrent.gifts
+                  .map((e) => gift.giftId == e.giftId ? e.downCurrent() : e)
+                  .toList());
         }
-        if (setGift.whereType<Pack4>().first.amountCurrent < 0 ) {
+        else {
           int index = resultGift.indexOf(gift);
           resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id:90));
+          resultGift.insert(index, Wheel(id: 90));
+        }
+      }
+      if (gift is Pack6) {
+        if (setCurrent.gifts.whereType<Pack6>().first.amountCurrent > 0) {
+          setCurrent = SetGiftEntity(
+              index: setCurrent.index,
+              gifts: setCurrent.gifts
+                  .map((e) => gift.giftId == e.giftId ? e.downCurrent() : e)
+                  .toList());
+        }
+        else{
+          int index = resultGift.indexOf(gift);
+          resultGift.remove(gift);
+          resultGift.insert(index, Wheel(id: 80));
         }
       }
     });
@@ -100,18 +133,65 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
     resultGift.sort((a, b) {
       return a.id.compareTo(b.id);
     });
-    print('result: $resultGift');
-    print('set: $setGift');
+    print("will receive: $resultGift");
     // update setGift current
-    return Right(GiftCanReceive(giftReceives: resultGift));
+    return Right(HandleGiftEntity(gifts: resultGift, setCurrent: setCurrent));
   }
-  Future<List<Gift>> getGift(List<ProductEntity> products, LoginEntity outlet){
+
+  Future<List<Gift>> getGift(
+      List<ProductEntity> products, LoginEntity outlet) async {
     List<Gift> result = [];
     products.forEach((product) async {
-      List<Gift> giftOfProduct = await product.getGift(outlet: outlet);
-      print(giftOfProduct);
+      final giftOfProduct = await product.getGift(outlet: outlet);
       result.addAll(giftOfProduct);
     });
-    return Future.value(result);
+    return result;
+  }
+
+  @override
+  Future<Either<Failure, HandleWheelEntity>> handleWheel(
+      {List<GiftEntity> giftReceived, SetGiftEntity setCurrent}) async {
+    List<GiftEntity> lucky = [];
+    List<GiftEntity> noLucky = [];
+    // check current set is empty
+    setCurrent = setCurrent.gifts.where((element) => element.amountCurrent > 0).toList().isEmpty ? local.fetchNewSetGift(setCurrent.index+1) : setCurrent;
+    // fetch gift > 0 in set gift
+    List<GiftEntity> gifts =
+        setCurrent.gifts.where((element) => element.amountCurrent > 0).toList();
+    // lucky
+    print("received: $giftReceived");
+    gifts.forEach((gift) {
+      // gift not in gift gift received
+      if (checkContain(gift, giftReceived) == false) {
+        lucky.add(gift);
+      }
+      if (checkContain(gift, giftReceived) == true) {
+        noLucky.add(gift);
+      }
+    });
+    if (lucky.isEmpty) {
+      if (noLucky.isNotEmpty) {
+        lucky = noLucky;
+      }
+      if (noLucky.isEmpty) {
+        int index = setCurrent.index+1;
+        setCurrent = local.fetchNewSetGift(index);
+        gifts.forEach((gift) {
+          // gift not in gift gift received
+          if (checkContain(gift, giftReceived) == false) {
+            lucky.add(gift);
+          }
+          if (checkContain(gift, giftReceived)) {
+            noLucky.add(gift);
+          }
+        });
+      }
+    }
+    // UPDATE SET TEMP CURRENT
+    return Right(HandleWheelEntity(setCurrent: setCurrent, lucky: lucky));
+  }
+
+  bool checkContain(GiftEntity gift, List<GiftEntity> giftsReceived) {
+    return giftsReceived.map((e) => e.giftId).contains(gift.giftId);
   }
 }

@@ -4,7 +4,7 @@ import 'package:sp_2021/core/usecases/usecase.dart';
 
 import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart';
 
-class UseCaseLogout implements Usecase<bool, NoParams>{
+class UseCaseLogout implements UseCase<bool, NoParams>{
   final LoginRepository repository;
 
   UseCaseLogout({this.repository});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
 
 class NotificationPage extends StatelessWidget {
   @override
@@ -29,7 +29,9 @@ class NotificationPage extends StatelessWidget {
             Expanded(
               child: ListView(
                 physics: BouncingScrollPhysics(),
-                children: <Widget>[],
+                children: <Widget>[
+                  
+                ],
               ),
             ),
           ],

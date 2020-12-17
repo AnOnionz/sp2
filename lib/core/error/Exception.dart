@@ -13,6 +13,5 @@ class ResponseException implements Exception{
 
   ResponseException({this.message});
 
-
-
 }
+class LocalException implements Exception{}

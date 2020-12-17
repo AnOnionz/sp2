@@ -1,8 +1,14 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:sp_2021/app/entities/gift_entity.dart';
-import 'package:sp_2021/app/entities/product_entity.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/entities/gift_entity.dart';
+import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/product_requirement/presentation/widgets/require_form.dart';
+import 'package:sp_2021/feature/product_requirement/presentation/widgets/require_gifts.dart';
+import 'package:sp_2021/feature/product_requirement/presentation/widgets/require_products.dart';
+
+import '../../../../di.dart';
 
 class ProductRequirementPage extends StatefulWidget {
   @override
@@ -10,22 +16,20 @@ class ProductRequirementPage extends StatefulWidget {
 }
 
 class _ProductRequirementPageState extends State<ProductRequirementPage> {
-  List<GiftEntity> gifts = [
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Nen(name: "Nen", amountCurrent: 10),
-    Voucher(name: "Voucher", amountCurrent: 2),
-  ];
-  List<ProductEntity> products = [
-    Heneiken(productName: "Heneiken", count: 100)
-  ];
-  bool isShowQua = true;
+  DashBoardLocalDataSource local = sl<DashBoardLocalDataSource>();
+  List<ProductEntity> products;
+  List<GiftEntity> gifts;
+  bool isShowBia = true;
+  final _controller = PageController(
+    initialPage: 0,
+  );
+
+  @override
+  void initState() {
+    products = local.fetchProduct();
+    gifts = local.fetchGift();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,22 +62,14 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                isShowQua = !isShowQua;
-                              });
-                            },
-                            child: Container(
-                              color:
-                                  isShowQua ? Colors.black54 : Colors.black12,
-                              height: 50,
-                              child: Center(
-                                child: Text(
-                                  "Quà",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                ),
+                          child: Container(
+                            color: isShowBia ? Colors.black54 : Colors.black12,
+                            height: 50,
+                            child: Center(
+                              child: Text(
+                                "Quà",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
                               ),
                             ),
                           ),
@@ -82,150 +78,56 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                           width: 3,
                         ),
                         Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                isShowQua = !isShowQua;
-                              });
-                            },
-                            child: Container(
-                              height: 50,
-                              color:
-                                  isShowQua ? Colors.black12 : Colors.black54,
-                              child: Center(
-                                  child: Text(
-                                "Bia",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )),
-                            ),
+                          child: Container(
+                            height: 50,
+                            color: isShowBia ? Colors.black12 : Colors.black54,
+                            child: Center(
+                                child: Text(
+                              "Bia",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
+                            )),
                           ),
                         )
                       ],
                     ),
-                    isShowQua ? buildGifts(gifts) : buildProducts(products),
-                    InkWell(
-                      onTap: (){
-
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 20, bottom: 20, top: 5),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5.0),
+                    Expanded(
+                      child: PageView(
+                        controller: _controller,
+                        onPageChanged: (_) {
+                          setState(() {
+                            isShowBia = !isShowBia;
+                          });
+                        },
+                        physics: BouncingScrollPhysics(),
+                        children: [
+                          Column(
+                            children: [
+                              RequireGifts(
+                                gifts: gifts,
+                              ),
+                              RequireForm(
+                                onSubmit: () {},
+                              ),
+                            ],
                           ),
-                          child: Center(child: Text("Yêu Cầu", style: norText,),),
-                        ),
+                          Column(
+                            children: [
+                              RequireProducts(
+                                products: products,
+                              ),
+                              RequireForm(
+                                onSubmit: () {},
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Expanded buildGifts(List<GiftEntity> list) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView.separated(
-          itemCount: list.length,
-          physics: BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 20),
-          separatorBuilder: (context, index) => Divider(
-            color: Colors.white.withOpacity(0.6),
-            height: 1,
-          ),
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.only(top: 5, bottom: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Text(
-                    list[index].name,
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        'Số lượng tồn:',
-                        style: normalText,
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        list[index].amountCurrent.toString(),
-                        style: normalText,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Expanded buildProducts(List<ProductEntity> list) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView.separated(
-          itemCount: list.length,
-          physics: BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 20),
-          separatorBuilder: (context, index) => Divider(
-            color: Colors.white.withOpacity(0.6),
-            height: 1,
-          ),
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.only(top: 5, bottom: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Text(
-                    list[index].productName,
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        'Số lượng tồn:',
-                        style: normalText,
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        list[index].count.toString(),
-                        style: normalText,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

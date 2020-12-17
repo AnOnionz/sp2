@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/features.dart';
 
 class FeatureButton extends StatelessWidget {
@@ -19,8 +19,7 @@ class FeatureButton extends StatelessWidget {
       ),
       child: InkWell(
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => feature.nextRoute));
+            Navigator.pushNamed(context, feature.nextRoute);
           },
           borderRadius: BorderRadius.circular(7),
           child: Column(

@@ -6,7 +6,7 @@ class FeatureGrid extends StatelessWidget {
   const FeatureGrid();
   @override
   Widget build(BuildContext context) {
-    final List items = <Feature>[LuckyWheel(), SalePrice(), RivalSalePrice(), Inventory(), Highlight(), ProductRequirement()];
+    final List items = <Feature>[LuckyWheel(), SalePrice(), RivalSalePrice(), Inventory(), Highlight(), SyncData()];
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20,),
       child: GridView(

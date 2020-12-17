@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sp_2021/core/common/text.dart';
+import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 
 class OutletInfo extends StatelessWidget {

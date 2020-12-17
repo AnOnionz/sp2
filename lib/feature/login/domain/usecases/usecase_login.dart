@@ -4,7 +4,7 @@ import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart';
 
-class UsecaseLogin implements Usecase<LoginEntity, LoginParams>{
+class UsecaseLogin implements UseCase<LoginEntity, LoginParams>{
   final LoginRepository repository;
 
   UsecaseLogin(this.repository);

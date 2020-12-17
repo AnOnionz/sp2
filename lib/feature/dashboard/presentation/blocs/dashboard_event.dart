@@ -5,8 +5,7 @@ abstract class DashboardEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class SaveServerDataToLocalData extends DashboardEvent {
-  final String type;
+class SaveServerDataToLocalData extends DashboardEvent {}
 
-  SaveServerDataToLocalData({this.type});
-}
+
+

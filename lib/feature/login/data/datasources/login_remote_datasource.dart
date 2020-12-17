@@ -27,11 +27,14 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource{
 
     if (_resp.statusCode == 200 && _resp.data['success'] == true) {
       return LoginModel.fromJson(_resp.data['data']);
-    } else {
+    }
+    if (_resp.statusCode == 200 && _resp.data['message']!=null) {
       throw ResponseException(message: _resp.data['message']);
     }
+    else {
+      throw ServerException(message: "Lỗi mạng");
+    }
   }
-
   @override
   Future<bool> logout() async{
     Response _resp = await cDio.client.get('home/logout');

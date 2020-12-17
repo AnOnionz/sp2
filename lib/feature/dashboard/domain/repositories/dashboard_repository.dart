@@ -1,47 +1,17 @@
-import 'package:sp_2021/core/api/myDio.dart';
 
-class DashboardRepository {
-  CDio cDio;
-  //
-  // Future<ProductListMixinModel> getProductFromServer({@required String type}) async {
-  //   Response _resp = await cDio.dio.get('home/$type');
-  //
-  //   print('----------------------- $type -----------------------');
-  //   print(_resp);
-  //
-  //   if (_resp.statusCode == 200) {
-  //     return ProductListMixinModel.fromJson(_resp.data['data']);
-  //   } else {
-  //     throw _resp.data['message'];
-  //   }
-  // }
-  //
-  // // PRODUCT GIFT
-  // Future<ProductListMixinModel> getGiftNoteFromServer({@required String type}) async {
-  //   Response _resp = await cDio.dio.get('home/$type');
-  //
-  //   print('----------------------- $type -----------------------');
-  //   print(_resp);
-  //
-  //   if (_resp.statusCode == 200) {
-  //     return ProductListMixinModel.fromJson(_resp.data['data']);
-  //   } else {
-  //     throw _resp.data['message'];
-  //   }
-  // }
-  //
-  //
-  // // BRAND SET GIFT
-  // Future<BrandSetGiftListModel> getBrandSetGiftFromServer() async {
-  //   Response _resp = await cDio.dio.get('home/brand-set-gift');
-  //
-  //   print('----------------------- brand-set-gift -----------------------');
-  //   print(_resp);
-  //
-  //   if (_resp.statusCode == 200) {
-  //     return BrandSetGiftListModel.fromJson(_resp.data['data']);
-  //   } else {
-  //     throw _resp.data['message'];
-  //   }
-  }
+import 'package:dartz/dartz.dart';
+import 'package:sp_2021/core/api/myDio.dart';
+import 'package:sp_2021/core/entities/gift_entity.dart';
+import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/entities/set_gift_entity.dart';
+import 'package:sp_2021/core/error/failure.dart';
+
+abstract class DashboardRepository {
+  Future<Either<Failure, void>> saveProductFromServer();
+  Future<Either<Failure, void>> saveRivalProductFromServer();
+  Future<Either<Failure, void>> saveGiftFromServer();
+  Future<Either<Failure, void>> saveSetGiftFromServer();
+  Future<Either<Failure, void>> saveSetGiftCurrentFromServer();
+
+}
 

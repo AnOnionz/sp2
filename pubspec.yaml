@@ -23,29 +23,30 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
+  animate_do: ^1.7.5
   data_connection_checker: ^0.3.4
   dartz:
   flutter_bloc: ^6.1.1
   flutter_secure_storage: ^3.3.5
   get_it:
-  path_provider: ^1.6.11
   shared_preferences: ^0.5.7+3
-  hive: ^1.4.1+1
-  hive_flutter: ^0.3.0+2
+  hive: ^1.4.4+1
+  hive_flutter: ^0.3.1
+  path_provider: ^1.6.24
   cached_network_image: ^2.2.0+1
   auto_size_text_field: ^0.1.7
+  flare_flutter: ^2.0.6
+  package_info: ^0.4.3+2
 
   equatable: ^1.2.0
   dio: ^3.0.9
-  firebase_messaging: ^6.0.16
+  firebase_messaging: ^7.0.3
 
   fluttertoast: ^4.0.1
-  flutter_masked_text: ^0.8.0
+  pattern_formatter: ^1.0.2
   flutter_progress_button: ^1.0.0
   shimmer: ^1.1.1
 
@@ -63,10 +64,14 @@ dependencies:
   expandable: ^4.1.4
   percent_indicator: ^2.1.8
 
-  charts_flutter: ^0.9.0
+  permission_handler: ^5.0.1+1
+  access_settings_menu: ^0.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  hive_generator: ^0.8.2
+  build_runner: ^1.10.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

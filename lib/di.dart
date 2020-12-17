@@ -8,21 +8,32 @@ import 'package:sp_2021/feature/attendance/domain/repositories/attendance_reposi
 import 'package:sp_2021/feature/attendance/domain/usecases/usecase_check_sp.dart';
 import 'package:sp_2021/feature/attendance/domain/usecases/usecase_check_inout.dart';
 import 'package:sp_2021/feature/attendance/presentation/blocs/attendance_bloc.dart';
+import 'package:sp_2021/feature/check_voucher/data/datasources/check_voucher_remote_datasource.dart';
+import 'package:sp_2021/feature/check_voucher/data/repositories/check_voucher_repository_impl.dart';
+import 'package:sp_2021/feature/check_voucher/domain/repositories/check_voucher_repository.dart';
+import 'package:sp_2021/feature/check_voucher/presentation/blocs/check_voucher_bloc.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_remote_datasource.dart';
+import 'package:sp_2021/feature/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart';
 import 'package:sp_2021/feature/login/domain/usecases/usecase_login.dart';
 import 'package:sp_2021/feature/login/domain/usecases/usecase_logout.dart';
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
+import 'package:sp_2021/feature/receive_gift/domain/usecases/handle_gift_usecase.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 import 'core/api/myDio.dart';
 import 'core/platform/network_info.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
+import 'feature/dashboard/domain/usecases/usecase_save_to_local.dart';
 import 'feature/dashboard/presentation/blocs/tab_bloc.dart';
 import 'feature/login/data/datasources/login_remote_datasource.dart';
 import 'feature/login/data/repositories/login_repository_impl.dart';
 import 'feature/login/presentation/blocs/authentication_bloc.dart';
 import 'feature/login/presentation/blocs/login_bloc.dart';
 import 'feature/receive_gift/data/repositories/receive_gift_repository_impl.dart';
+import 'feature/receive_gift/domain/usecases/handle_wheel_usecase.dart';
 
 final sl = GetIt.instance;
 Future<void> init() async{
@@ -56,22 +67,38 @@ Future<void> init() async{
   // Data sources
   sl.registerLazySingleton<LoginRemoteDataSource>(() => LoginRemoteDataSourceImpl(cDio: sl()));
   //! Features - Dashboard
+  // DataSource
+  sl.registerLazySingleton<DashBoardRemoteDataSource>(() => DashBoardRemoteDataSourceImpl());
+  sl.registerLazySingleton<DashBoardLocalDataSource>(() => DashBoardLocalDataSourceImpl());
+  // Repository
+  sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(remote: sl(), local: sl(), networkInfo: sl()));
+  // UseCase
+  sl.registerLazySingleton<UseCaseSaveDataToLocal>(() => UseCaseSaveDataToLocal(repository: sl()));
   // Bloc
-  sl.registerFactory<DashboardBloc>(() => DashboardBloc());
+  sl.registerFactory<DashboardBloc>(() => DashboardBloc(saveDataToLocal: sl()));
   sl.registerFactory<TabBloc>(() => TabBloc());
   //! Feature Attendance
   //Bloc
-  sl.registerLazySingleton<MapBloc>(() => MapBloc());
+  sl.registerFactory<MapBloc>(() => MapBloc());
   sl.registerFactory<AttendanceBloc>(() => AttendanceBloc(sl(), sl()));
   // Use case
   sl.registerLazySingleton<UseCaseCheckInOrOut>(() => UseCaseCheckInOrOut());
   sl.registerLazySingleton<UseCaseCheckSP>(() => UseCaseCheckSP());
   // Repository
   sl.registerLazySingleton<AttendanceRepository>(() => AttendanceRepositoryImpl(dataSource: sl()));
-  //! Future ReceiveGift
-  //Bloc
-  sl.registerFactory<ReceiveGiftBloc>(() => ReceiveGiftBloc());
-
+  //! Future Receive Gift
   // Repository
-  sl.registerLazySingleton<ReceiveGiftRepository>(() => ReceiveGiftRepositoryImpl(storage: sl()));
+  sl.registerLazySingleton<ReceiveGiftRepository>(() => ReceiveGiftRepositoryImpl(storage: sl(), local: sl()));
+  // UseCase
+  sl.registerLazySingleton<HandleGiftUseCase>(() => HandleGiftUseCase(repository: sl()));
+  sl.registerLazySingleton<HandleWheelUseCase>(() => HandleWheelUseCase(repository: sl()));
+  //Bloc
+  sl.registerFactory<ReceiveGiftBloc>(() => ReceiveGiftBloc(local: sl(), handleGift: sl(), handleWheel: sl()));
+  //! Feature Check Voucher
+  // Repository
+  sl.registerLazySingleton<CheckVoucherRepository>(() => CheckVoucherRepositoryImpl(remote: sl()));
+  // UseCase
+  sl.registerLazySingleton<CheckVoucherRemoteDataSource>(() => CheckVoucherRemoteDataSourceImpl());
+  // Bloc
+  sl.registerFactory<CheckVoucherBloc>(() => CheckVoucherBloc(checkVoucher: sl()));
 }

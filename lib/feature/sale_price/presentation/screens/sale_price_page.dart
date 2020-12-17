@@ -1,20 +1,26 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:sp_2021/app/entities/product_entity.dart';
-import 'package:sp_2021/core/common/text.dart';
-import 'package:sp_2021/core/common/textfield.dart';
-import 'package:sp_2021/core/util/FutureImage.dart';
-class SalePricePage extends StatefulWidget {
-  final List<ProductEntity> products;
+import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/sale_price/presentation/widgets/sale_price_ui.dart';
 
-  const SalePricePage({Key key, this.products}) : super(key: key);
+import '../../../../di.dart';
+class SalePricePage extends StatefulWidget {
+    SalePricePage({Key key}) : super(key: key);
 
   @override
   _SalePricePageState createState() => _SalePricePageState();
 }
 
 class _SalePricePageState extends State<SalePricePage> {
+  DashBoardLocalDataSource local = sl<DashBoardLocalDataSource>();
+  List<ProductEntity> products;
+  @override
+  void initState() {
+    products = local.fetchProduct();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -45,7 +51,7 @@ class _SalePricePageState extends State<SalePricePage> {
                         ),
                         Container(
                           width: 60,
-                          height: 27,
+                          height: 30,
                           child: Material(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(5),
@@ -56,7 +62,7 @@ class _SalePricePageState extends State<SalePricePage> {
                                 child: Text(
                                   'LƯU',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     color: Color(0xff008319),
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -68,7 +74,7 @@ class _SalePricePageState extends State<SalePricePage> {
                       ]
                   ),
                 ),
-                buildLoaded(widget.products),
+                SalePriceUi(products: products,),
               ],
             ),
           ),
@@ -77,58 +83,4 @@ class _SalePricePageState extends State<SalePricePage> {
     );
   }
 
-  Expanded buildLoaded(List<ProductEntity> list) {
-    return Expanded(
-      child: ListView.separated(
-        itemCount: list.length,
-        physics: BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 20),
-        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.6),height: 1,),
-        itemBuilder:(context, index) => Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, top: 5, bottom: 5),
-                child: index %2 ==0 ? FutureImage(image: "tiger.png", height: 90 ,) : FutureImage(image: "Heineken_Silver.png", height: 90 ,),
-              ),
-            ),
-//            CachedNetworkImage(
-//              imageUrl: list[index].imgUrl,
-//              height: 100,
-//              width: 100,
-//              placeholder: (context, url) =>
-//                  SizedBox(height: 20,
-//                      width: 20,
-//                      child: Center(
-//                          child: CircularProgressIndicator())),
-//              errorWidget: (context, url, error) => Icon(Icons.error),
-//            ),
-            // SizedBox(height: 20),
-            Expanded(
-              flex: 2,
-              child: Text(
-                list[index].productName.toUpperCase(),
-                style: formText,
-                textAlign: TextAlign.center,
-              ),
-            ),
-              Expanded(
-                flex: 2,
-                child: InputField(
-                  controller: list[index].controller,
-                  textCapitalization: TextCapitalization.characters,
-                  action: index == list.length-1 ? TextInputAction.done: TextInputAction.next,
-                  inputType: TextInputType.numberWithOptions(decimal: true),
-                  textAlign: TextAlign.center,
-                  inputFormatter: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly,FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 }

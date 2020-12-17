@@ -24,3 +24,7 @@ class ServerFailure extends Failure{
 class ResponseFailure extends Failure{
   ResponseFailure({message}): super(message);
 }
+
+class LocalFailure extends Failure{
+  LocalFailure(mess) : super(mess);
+}
