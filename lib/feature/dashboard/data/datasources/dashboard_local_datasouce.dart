@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:hive/hive.dart';
@@ -9,6 +11,7 @@ import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_remote_datasource.dart';
 
 abstract class DashBoardLocalDataSource {
+  bool checkLocalHasData();
   List<ProductEntity> fetchProduct();
   List<RivalProductEntity> fetchRivalProduct();
   List<GiftEntity> fetchGift();
@@ -37,7 +40,19 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
       element.countController = TextEditingController();
       element.priceController = TextEditingController();
     });
-    return box.values.toList();
+    return box.values.toList().map((e) {
+      switch (e.productId){
+        case 8 : return HeinekenNormal(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 9 : return Heineken0(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 10 : return HeinekenSilver(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 11: return TigerNormal(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 12 : return TigerCrystal(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 13 : return StrongBow(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 14 : return Larue(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 15 : return BiaViet(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+        case 16 : return Bivina(productId: e.productId, productName: e.productName, price: e.price, count: e.count, imgUrl: e.imgUrl);
+      }
+    }).toList();
   }
 
   @override
@@ -52,19 +67,32 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   List<SetGiftEntity> fetchSetGift() {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    return box.values.toList();
+    return box.values.toList().map((e) {
+      return e.fromDB(e);
+    }).toList();
   }
 
   @override
   SetGiftEntity fetchSetGiftCurrent() {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
-    return box.get(CURRENT_SET_GIFT);
+    final set = box.get(CURRENT_SET_GIFT);
+    return set.fromDB(set);
   }
 
   @override
   SetGiftEntity fetchNewSetGift(int index) {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    return box.getAt(index);
+    final set = box.get(index);
+    return set.fromDB(set);
+  }
+  @override
+  bool checkLocalHasData() {
+    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
+    Box<SetGiftEntity> currentBox = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
+    Box<RivalProductEntity> rivalBox = Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
+    Box<ProductEntity> productBox = Hive.box<ProductEntity>(PRODUCT_BOX);
+    Box<GiftEntity> giftBox = Hive.box<GiftEntity>(GIFT_BOX);
+    return setGiftBox.isNotEmpty && giftBox.isNotEmpty && currentBox.isNotEmpty && rivalBox.isNotEmpty && productBox.isNotEmpty;
   }
 
   @override
@@ -112,6 +140,8 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     }
     await box.addAll(setGifts);
   }
+
+
 
 
 }

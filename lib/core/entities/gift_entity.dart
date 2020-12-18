@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 part 'gift_entity.g.dart';
+
 @immutable
 // ignore: must_be_immutable
 class Gift extends Equatable{
@@ -34,10 +35,8 @@ class GiftEntity extends Gift with HiveObject{
   @HiveField(1)
   final String name;
   @HiveField(2)
-  final String code;
-  @HiveField(3)
   final String image;
-  @HiveField(4)
+  @HiveField(3)
   int amountCurrent;
   int amountReceive;
 
@@ -52,7 +51,7 @@ class GiftEntity extends Gift with HiveObject{
     return this;
   }
 
-  GiftEntity({this.giftId, this.name, this.code, this.image, this.amountCurrent, this.amountReceive}) : super(id: giftId);
+  GiftEntity({this.giftId, this.name, this.image, this.amountCurrent, this.amountReceive}) : super(id: giftId);
 
   @override
   String toString() {
@@ -80,7 +79,7 @@ class Nen extends GiftEntity{
 // ignore: must_be_immutable
 class StrongBowGift extends GiftEntity{
   StrongBowGift({ int giftId, String code, String name, String image, int amountDefault, int amountCurrent, int amountReceive}) : super( giftId: giftId, name: name, image: image, amountReceive: 1, amountCurrent: amountCurrent);
-  StrongBowGift.internal() : super (giftId: 3, name: "StrongBow", amountReceive: 1);
+  StrongBowGift.internal() : super (giftId: 3, name: "Strongbow", amountReceive: 1);
 
   @override
   String toString() {

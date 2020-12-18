@@ -58,7 +58,6 @@ class DashboardRepositoryImpl implements DashboardRepository{
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
     }
-
   }
 
   @override

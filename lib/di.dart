@@ -75,7 +75,7 @@ Future<void> init() async{
   // UseCase
   sl.registerLazySingleton<UseCaseSaveDataToLocal>(() => UseCaseSaveDataToLocal(repository: sl()));
   // Bloc
-  sl.registerFactory<DashboardBloc>(() => DashboardBloc(saveDataToLocal: sl()));
+  sl.registerFactory<DashboardBloc>(() => DashboardBloc(saveDataToLocal: sl(), local: sl()));
   sl.registerFactory<TabBloc>(() => TabBloc());
   //! Feature Attendance
   //Bloc

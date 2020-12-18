@@ -42,7 +42,6 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource{
   @override
   Future<AttendanceResponse> checkSP({String type, String code}) async {
     FormData _formData = FormData.fromMap({
-      'type': type,
       'sp_code': code,
     });
 

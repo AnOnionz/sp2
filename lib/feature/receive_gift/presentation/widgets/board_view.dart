@@ -54,6 +54,7 @@ class _BoardViewState extends State<BoardView> {
   _buildCard(GiftEntity gift) {
     var _rotate = _rotote(widget.items.indexOf(gift));
     var _angle = 2 * pi / widget.items.length;
+    int indexOf = widget.items.indexOf(gift);
     return Transform.rotate(
       angle: _rotate,
       child: ClipPath(
@@ -64,8 +65,8 @@ class _BoardViewState extends State<BoardView> {
           decoration: BoxDecoration(
             image: DecorationImage(
               alignment: Alignment.topCenter,
-              image: AssetImage("assets/images/hinh4.png"),
-              scale: 5.2,
+              image: indexOf % 2 == 0 ? AssetImage("assets/images/vong2.png"): AssetImage("assets/images/vong1.png"),
+              scale: 4.80,
             ),
           ),
         ),

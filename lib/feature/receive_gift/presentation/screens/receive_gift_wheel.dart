@@ -43,6 +43,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
   void initState() {
     super.initState();
     _items = local.fetchGift();
+    _items.insert(4,_items[0]);
     _lucky = widget.giftLucky.map<int>((e) => e.giftId -1).toList();
     var _duration = Duration(milliseconds: 1000);
     _ctrl = AnimationController(duration: _duration, vsync: this)

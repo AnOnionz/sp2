@@ -30,7 +30,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
   ) async* {
     if (event is ReceiveGiftSubmitForm) {
       setCurrent = local.fetchSetGiftCurrent();
-      print('setLocal: ${setCurrent}');
+      print('setLocal: $setCurrent');
       yield ReceiveGiftPopup(form: event.form);
     }
     if (event is ReceiveGiftConfirm) {

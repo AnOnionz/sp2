@@ -238,7 +238,7 @@ class NormalBeer extends ProductEntity{
 // ignore: must_be_immutable
 class BiaViet extends NormalBeer{
   BiaViet({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  BiaViet.internal();
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return BiaViet(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -247,7 +247,7 @@ class BiaViet extends NormalBeer{
 // ignore: must_be_immutable
 class Larue extends NormalBeer{
   Larue({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  Larue.internal();
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return Larue( productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -256,7 +256,7 @@ class Larue extends NormalBeer{
 // ignore: must_be_immutable
 class Bivina extends NormalBeer{
   Bivina({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  Bivina.internal();
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return Bivina(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
