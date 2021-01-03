@@ -1,23 +1,22 @@
 import 'dart:io';
-import 'dart:math';
-import 'package:asset_cache/asset_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 
 class ReceiveGiftMessagePage extends StatefulWidget {
-  final CustomerEntity customer;
-  final List<ProductEntity> products;
-  final List<File> takeProductImg;
+  final FormEntity form;
   final List<Gift> giftReceive;
   final List<GiftEntity> giftReceived;
+  final List<GiftEntity> giftSBReceived;
   final int giftAt;
+  final int gifSBtAt;
 
-  const ReceiveGiftMessagePage({Key key, this.customer, this.products, this.takeProductImg, this.giftReceive, this.giftReceived, this.giftAt,}) : super(key: key);
+  const ReceiveGiftMessagePage({Key key, this.form, this.giftReceive, this.giftSBReceived, this.giftReceived, this.giftAt, this.gifSBtAt}) : super(key: key);
 
 
   @override
@@ -45,7 +44,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
           ),
           child: Stack(
             children: [
-              Align(alignment: Alignment.center ,child: Image.asset(gift.asset)),
+              Align(alignment: Alignment.center ,child: Image(image: AssetImage(gift.asset))),
               Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -83,7 +82,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                                   child: Center(
                                     child: Text(
-                                      "Hoang Vu",
+                                      widget.form.customer.name,
                                       style: Subtitle1white,
                                     ),
                                   ),
@@ -107,7 +106,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                                   child: Center(
                                     child: Text(
-                                      "0905004002",
+                                     widget.form.customer.phoneNumber,
                                       style: Subtitle1white,
                                     ),
                                   ),
@@ -118,7 +117,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
                         ),
                         InkWell(
                           onTap: (){
-                            BlocProvider.of<ReceiveGiftBloc>(context).add(GiftNext(customer: widget.customer, products: widget.products, takeProductImg: widget.takeProductImg, giftReceived: widget.giftReceived, giftReceive: widget.giftReceive, giftAt: widget.giftAt+1));
+                            BlocProvider.of<ReceiveGiftBloc>(context).add(GiftNext(form: widget.form, giftReceived: widget.giftReceived, giftSBReceived: widget.giftSBReceived, giftReceive: widget.giftReceive, giftAt: widget.giftAt+1, ));
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 15, top: 15),

@@ -13,7 +13,7 @@ class TopUi extends StatelessWidget {
     return IntrinsicHeight(
       child: Row(
         children: [
-          Expanded(child: OutletInfo(outlet: BlocProvider.of<AuthenticationBloc>(context).loginEntity,)),
+          Expanded(child: OutletInfo(outlet:AuthenticationBloc.outlet,)),
           Expanded(child: const ChartKPI(kpi: 15, sell: 100,)),
         ],
       ),

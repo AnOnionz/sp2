@@ -1,0 +1,50 @@
+import 'package:dartz/dartz.dart';
+import 'package:sp_2021/core/error/Exception.dart';
+import 'package:sp_2021/core/error/failure.dart';
+import 'package:sp_2021/core/platform/network_info.dart';
+import 'package:sp_2021/feature/highlight/domain/repositories/highlight_repository.dart';
+import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
+import 'package:sp_2021/feature/rival_sale_price/domain/repositories/rival_sale_price_repository.dart';
+import 'package:sp_2021/feature/sale_price/domain/repositories/sale_price_repository.dart';
+import 'package:sp_2021/feature/send_requirement/domain/repositories/send_requirement_repository.dart';
+import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
+
+class SyncRepositoryImpl implements SyncRepository {
+  final RivalSalePriceRepository rivalSalePriceRepository;
+  final SalePriceRepository salePriceRepository;
+  final HighlightRepository highlightRepository;
+  final ReceiveGiftRepository receiveGiftRepository;
+  final SendRequirementRepository sendRequirementRepository;
+  final NetworkInfo networkInfo;
+
+  SyncRepositoryImpl({this.networkInfo, this.salePriceRepository,
+    this.highlightRepository,
+    this.sendRequirementRepository,
+    this.rivalSalePriceRepository,
+    this.receiveGiftRepository});
+
+  @override
+  Future<Either<Failure, bool>> synchronous() async {
+    if (await networkInfo.isConnected) {
+      try {
+        await sendRequirementRepository.sendRequirement();
+        await rivalSalePriceRepository.syncRivalSalePrice();
+        await salePriceRepository.syncSalePrice();
+        await receiveGiftRepository.syncReceiveGift();
+        await highlightRepository.syncHighlight();
+
+        return Right(true);
+      } on UnAuthenticateException catch (_) {
+        return Left(UnAuthenticateFailure());
+      } on ResponseException catch (error) {
+        return Left(ResponseFailure(message: error.message));
+      } on InternalException catch (_) {
+        return Left(InternalFailure());
+      } on InternetException catch (_) {
+        return Left(InternetFailure());
+      }
+    } else {
+      return Left(InternetFailure());
+    }
+  }
+}

@@ -3,48 +3,40 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart';
 
 class FormEntity extends Equatable {
-  String name;
-  String phoneNumber;
-  final List<ProductEntity> products;
-  String voucher;
+  CustomerEntity customer;
+  List<ProductEntity> products;
+  VoucherEntity voucher;
   bool isCheckedVoucher;
-  int numberOfVoucher;
   List<File> images;
 
   FormEntity(
-      {this.name, this.phoneNumber,
+      {this.customer,
       @required this.products,
       this.voucher,
       this.isCheckedVoucher = false,
-        this.numberOfVoucher,
       this.images});
 
-  FormEntity copyWith(
-      {String name,
-      String phone,
-      String voucher,
-      List<ProductEntity> products,
-      bool isCheckVoucher,
-        int numberOfVoucher,
-      List<File> images}) {
-    return FormEntity(
-        name: name ?? this.name,
-        phoneNumber: phone ?? this.phoneNumber,
-        voucher: voucher ?? this.voucher,
-        products: products ?? this.products,
-        numberOfVoucher: numberOfVoucher ?? this.numberOfVoucher,
-        isCheckedVoucher: isCheckedVoucher ?? this.isCheckedVoucher,
-        images: images ?? this.images);
+  Map<String, dynamic> toJson(){
+    return {
+      "name": customer.name,
+      "phone": customer.phoneNumber,
+      "products": products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
+      "voucher": voucher,
+      "isCheckedVoucher": isCheckedVoucher,
+      "images": images.map((e) => e.path).toList(),
+    };
   }
 
   @override
   List<Object> get props =>
-      [name, phoneNumber, products, voucher, isCheckedVoucher, images, numberOfVoucher];
+      [customer, products, voucher, isCheckedVoucher, images];
 
   @override
   String toString() {
-    return 'FormEntity{name: $name, phoneNumber: $phoneNumber, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher, numberOfVoucher: $numberOfVoucher, images: $images}';
+    return 'FormEntity{customer: $customer, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher, images: $images}';
   }
 }

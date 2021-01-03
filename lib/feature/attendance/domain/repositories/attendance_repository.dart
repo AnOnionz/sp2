@@ -3,11 +3,13 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/feature/attendance/domain/entities/attendance_response.dart';
+import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
+import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
+import 'package:sp_2021/feature/attendance/presentation/blocs/attendance_bloc.dart';
 
 abstract class AttendanceRepository {
 
-  Future<Either<Failure, AttendanceResponse>> checkSP({@required String type, @required String code});
-  Future<Either<Failure, AttendanceResponse>> checkInOrOut({@required String type, @required int spId, @required LocationData position, @required File image });
+  Future<Either<Failure, AttendanceType>> checkSP();
+  Future<Either<Failure, AttendanceStatus>> checkInOrOut({@required String type, @required LocationData position, @required File image });
 
 }

@@ -30,10 +30,13 @@ class FeatureButton extends StatelessWidget {
                 margin: EdgeInsets.only(bottom: 12),
                 child: feature.image,
               ),
-              Text(
-                feature.label,
-                textAlign: TextAlign.center,
-                style: featureText,
+              FittedBox(
+                fit: BoxFit.fill,
+                child: Text(
+                  feature.label,
+                  textAlign: TextAlign.center,
+                  style: featureText,
+                ),
               ),
             ],
           )),

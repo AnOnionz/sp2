@@ -1,25 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/core/entities/gift_entity.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/receive_gift_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 
 class ReceiveGiftResultPage extends StatefulWidget {
-  final CustomerEntity customer;
-  final List<GiftEntity> gifts;
-  final List<ProductEntity> products;
+  final ReceiveGiftEntity entity;
 
   const ReceiveGiftResultPage({
     Key key,
-    this.customer,
-    this.gifts,
-    this.products,
+    this.entity,
   }) : super(key: key);
 
   @override
@@ -27,6 +20,7 @@ class ReceiveGiftResultPage extends StatefulWidget {
 }
 
 class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
   List<File> takeGiftImg = [];
   List<File> approveImg = [];
@@ -102,6 +96,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
@@ -175,7 +170,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                             ),
                             Flexible(
                               child: ListView.builder(
-                                itemCount: widget.gifts.length,
+                                itemCount: widget.entity.gifts.length,
                                 shrinkWrap: true,
                                 physics: BouncingScrollPhysics(),
                                 itemBuilder: (context, index) => Padding(
@@ -188,14 +183,14 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                       Expanded(
                                         flex: 1,
                                         child: Image.asset(
-                                          widget.gifts[index].asset,
+                                          widget.entity.gifts[index].asset,
                                           height: 100,
                                         ),
                                       ),
                                       Expanded(
                                         flex: 3,
                                         child: Text(
-                                          widget.gifts[index].name,
+                                          widget.entity.gifts[index].name,
                                           style: Subtitle1white,
                                           textAlign: TextAlign.center,
                                         ),
@@ -203,7 +198,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                       Expanded(
                                         flex: 1,
                                         child: Text(
-                                          '${widget.gifts[index].amountReceive} phần',
+                                          '${widget.entity.gifts[index].amountReceive} phần',
                                           style: Subtitle1white,
                                           textAlign: TextAlign.center,
                                         ),
@@ -417,7 +412,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Center(
                                 child: Text(
-                                  "Hoang Vu",
+                                  widget.entity.customer.name,
                                   style: Subtitle1white,
                                 ),
                               ),
@@ -441,7 +436,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Center(
                                 child: Text(
-                                  "0905004002",
+                                  widget.entity.customer.phoneNumber,
                                   style: Subtitle1white,
                                 ),
                               ),
@@ -452,7 +447,24 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        BlocProvider.of<ReceiveGiftBloc>(context).add(ReceiveGiftSubmit());
+                        if(takeGiftImg.length == 0 || approveImg.length == 0){
+                          _scaffoldKey.currentState
+                              .removeCurrentSnackBar();
+                          _scaffoldKey.currentState
+                              .showSnackBar(
+                            SnackBar(
+                              content: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Text(
+                                    "Yêu cầu chụp ảnh trước khi trao quà "),
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        return;
+                        }
+                        final a = ReceiveGiftSubmit(receiveGiftEntity: ReceiveGiftEntity(customer: widget.entity.customer, products: widget.entity.products, gifts: widget.entity.gifts, productImage: widget.entity.productImage, receiptImage: approveImg, customerImage: takeGiftImg, voucher: widget.entity.voucher, outletCode: widget.entity.outletCode, voucherReceived: widget.entity.voucherReceived));
+                        BlocProvider.of<ReceiveGiftBloc>(context).add(a);
                         Navigator.pop(context);
                       },
                       child: Padding(

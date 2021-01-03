@@ -1,46 +1,46 @@
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:hive/hive.dart';
 import 'package:sp_2021/core/common/keys.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/core/entities/rival_product_entity.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 
-abstract class SalePriceLocalDataSource {
-  bool hasSync();
-  List<dynamic> fetchSalePrice();
-  Future<void> cacheSalePrice(List<ProductEntity> products);
-  Future<void> clearSalePrice();
+abstract class RivalSalePriceLocalDataSource {
+  List<dynamic> fetchRivalSalePrice();
+  Future<void> cacheRivalSalePrice(List<RivalProductEntity> products);
+  Future<void> clearRivalSalePrice();
+  Future<bool> isRequireSync();
 
 }
-class SalePriceLocalDataSourceImpl implements SalePriceLocalDataSource{
+class RivalSalePriceLocalDataSourceImpl implements RivalSalePriceLocalDataSource{
   final SyncLocalDataSource syncLocalDataSource;
 
-  SalePriceLocalDataSourceImpl({this.syncLocalDataSource});
+  RivalSalePriceLocalDataSourceImpl({this.syncLocalDataSource});
   @override
-  Future<void> cacheSalePrice(List<ProductEntity> products) async{
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
-    final data =  products.map((e) => {"sku_id": e.productId, "price": e.price}).toList();
+  Future<void> cacheRivalSalePrice(List<RivalProductEntity> products) async{
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(RIVAL_SALE_PRICE_BOX);
+    await box.clear();
+    final data = products.map((e) => {"sku_id": e.id, "price": e.price}).toList();
     await box.add(data);
     await syncLocalDataSource.addSync(type: 1, value: 1);
   }
 
   @override
-  Future<void> clearSalePrice() async{
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
+  Future<void> clearRivalSalePrice() async{
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(RIVAL_SALE_PRICE_BOX);
     await box.clear();
     await syncLocalDataSource.removeSync(type: 1, value: 1);
   }
 
   @override
-  bool hasSync(){
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
-    return box.values.isNotEmpty;
+  List<dynamic> fetchRivalSalePrice() {
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(RIVAL_SALE_PRICE_BOX);
+    return box.values.toList().first;
   }
 
   @override
-  List<dynamic> fetchSalePrice() {
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
-    return box.values.toList().first;
+  Future<bool> isRequireSync() async {
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(RIVAL_SALE_PRICE_BOX);
+    return box.values.isNotEmpty;
   }
 
 }

@@ -5,83 +5,114 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:location/location.dart';
 import 'package:meta/meta.dart';
-import 'package:permission_handler/permission_handler.dart' as permission_handle;
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/feature/attendance/data/model/attendance_model.dart';
-import 'package:sp_2021/feature/attendance/domain/entities/attendance_entity.dart';
-import 'package:sp_2021/feature/attendance/domain/entities/attendance_response.dart';
+import 'package:sp_2021/core/usecases/usecase.dart';
+import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
+import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
 import 'package:sp_2021/feature/attendance/domain/usecases/usecase_check_inout.dart';
 import 'package:sp_2021/feature/attendance/domain/usecases/usecase_check_sp.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 
 part 'attendance_event.dart';
 part 'attendance_state.dart';
 
-class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
-  final UseCaseCheckInOrOut _useCaseCheckInOrOut;
-  final UseCaseCheckSP _useCaseCheckSP;
+class CheckAttendanceBloc extends Bloc<AttendanceEvent, CheckAttendanceState> {
+  final UseCaseCheckSP useCaseCheckSP;
+  final AuthenticationBloc authenticationBloc;
+  final DashboardBloc dashboardBloc;
+  CheckAttendanceBloc(
+      {this.useCaseCheckSP, this.dashboardBloc, this.authenticationBloc})
+      : super(CheckAttendanceInitial());
 
-  AttendanceBloc(this._useCaseCheckSP, this._useCaseCheckInOrOut)
-      : super(AttendanceInitial());
+  @override
+  Stream<CheckAttendanceState> mapEventToState(AttendanceEvent event) async* {
+    if (event is CheckAttendance) {
+      final checkSPResponse = await useCaseCheckSP(NoParams());
+      yield* _eitherCheckAttendanceState(checkSPResponse, dashboardBloc, authenticationBloc);
+    }
+  }
+
+  @override
+  void onTransition(
+      Transition<AttendanceEvent, CheckAttendanceState> transition) {
+    print(transition);
+    super.onTransition(transition);
+  }
+}
+
+class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
+  final UseCaseCheckInOrOut useCaseCheckInOrOut;
+  final AuthenticationBloc authenticationBloc;
+  final DashboardBloc dashboardBloc;
+
+  AttendanceBloc(
+  {this.useCaseCheckInOrOut, this.dashboardBloc, this.authenticationBloc}
+  ) : super(AttendanceInitial());
 
   @override
   Stream<AttendanceState> mapEventToState(
     AttendanceEvent event,
   ) async* {
-    if (event is CheckAttendance) {
+    if (event is Attendance) {
       yield AttendanceLoading();
-      try {
-        final checkSPResponse = await _useCaseCheckSP(
-            CheckSPParam(type: event.type, spCode: event.spCode));
-        yield* _eitherCheckSPState(checkSPResponse);
-      } catch (e, s) {
-        print(e);
-        print(s);
-        yield AttendanceFailure(error: e);
-      }
-    }
-
-    if (event is CheckInOrOut) {
-      yield CheckInOrOutLoading();
-
-      try {
-        final checkInOrOutResponse = await _useCaseCheckInOrOut(CheckInOrOutParam(event.type, event.spId, event.position, event.img));
-
-      } catch (e, s) {
-        print(e);
-        print(s);
-        yield CheckInOrOutFailure(error: e);
-      }
+      final checkInOrOutResponse = await useCaseCheckInOrOut(
+          CheckInOrOutParam(event.type, event.position, event.img));
+      yield* _eitherAttendanceState(checkInOrOutResponse, dashboardBloc, authenticationBloc);
     }
   }
 
-  Stream<AttendanceState> _eitherCheckSPState(
-    Either<Failure, AttendanceResponse> either,
-  ) async* {
-    yield either.fold((failure) => AttendanceFailure(error: failure.message),
-        (entity) {
-      if (entity == CheckSPSuccess()) {
-        return AttendanceSuccess(
-            message: entity.message,
-            attendanceEntity: AttendanceModel.fromJson(entity.data));
-      }
-      if (entity == CheckSPFailure()) {
-        return AttendanceFailure(error: entity.message);
-      }
-      return CheckInOrOutFailure(error: "new error");
-    });
+  @override
+  void onTransition(Transition<AttendanceEvent, AttendanceState> transition) {
+    print(transition);
+    super.onTransition(transition);
+}
+}
+
+Stream<CheckAttendanceState> _eitherCheckAttendanceState(
+    Either<Failure, AttendanceType> either,
+    DashboardBloc dashboardBloc,
+    AuthenticationBloc authenticationBloc) async* {
+  yield either.fold((failure) {
+    if (failure is UnAuthenticateFailure) {
+      authenticationBloc.add(ShutDown(willPop: 1));
+      return null;
+    }
+    if (failure is InternalFailure) {
+      dashboardBloc.add(InternalServer());
+      return null;
+    }
+    if (failure is ResponseFailure) {
+      return CheckAttendanceFailure(error: failure.message);
+    }
+    if (failure is InternetFailure) {
+      dashboardBloc.add(AccessInternet());
+      return null;
+    }
+    return CheckAttendanceFailure(error: failure.message);
+  }, (type) => CheckAttendanceSuccess(type: type));
+}
+
+Stream<AttendanceState> _eitherAttendanceState(
+    Either<Failure, AttendanceStatus> either, DashboardBloc dashboardBloc,
+    AuthenticationBloc authenticationBloc) async* {
+  yield either.fold((failure) {
+  if (failure is InternalFailure) {
+    dashboardBloc.add(InternalServer());
+    return null;
   }
-  Stream<AttendanceState> _eitherCheckInOrOutState(
-      Either<Failure, AttendanceResponse> either,
-      ) async* {
-    yield either.fold((failure) => AttendanceFailure(error: failure.message),
-            (entity) {
-          if (entity == CheckInOutSuccess()) {
-            return CheckInOrOutSuccess();
-          }
-          if (entity == CheckInOutFailure()) {
-            return CheckInOrOutFailure(error: entity.message);
-          }
-          return CheckInOrOutFailure(error: "new error");
-        });
+  if (failure is ResponseFailure) {
+    return AttendanceFailure(error: failure.message);
   }
+  if (failure is InternetFailure) {
+      dashboardBloc.add(AccessInternet());
+      return null;
+  } if(failure is HighLightNullFailure){
+    return AttendanceHighlightNullFailure(message: failure.message);
+
+  }if(failure is InventoryNullFailure){
+    return AttendanceInventoryNullFailure(message: failure.message);
+  }
+  return AttendanceFailure(error: failure.message);},
+      (status) => AttendanceSuccess());
 }

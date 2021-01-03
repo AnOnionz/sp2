@@ -1,26 +1,40 @@
 import 'dart:io';
+import 'package:access_settings_menu/access_settings_menu.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sp_2021/core/util/custom_dialog.dart' as Dialogs;
+import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/attendance/presentation/screens/attendance_page.dart';
+import 'package:sp_2021/feature/check_voucher/presentation/screens/check_voucher_page.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/tab_bloc.dart';
 import 'package:sp_2021/feature/notification/presentation/screens/notification_page.dart';
-import 'package:sp_2021/feature/product_requirement/presentation/screens/product_requirement.dart';
+import 'package:sp_2021/feature/send_requirement/presentation/screens/send_requirement_page.dart';
 import 'package:sp_2021/feature/setting/presentation/screens/setting_page.dart';
-import '../../../../di.dart';
 import 'home_page.dart';
 
 class DashboardPage extends StatelessWidget {
+
   final _children = [
     HomePage(),
     AttendancePage(),
     ProductRequirementPage(),
+    CheckVoucherPage(),
     NotificationPage(),
     SettingPage(),
   ];
+  openSettingsMenu(settingsName) async {
+    var resultSettingsOpening = false;
+    try {
+      resultSettingsOpening =
+      await AccessSettingsMenu.openSettings(settingsType: settingsName);
+    } catch (e) {
+      resultSettingsOpening = false;
+    }
+  }
 
   BlocBuilder<TabBloc, TabState> _bottomNavigationBar() {
     return BlocBuilder<TabBloc, TabState>(builder: (context, state) {
@@ -36,7 +50,7 @@ class DashboardPage extends StatelessWidget {
               currentIndex: state.index,
               onTap: (index) {
                 BlocProvider.of<TabBloc>(context)
-                    .add(TabPressed(_children[index], index: index));
+                    .add(TabPressed(index: index));
               },
               backgroundColor: Colors.transparent,
               type: BottomNavigationBarType.fixed,
@@ -90,18 +104,62 @@ class DashboardPage extends StatelessWidget {
                       "assets/images/box.png",
                       height: 30,
                     ),
-                    label: 'Yêu cầu quà'),
+                    label: 'Yêu cầu hàng'),
                 BottomNavigationBarItem(
                   icon: AnimatedOpacity(
                       duration: Duration.zero,
                       opacity: 0.3,
                       child: Image.asset(
-                        "assets/images/bell.png",
+                        "assets/images/e-voucher.png",
                         height: 30,
                       )),
                   activeIcon: Image.asset(
-                    "assets/images/bell.png",
+                    "assets/images/e-voucher.png",
                     height: 30,
+                  ),
+                  label: 'Kiểm tra giảm giá',
+                ),
+                BottomNavigationBarItem(
+                  icon: Stack(
+                    children: [
+                      AnimatedOpacity(
+                          duration: Duration.zero,
+                          opacity: 0.3,
+                          child: Image.asset(
+                            "assets/images/bell.png",
+                            height: 30,
+                          )),
+                      Positioned(
+                        right: 0,
+                        child: new Container(
+                          padding: EdgeInsets.all(1),
+                          decoration: new BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 13,
+                            minHeight: 13,
+                          ),
+                          child: new Text(
+                            '9+',
+                            style: new TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  activeIcon: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/bell.png",
+                        height: 30,
+                      ),
+                    ],
                   ),
                   label: 'Thông báo',
                 ),
@@ -135,7 +193,7 @@ class DashboardPage extends StatelessWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(
-            'Bạn có chắc muốn tắt ứng dụng?',
+            'Bạn có chắc muốn tắt ứng dụng?', style: Subtitle1black,
           ),
           actions: <Widget>[
             FlatButton(
@@ -157,15 +215,6 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
       ),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) => sl<TabBloc>(),
-          ),
-          BlocProvider(
-            create: (_) => sl<DashboardBloc>(),
-          ),
-        ],
         child: Scaffold(
           resizeToAvoidBottomPadding: false,
           body: SafeArea(
@@ -200,14 +249,117 @@ class DashboardPage extends StatelessWidget {
                             ),
                           );
                         }
+                        if (state is DashboardHasSync) {
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => ZoomIn(
+                                duration: const Duration(milliseconds: 100),
+                                child: CupertinoAlertDialog(
+                                      title: Text("Yêu cầu đồng bộ"),
+                                      content: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(state.message,  style: Subtitle1black,),
+                                      ),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                            isDefaultAction: true,
+                                            textStyle:
+                                                TextStyle(color: Colors.red),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("Thoát")),
+                                        CupertinoDialogAction(
+                                            isDefaultAction: true,
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.pushNamed(
+                                                  context, '/sync_data');
+                                            },
+                                            child: Text("Đồng bộ")),
+                                      ],
+                                    ),
+                              ));
+                        }
+                        if (state is DashboardRequiredCheckInOrOut) {
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => ZoomIn(
+                                duration: const Duration(milliseconds: 100),
+                                child: CupertinoAlertDialog(
+                                  title: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("Yêu cầu chấm công"),
+                                  ),
+                                  content: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(state.message,  style: Subtitle1black,),
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                        isDefaultAction: true,
+                                        textStyle:
+                                        TextStyle(color: Colors.red),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Hủy")),
+                                    CupertinoDialogAction(
+                                        isDefaultAction: true,
+                                        onPressed: (){
+                                          List.generate(state.willPop, (i){Navigator.pop(context);});
+                                          BlocProvider.of<TabBloc>(context).add(TabPressed(index: 1));
+                                        },
+                                        child: Text("Chấm công")),
+                                  ],
+                                ),
+                              ));
+                        }
+                        if (state is DashboardNoInternet) {
+                          print(132321331);
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => ZoomIn(
+                                duration: Duration(milliseconds: 100),
+                                child: CupertinoAlertDialog(
+                                  title: Text("Thông báo"),
+                                  content: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("Không có kết nối Internet", style: Subtitle1black,),
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                        isDefaultAction: true,
+                                        textStyle:
+                                        TextStyle(color: Colors.red),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Hủy")),
+                                    CupertinoDialogAction(
+                                        isDefaultAction: true,
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          openSettingsMenu('ACTION_WIRELESS_SETTINGS');
+                                        },
+                                        child: Text("Cài đặt")),
+                                  ],
+                                ),
+                              ));
+                        }
                         if (state is DashboardSaved) {
                           Navigator.pop(context);
                         }
-                        if (state is DashboardSaveFailure) {
-                          print("error");
+                        if (state is DashboardFailure) {
+                          Navigator.pop(context);
+                          Dialogs().showMessageDialog(context: context, content: state.message);
                         }
                       },
-                      child: state.child);
+                      child: IndexedStack(index: state.index, children: _children,),
+                  );
                 }
                 return Center(
                   child: CircularProgressIndicator(),
@@ -217,7 +369,6 @@ class DashboardPage extends StatelessWidget {
           )),
           bottomNavigationBar: _bottomNavigationBar(),
         ),
-      ),
     );
   }
 }

@@ -17,21 +17,18 @@ class InventoryEntityAdapter extends TypeAdapter<InventoryEntity> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return InventoryEntity(
-      date: fields[0] as DateTime,
-      inInvetory: (fields[1] as HiveList)?.castHiveList(),
-      outInventory: (fields[2] as HiveList)?.castHiveList(),
+      inInventory: (fields[0] as List)?.cast<int>(),
+      outInventory: (fields[1] as List)?.cast<int>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, InventoryEntity obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.date)
-      ..writeByte(1)
-      ..write(obj.inInvetory)
       ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.inInventory)
+      ..writeByte(1)
       ..write(obj.outInventory);
   }
 

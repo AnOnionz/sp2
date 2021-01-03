@@ -10,10 +10,9 @@ abstract class TabState extends Equatable{
 
 class TabInitial extends TabState {}
 class TabChanged extends TabState {
-  final Widget child;
   final int index;
 
-  TabChanged(this.child, {this.index});
+  TabChanged({this.index});
 
   @override
   List<Object> get props => [index];

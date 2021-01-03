@@ -21,6 +21,12 @@ class SyncEntity extends Equatable with HiveObject {
       this.imageSynchronized});
 
   @override
+  String toString() {
+    return 'SyncEntity{nonSynchronized: $nonSynchronized, synchronized: $synchronized, imageNonSynchronized: $imageNonSynchronized, imageSynchronized: $imageSynchronized}';
+  }
+
+  @override
   List<Object> get props =>
       [nonSynchronized, synchronized, imageSynchronized, imageNonSynchronized];
+
 }

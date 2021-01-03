@@ -35,7 +35,7 @@ class _BoardViewState extends State<BoardView> {
           width: size.width,
           decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black38)]),
+              boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black12)]),
         ),
         Transform.rotate(
           angle: -(widget.current + widget.angle) * 2 * pi,
@@ -66,7 +66,7 @@ class _BoardViewState extends State<BoardView> {
             image: DecorationImage(
               alignment: Alignment.topCenter,
               image: indexOf % 2 == 0 ? AssetImage("assets/images/vong2.png"): AssetImage("assets/images/vong1.png"),
-              scale: 4.80,
+              scale: 4.8 //7.3//
             ),
           ),
         ),
@@ -82,9 +82,12 @@ class _BoardViewState extends State<BoardView> {
         height: size.height,
         width: size.width,
         alignment: Alignment.topCenter,
-        child:ConstrainedBox(
-          constraints: BoxConstraints.expand(height: size.height / 3, width: 44),
-          child: Image.asset(gift.asset, ),
+        child:FittedBox(
+          fit: BoxFit.contain,
+          child: ConstrainedBox(
+            constraints: BoxConstraints.expand(height: size.height / 2.6, width: 80),
+            child: Image.asset(gift.asset, height: 160, width: 80, scale: 5.3, fit: BoxFit.scaleDown,alignment: Alignment.center,),
+          ),
         ),
       ),
     );

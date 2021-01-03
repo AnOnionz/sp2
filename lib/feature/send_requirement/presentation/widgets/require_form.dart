@@ -1,12 +1,14 @@
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/feature/send_requirement/presentation/blocs/send_requirement_bloc.dart';
+
 class RequireForm extends StatelessWidget {
-  final VoidCallback onSubmit;
   final TextEditingController controller = TextEditingController();
 
-  RequireForm({Key key, this.onSubmit}) : super(key: key);
+  RequireForm({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +17,49 @@ class RequireForm extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text("Nội dung yêu cầu:", style: Subtitle1white,),
+          child: Text(
+            "Nội dung yêu cầu:",
+            style: Subtitle1white,
+          ),
         ),
         AutoSizeTextField(
           textInputAction: TextInputAction.done,
+          onSubmitted: (_){
+            Scaffold.of(context).removeCurrentSnackBar();
+            if (controller.text
+                .split('')
+                .where((element) {
+              if (element == ".") return true;
+              if (element == "!") return true;
+              if (element == "|") return true;
+              if (element == "@") return true;
+              if (element == "'") return true;
+              if (element == "=") return true;
+              if (element == "/") return true;
+              if (element == "+") return true;
+              if (element == "-") return true;
+              if (element == "%") return true;
+              if (element == "*") return true;
+              if (element == "&") return true;
+
+              return false;
+            })
+                .toList()
+                .length >
+                0 ||
+                controller.text == "") {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text("Yêu cầu không hợp lệ"),
+                ),
+                backgroundColor: Colors.red,
+              ));
+              return;
+            }
+            BlocProvider.of<SendRequirementBloc>(context)
+                .add(SendRequirement(message: controller.text.trim()));
+          },
           decoration: InputDecoration(
             hintText: 'Nhập nội dung',
             hintStyle: TextStyle(color: Colors.black45, fontSize: 17),
@@ -46,10 +87,46 @@ class RequireForm extends StatelessWidget {
           style: TextStyle(fontSize: 16),
         ),
         InkWell(
-          onTap: onSubmit,
+          onTap: () {
+            FocusScope.of(context)
+                .requestFocus(FocusNode());
+            Scaffold.of(context).removeCurrentSnackBar();
+            if (controller.text
+                        .split('')
+                        .where((element) {
+                          if (element == ".") return true;
+                          if (element == "!") return true;
+                          if (element == "|") return true;
+                          if (element == "@") return true;
+                          if (element == "'") return true;
+                          if (element == "=") return true;
+                          if (element == "/") return true;
+                          if (element == "+") return true;
+                          if (element == "-") return true;
+                          if (element == "%") return true;
+                          if (element == "*") return true;
+                          if (element == "&") return true;
+
+                          return false;
+                        })
+                        .toList()
+                        .length >
+                    0 ||
+                controller.text == "") {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text("Yêu cầu không hợp lệ"),
+                ),
+                backgroundColor: Colors.red,
+              ));
+              return;
+            }
+            BlocProvider.of<SendRequirementBloc>(context)
+                .add(SendRequirement(message: controller.text.trim()));
+          },
           child: Padding(
-            padding: const EdgeInsets.only(
-               bottom: 20, top: 15),
+            padding: const EdgeInsets.only(bottom: 20, top: 15),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12.0),
@@ -57,7 +134,12 @@ class RequireForm extends StatelessWidget {
                 color: greenCentColor,
                 borderRadius: BorderRadius.circular(2.0),
               ),
-              child: Center(child: Text("Gửi yêu cầu", style: Subtitle1white,),),
+              child: Center(
+                child: Text(
+                  "Gửi yêu cầu",
+                  style: Subtitle1white,
+                ),
+              ),
             ),
           ),
         ),

@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/entities/rival_product_entity.dart';
 
-abstract class SalePriceRepository {
-  Future<Either<Failure, bool>> updateSalePrice({@required List<ProductEntity> products});
+abstract class RivalSalePriceRepository {
+  Future<Either<Failure, bool>> updateRivalSalePrice({@required List<RivalProductEntity> rivals});
+  Future<void> syncRivalSalePrice();
+  Future<bool> hasSync();
 }

@@ -1,10 +1,13 @@
-import 'package:asset_cache/asset_cache.dart';
+
+import 'package:access_settings_menu/access_settings_menu.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_progress_button/flutter_progress_button.dart';
-import 'file:///E:/Mobile/android/Flutter/SP_2021/lib/core/util/FutureImage.dart';
+import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 
@@ -18,12 +21,21 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController ctlUserName = !kDebugMode ? TextEditingController() : TextEditingController(text: 'bigchungvuongdn_ca2');
-  TextEditingController passWordController = !kDebugMode ? TextEditingController() : TextEditingController(text: 'p2p@sp2021');
+  GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  TextEditingController ctlUserName = !kDebugMode ? TextEditingController() : TextEditingController(text: 'sp');
+  TextEditingController passWordController = !kDebugMode ? TextEditingController() : TextEditingController(text: '123456');
   bool _obscureText = true;
   final focus = FocusNode();
 
-  GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  openSettingsMenu(settingsName) async {
+    var resultSettingsOpening = false;
+    try {
+      resultSettingsOpening =
+      await AccessSettingsMenu.openSettings(settingsType: settingsName);
+    } catch (e) {
+      resultSettingsOpening = false;
+    }
+  }
 
   void _toggle() {
     setState(() {
@@ -61,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(right: 20),
-                child: FutureImage(image: 'Logo HNK - VN_White 2.png',width: 150,),
+                child: Image.asset('assets/images/Logo HNK - VN_White 2.png',width: 150,),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(70, 50, 70, 50),
@@ -116,7 +128,6 @@ class _LoginPageState extends State<LoginPage> {
                           textInputAction: TextInputAction.done,
                           obscureText: _obscureText,
                           controller: passWordController,
-
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             hintText: 'Mật khẩu',
@@ -174,6 +185,53 @@ class _LoginPageState extends State<LoginPage> {
               BlocListener<LoginBloc, LoginState>(
                 listenWhen: (previous, current) => true,
                 listener: (context, state) {
+                  if(state is LoginNoInternet){
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => ZoomIn(
+                          duration: Duration(milliseconds: 100),
+                          child: CupertinoAlertDialog(
+                            title: Text("Thông báo"),
+                            content: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Không có kết nối Internet"),
+                            ),
+                            actions: [
+                              CupertinoDialogAction(
+                                  isDefaultAction: true,
+                                  textStyle:
+                                  TextStyle(color: Colors.red),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Hủy")),
+                              CupertinoDialogAction(
+                                  isDefaultAction: true,
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    openSettingsMenu('ACTION_WIRELESS_SETTINGS');
+                                  },
+                                  child: Text("Cài đặt")),
+                            ],
+                          ),
+                        ));
+                  }
+                  if(state is LoginInternalServer){
+                    Dialogs().showFailureDialog(
+                      context: context,
+                      content: state.message,
+                      reTry: () async {
+                        await Future.delayed(
+                            const Duration(milliseconds: 500), () => 42);
+                        BlocProvider.of<LoginBloc>(context).add(
+                            LoginButtonPress(username: ctlUserName.text,
+                                password: passWordController.text,
+                                deviceId: widget.deviceId));
+                        print("login");
+                      }
+                    );
+                  }
                   if (state is LoginFailure) {
                     print("error login");
                     _scaffoldkey.currentState.removeCurrentSnackBar();
@@ -223,7 +281,8 @@ class _LoginPageState extends State<LoginPage> {
                             .width - 40,
                         height: 50,
                         onPressed: () async {
-                          await Future.delayed(
+                          FocusScope.of(context).requestFocus(FocusNode());
+                              await Future.delayed(
                               const Duration(milliseconds: 500), () => 42);
                               BlocProvider.of<LoginBloc>(context).add(
                               LoginButtonPress(username: ctlUserName.text,

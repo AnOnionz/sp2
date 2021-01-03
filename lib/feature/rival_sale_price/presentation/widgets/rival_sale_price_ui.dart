@@ -58,12 +58,15 @@ class RivalSalePriceUi extends StatelessWidget {
                         nextFocus: index == rivals.length - 1
                             ? null
                             :  rivals[index + 1].focus,
-                        controller: rivals[index].priceController,
+                        controller: rivals[index].priceController..addListener(() {
+                          rivals[index].price = rivals[index].priceController.text.isEmpty ? 0 : int.parse(rivals[index].priceController.text.replaceAll(",", ""))~/1;
+
+                        }),
                         textCapitalization: TextCapitalization.characters,
                         action:index == rivals.length-1 ? TextInputAction.done: TextInputAction.next,
                         inputType: TextInputType.number,
                         textAlign: TextAlign.center,
-                        inputFormatter: <TextInputFormatter>[ThousandsFormatter()],
+                        inputFormatter: <TextInputFormatter>[ThousandsFormatter(), LengthLimitingTextInputFormatter(10),],
                       ),
                     ),
                   ),

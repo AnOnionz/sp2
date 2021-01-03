@@ -4,10 +4,10 @@ import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/check_voucher/domain/entities/voucher_history_entity.dart';
 import 'package:sp_2021/feature/check_voucher/domain/repositories/check_voucher_repository.dart';
 
-class UseCaseCheckVoucher extends UseCase<List<VoucherHistoryEntity>,CheckVoucherParams>{
+class CheckVoucherUseCase extends UseCase<List<VoucherHistoryEntity>,CheckVoucherParams>{
   final CheckVoucherRepository repository;
 
-  UseCaseCheckVoucher({this.repository});
+  CheckVoucherUseCase({this.repository});
 
   @override
   Future<Either<Failure, List<VoucherHistoryEntity>>> call(CheckVoucherParams params) async{

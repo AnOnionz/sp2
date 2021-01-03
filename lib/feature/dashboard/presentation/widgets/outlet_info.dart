@@ -28,11 +28,11 @@ class OutletInfo extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Tên SR: ${outlet.srName}", style: infoOutletSubtext),
+              child: Text("Tên SR: ${outlet.spName}", style: infoOutletSubtext),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("SĐT SR: ${outlet.srSDT}", style: infoOutletSubtext),
+              child: Text("SĐT SR: ${outlet.spSDT}", style: infoOutletSubtext),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

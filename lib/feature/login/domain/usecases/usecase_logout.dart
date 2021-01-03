@@ -13,5 +13,4 @@ class UseCaseLogout implements UseCase<bool, NoParams>{
     return await repository.logout();
 
   }
-
 }

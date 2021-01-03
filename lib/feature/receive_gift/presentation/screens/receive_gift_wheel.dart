@@ -1,28 +1,25 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/widgets/board_view.dart';
 
 import '../../../../di.dart';
 
 class ReceiveGiftWheelPage extends StatefulWidget {
-  final CustomerEntity customer;
-  final List<ProductEntity> products;
-  final List<File> takeProductImg;
+  final FormEntity form;
   final List<GiftEntity> giftLucky; // gift se nhan trong vong quay
   final List<Gift> giftReceive; // gift se nhan toan bo activity
-  final List<GiftEntity> giftReceived; // gift da nhan
+  final List<GiftEntity> giftReceived;// gift da nhan
+  final List<GiftEntity> giftSBReceived;
   final int giftAt;
-  final bool isFinal;
 
-  const ReceiveGiftWheelPage({Key key, this.customer, this.products, this.takeProductImg, this.giftReceive, this.giftReceived, this.giftAt, this.isFinal, this.giftLucky}) : super(key: key);
+
+  const ReceiveGiftWheelPage({Key key, this.form, this.giftReceive, this.giftSBReceived, this.giftReceived, this.giftAt, this.giftLucky,}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ReceiveGiftWheelState();
@@ -38,29 +35,34 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
   List<int> _lucky ;
   List<GiftEntity> _items;
   int _indexGift;
+  bool doAnimation = true;
 
   @override
   void initState() {
     super.initState();
     _items = local.fetchGift();
-    _items.insert(4,_items[0]);
-    _lucky = widget.giftLucky.map<int>((e) => e.giftId -1).toList();
+    final nen = Nen.clone(giftId: 333, image: _items[0].image, name: "Nen",);
+    _items.insert(4, nen);
+    _lucky = widget.giftLucky.map<int>((e) { return e.giftId < 5 ? e.giftId - 1 : e.giftId ; }).toList();
     var _duration = Duration(milliseconds: 1000);
     _ctrl = AnimationController(duration: _duration, vsync: this)
       ..addListener(() async{
         if (_ctrl.status == AnimationStatus.completed) {
-          await Future.delayed(Duration(seconds: 1));
+          setState(() {
+            doAnimation = false;
+          });
+          await Future.delayed(Duration(milliseconds: 800));
           setState(() {
             _indexGift = _calIndex(_ani.value * _angle + _current);
-            print('index $_indexGift');
+//            print('index $_indexGift');
+//            print("items: $_items");
             BlocProvider.of<ReceiveGiftBloc>(context).add(ShowGiftWheel(
                 gift: _items[_indexGift],
                 giftAt: widget.giftAt,
                 giftReceived: widget.giftReceived,
                 giftReceive: widget.giftReceive,
-                customer: widget.customer,
-                products: widget.products,
-              takeProductImg: widget.takeProductImg,
+                giftSBReceived: widget.giftSBReceived,
+                form: widget.form,
             ));
           });
         }
@@ -122,7 +124,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Center(
                                 child: Text(
-                                  "Hoang Vu",
+                                  widget.form.customer.name,
                                   style: Subtitle1white,
                                 ),
                               ),
@@ -146,7 +148,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Center(
                                 child: Text(
-                                  "0905004002",
+                                  widget.form.customer.phoneNumber,
                                   style: Subtitle1white,
                                 ),
                               ),
@@ -190,7 +192,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
     return Align(
         alignment: Alignment.center,
         child: InkWell(
-            onTap: _animation,
+            onTap: doAnimation ? _animation: (){},
             child: Image.asset(
               "assets/images/nutnut.png",
               height: 140,
@@ -198,10 +200,8 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
   }
 
   _animation() {
-    print("lucky: $_lucky");
     if (!_ctrl.isAnimating) {
       var _random = _lucky[Random().nextInt(_lucky.length)] / _items.length;
-      print(_random);
       _angle = 20 + Random().nextInt(5) + _random;
       _ctrl.forward(from: 0.0).then((_) {
         _current = (_current + _random);
@@ -209,7 +209,6 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
         setState(() {
           _current = 0;
         });
-        print(_current);
       });
     }
   }

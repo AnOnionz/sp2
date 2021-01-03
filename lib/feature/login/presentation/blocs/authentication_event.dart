@@ -26,6 +26,9 @@ class LoggedOut extends AuthenticationEvent {
   String toString() => 'LoggedOut';
 }
 class ShutDown extends AuthenticationEvent{
+  final int willPop;
+
+  ShutDown({this.willPop});
   @override
   String toString() => 'ShutDown';
 }

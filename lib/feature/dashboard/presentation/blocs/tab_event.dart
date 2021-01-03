@@ -9,10 +9,9 @@ abstract class TabEvent extends Equatable{
   List<Object> get props => [];
 }
 class TabPressed extends TabEvent{
-  final Widget child;
   final int index;
 
-  TabPressed(this.child, {this.index});
+  TabPressed({this.index});
   @override
   List<Object> get props => [index];
 }

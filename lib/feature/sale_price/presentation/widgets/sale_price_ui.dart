@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 
 class SalePriceUi extends StatelessWidget {
   final List<ProductEntity> products;
 
   const SalePriceUi({Key key, this.products}) : super(key: key);
+
+
   @override
   Widget build(BuildContext context) {
+
     return Expanded(
             child: ListView.separated(
               itemCount: products.length,
@@ -53,22 +55,52 @@ class SalePriceUi extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       height: 43,
-                      child: InputField(
-                        thisFocus: products[index].focus,
-                        nextFocus: index == products.length - 1
-                            ? null
-                            :  products[index + 1].focus,
-                        controller:products[index].priceController,
-                        textCapitalization: TextCapitalization.characters,
-                        action: index == products.length - 1
+                      child: TextFormField(
+                        focusNode:  products[index].focus,
+                        textInputAction: index == products.length - 1
                             ? TextInputAction.done
                             : TextInputAction.next,
-                        inputType:
-                            TextInputType.numberWithOptions(decimal: true),
                         textAlign: TextAlign.center,
-                        inputFormatter: <TextInputFormatter>[
-                          ThousandsFormatter()
+                        autofocus: false,
+                        onFieldSubmitted: (v) {
+                          FocusScope.of(context).requestFocus(index == products.length - 1
+                              ? null
+                              :  products[index + 1].focus);
+                        },
+                        controller: products[index].priceController..value = TextEditingValue(text: ((products[index].price) / 1000).toString().split('.').join(','))..addListener(() {
+                          products[index].price = products[index].priceController.text.isEmpty ? 0 : int.parse(products[index].priceController.text.replaceAll(",", ""))~/1;
+
+                        }) ,
+                        style: textInput,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: <TextInputFormatter>[
+                          ThousandsFormatter(),
+                          LengthLimitingTextInputFormatter(10),
                         ],
+                        decoration: InputDecoration(
+                          suffixText: 'VNĐ',
+                          suffixStyle: TextStyle(color: Colors.black, fontSize: 17),
+                          contentPadding: const EdgeInsets.only(left: 15, right: 15),
+                          filled: true,
+                          fillColor: Colors.white ,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            gapPadding: double.infinity,
+                          ),
+                        ),
                       ),
                     ),
                   ),

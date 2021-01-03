@@ -1,9 +1,37 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/util/custom_dialog.dart';
+import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
+import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
+import 'package:sp_2021/feature/sync_data/presentation/blocs/sync_data_bloc.dart';
+import 'package:sp_2021/feature/sync_data/presentation/widgets/dialog_content.dart';
 
-class SyncDataPage extends StatelessWidget {
+import '../../../../di.dart';
+
+class SyncDataPage extends StatefulWidget {
+  @override
+  _SyncDataPageState createState() => _SyncDataPageState();
+}
+
+class _SyncDataPageState extends State<SyncDataPage> {
+  SyncLocalDataSource local;
+  SyncDataBloc bloc;
+  SyncEntity sync;
+
+  @override
+  void initState() {
+    super.initState();
+    local = sl<SyncLocalDataSource>();
+    bloc = sl<SyncDataBloc>();
+    sync = local.getSync();
+    print(sync);
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,9 +71,9 @@ class SyncDataPage extends StatelessWidget {
                           child: LinearPercentIndicator(
                             animation: true,
                             lineHeight: 35,
-                            animationDuration: 2000,
-                            percent: 0.3,
-                            center: Text('10', style: norText),
+                            animationDuration: 1000,
+                            percent: sync.nonSynchronized > 0 ? sync.nonSynchronized / (sync.nonSynchronized + sync.synchronized) : 0.0,
+                            center: Text('${sync.nonSynchronized}/${sync.synchronized + sync.nonSynchronized}', style: norText),
                             linearStrokeCap: LinearStrokeCap.roundAll,
                             progressColor: const Color(0xffFF2B00),
                             backgroundColor: Colors.white,
@@ -67,9 +95,9 @@ class SyncDataPage extends StatelessWidget {
                           child: LinearPercentIndicator(
                             animation: true,
                             lineHeight: 35,
-                            animationDuration: 2000,
-                            percent: .4,
-                            center: Text('10', style: norText),
+                            animationDuration: 1000,
+                            percent: sync.imageNonSynchronized > 0 ? sync.imageNonSynchronized / (sync.imageNonSynchronized + sync.imageSynchronized) : 0.0,
+                            center: Text('${sync.imageNonSynchronized}/${sync.imageSynchronized + sync.imageNonSynchronized}', style: norText),
                             linearStrokeCap: LinearStrokeCap.roundAll,
                             progressColor: const Color(0xffFF2B00),
                             backgroundColor: Colors.white,
@@ -116,24 +144,64 @@ class SyncDataPage extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
-              child: Material(
-                color: const Color(0xffFF2B00),
-                borderRadius: BorderRadius.all(Radius.circular(3)),
-                child: InkWell(
-                  onTap: () {},
+            BlocListener(
+              cubit: bloc,
+              listener: (context, state) {
+                if(state is SyncDataCloseDialog){
+                  Navigator.pop(context);
+                }
+                if(state is SyncDataLoading){
+                  showDialog(context: context,
+                  barrierDismissible: false,
+                  builder: (_) => CupertinoAlertDialog(
+                    content: Column(
+                      children: [
+                        CupertinoActivityIndicator(radius: 20, animating: true,),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("Đang đồng bộ"),
+                        ),
+                      ],
+                    ),
+                  ));
+                }
+                if(state is SyncDataSuccess){
+                  Navigator.pop(context);
+                  setState(() {
+                    print('success');
+                    sync = local.getSync();
+                    print(sync);
+                  });
+                  Dialogs().showMessageDialog(context: context, content: "Đồng bộ hoàn tất");
+                }
+                if(state is SyncDataFailure){
+                  Navigator.pop(context);
+                  Dialogs().showMessageDialog(context: context, content: "Đồng bộ Thất bại ");
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+                child: Material(
+                  color: const Color(0xffFF2B00),
                   borderRadius: BorderRadius.all(Radius.circular(3)),
-                  child: Container(
-                    height: 48,
-                    padding: const EdgeInsets.only(left: 15, right: 15),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Đồng bộ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                  child: InkWell(
+                    onTap: () {
+                      if(sync.nonSynchronized > 0 || sync.imageNonSynchronized > 0){
+                        bloc.add(SyncStart());
+                      }
+                    },
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.only(left: 15, right: 15),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Đồng bộ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),

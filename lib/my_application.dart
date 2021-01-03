@@ -1,18 +1,21 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/presentation/screens/highlight_page.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_page.dart';
 import 'package:sp_2021/feature/rival_sale_price/presentation/screens/rival_sale_price_page.dart';
 import 'package:sp_2021/feature/sale_price/presentation/screens/sale_price_page.dart';
-import 'package:sp_2021/feature/sync_data/presentation/screens/sync_data.dart';
+import 'package:sp_2021/feature/sync_data/presentation/screens/sync_data_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'di.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
+import 'feature/dashboard/presentation/blocs/tab_bloc.dart';
 import 'feature/inventory/presentation/screens/inventory_page.dart';
 import 'feature/login/presentation/blocs/authentication_bloc.dart';
 import 'feature/dashboard/presentation/screens/dashboard.dart';
@@ -23,11 +26,12 @@ Future<dynamic> myBackgroundMessageHandler(
   if (message.containsKey('data')) {
     // Handle data message
     final dynamic data = message['data'];
+    print(data);
   }
-
   if (message.containsKey('notification')) {
     // Handle notification message
     final dynamic notification = message['notification'];
+    print(notification);
   }
 
   // Or do other work.
@@ -53,11 +57,11 @@ class _MyApplicationState extends State<MyApplication> {
     return _deviceToken;
   }
 
-
   @override
   void initState() {
     super.initState();
     _getDeviceToken();
+    print(_deviceToken);
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -116,6 +120,7 @@ class _MyApplicationState extends State<MyApplication> {
         initialRoute: '/',
         onGenerateRoute: (settings) {
           return CupertinoPageRoute(
+            maintainState: true,
               builder: (context) => _routes[settings.name](context));
         },
         home: MultiBlocProvider(
@@ -125,29 +130,61 @@ class _MyApplicationState extends State<MyApplication> {
               ),
               BlocProvider<LoginBloc>(create: (_) => sl<LoginBloc>()),
               BlocProvider<MapBloc>(create: (_) => sl<MapBloc>()),
+              BlocProvider<DashboardBloc>( create: (_) => sl<DashboardBloc>()),
+              BlocProvider<TabBloc>( create: (_) => sl<TabBloc>())
             ],
-            child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-              builder: (context, state) {
-                if (state is AuthenticationLoading) {
-                  return Scaffold(
-                    body: const Center(
-                      child: CupertinoActivityIndicator(
-                        radius: 20,
-                      ),
-                    ),
-                  );
-                }
-                if (state is AuthenticationUnauthenticated) {
-                  return LoginPage(deviceId: "abc");
-                }
-                if (state is AuthenticationAuthenticated) {
-                  sl<CDio>().setBearerAuth(state.user.accessToken);
-                  return DashboardPage();
-                }
-                return Container(
-                  color: Colors.white,
-                );
-              },
+            child: BlocListener(
+                cubit: sl<AuthenticationBloc>(),
+                listener: (context, state) {
+                  if(state is AuthenticationDuplicated){
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return ZoomIn(
+                          duration: Duration(milliseconds: 100),
+                          child: CupertinoAlertDialog(
+                            title: Text('Thông báo'),
+                            content: Text("Phiên đăng nhập đã hết hạn"),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                isDefaultAction: true,
+                                child: Text('Đăng nhập'),
+                                onPressed: () {
+                                  List.generate(state.willPop, (index) => Navigator.pop(context));
+                                  sl<AuthenticationBloc>().add(LoggedOut());
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }
+
+                },
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, state) {
+                    if (state is AuthenticationLoading) {
+                      return Scaffold(
+                        body: const Center(
+                          child: CupertinoActivityIndicator(
+                            radius: 20,
+                          ),
+                        ),
+                      );
+                    }
+                    if (state is AuthenticationUnauthenticated) {
+                      return LoginPage(deviceId: _deviceToken);
+                    }
+                    if (state is AuthenticationAuthenticated) {
+                      sl<CDio>().setBearerAuth(state.outlet.accessToken);
+                      BlocProvider.of<DashboardBloc>(context).add(SaveServerDataToLocalData());
+                    }
+                    return DashboardPage();
+;
+                  },
+                ),
             )));
   }
 }

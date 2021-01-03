@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
 import 'gift_entity.dart';
 part 'set_gift_entity.g.dart';
@@ -11,18 +12,22 @@ class SetGiftEntity extends HiveObject{
 
   SetGiftEntity({this.index, this.gifts});
 
-  SetGiftEntity fromDB( SetGiftEntity setGift){
-    return SetGiftEntity(index: setGift.index, gifts: setGift.gifts.map((e) {
-      switch (e.giftId){
-        case 1: return Nen(giftId: e.giftId, name: e.name, image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 2: return Voucher(giftId: e.giftId, name: e.name, image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 3: return StrongBowGift(giftId: e.giftId, name: e.name,  image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 4: return Pack4(giftId: e.giftId, name: e.name, image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 5: return Pack6(giftId: e.giftId, name: e.name, image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 6: return Alu(giftId: e.giftId, name: e.name,  image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-        case 7: return Magnum(giftId: e.giftId, name: e.name, image: e.image, amountCurrent: e.amountCurrent, amountReceive: 1);
-      }
-    }).toList());
+  factory SetGiftEntity.fromJson(Map<String, dynamic> json){
+    return SetGiftEntity(
+      index: json['index'],
+      gifts: (json['gifts'] as List<dynamic>).map((e) => GiftEntity.fromJson(e)),
+    );
+  }
+  Map<String, dynamic> toJson(){
+    return {
+      'index': index,
+      'skus': gifts.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  static List<SetGiftEntity> parseSetGift(Response response){
+    List<Map<String, dynamic>> data = response.data['data'];
+      return data.map((e) => SetGiftEntity.fromJson(e)).toList();
   }
 
   @override

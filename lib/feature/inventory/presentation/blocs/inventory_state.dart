@@ -1,10 +1,12 @@
 part of 'inventory_bloc.dart';
 
-abstract class InventoryState extends Equatable {
+abstract class InventoryState {
   const InventoryState();
 }
 
 class InventoryInitial extends InventoryState {
-  @override
-  List<Object> get props => [];
 }
+class InventoryUpdated extends InventoryState{}
+class InventoryUpdateFailure extends InventoryState{}
+
+

@@ -16,36 +16,27 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource{
   @override
   Future<LoginModel> login({String username, String password, String deviceId}) async {
     Map<String, dynamic> _requestBody = {
-      'username': username,
-      'password': password,
-      'device_id': deviceId,
-    };
+    'username': username,
+    'password': password,
+    'device_id': deviceId,
+  };
 
-    Response _resp = await cDio.client.post('auth/login', data: _requestBody);
+  Response _resp = await cDio.postResponse(path: 'auth/login', data: _requestBody);
 
-    print(_resp);
+  print(_resp);
 
-    if (_resp.statusCode == 200 && _resp.data['success'] == true) {
-      return LoginModel.fromJson(_resp.data['data']);
-    }
-    if (_resp.statusCode == 200 && _resp.data['message']!=null) {
-      throw ResponseException(message: _resp.data['message']);
-    }
-    else {
-      throw ServerException(message: "Lỗi mạng");
-    }
-  }
+  return LoginModel.fromJson(_resp.data['data']);
+
+}
   @override
-  Future<bool> logout() async{
-    Response _resp = await cDio.client.get('home/logout');
+  Future<bool> logout() async {
 
-    print(_resp);
+    Response _resp = await cDio.getResponse(path:'home/logout');
 
-    if (_resp.statusCode == 200) {
-      return true;
-    } else {
-      throw ServerException(message: _resp.data['message']);
-    }
+    print(_resp.statusCode);
+
+    return _resp.data["success"];
+
   }
 
 }

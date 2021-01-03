@@ -9,12 +9,12 @@ class UseCaseSaveDataToLocal implements UseCase<bool, NoParams>{
   UseCaseSaveDataToLocal({this.repository});
   @override
   Future<Either<Failure, bool>> call(NoParams params) async {
-
       await repository.saveProductFromServer() ;
       await repository.saveRivalProductFromServer();
       await repository.saveGiftFromServer() ;
       await repository.saveSetGiftCurrentFromServer();
-      return repository.saveSetGiftFromServer() ;
+      await repository.saveSetGiftFromServer() ;
+      return Right(true);
 
   }
 }

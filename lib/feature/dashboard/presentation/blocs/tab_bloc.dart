@@ -10,19 +10,14 @@ part 'tab_event.dart';
 part 'tab_state.dart';
 
 class TabBloc extends Bloc<TabEvent, TabState> {
-  TabBloc() : super(TabChanged(HomePage(), index: 0));
+  TabBloc() : super(TabChanged(index: 0));
 
   @override
   Stream<TabState> mapEventToState(
     TabEvent event,
   ) async* {
     if(event is TabPressed){
-      yield TabChanged(event.child, index: event.index);
+      yield TabChanged(index: event.index);
     }
-  }
-  @override
-  void onTransition(Transition<TabEvent, TabState> transition) {
-    print(transition);
-    super.onTransition(transition);
   }
 }

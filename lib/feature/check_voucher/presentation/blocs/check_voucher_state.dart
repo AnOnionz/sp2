@@ -8,4 +8,8 @@ class CheckVoucherSuccess extends CheckVoucherState{
 
   CheckVoucherSuccess({this.history});
 }
-class CheckVoucherFailure extends CheckVoucherState{}
+class CheckVoucherFailure extends CheckVoucherState{
+  final String message;
+
+  CheckVoucherFailure({this.message});
+}

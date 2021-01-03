@@ -1,21 +1,21 @@
 import 'package:dartz/dartz.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/feature/sale_price/domain/repositories/sale_price_repository.dart';
+import 'package:sp_2021/core/entities/rival_product_entity.dart';
+import 'package:sp_2021/feature/rival_sale_price/domain/repositories/rival_sale_price_repository.dart';
 
-class SalePriceUseCase extends UseCase<bool, SalePriceParams>{
-  final SalePriceRepository repository;
+class RivalSalePriceUseCase extends UseCase<bool, RivalSalePriceParams>{
+  final RivalSalePriceRepository repository;
 
-  SalePriceUseCase({this.repository});
+  RivalSalePriceUseCase({this.repository});
   @override
-  Future<Either<Failure, bool>> call(SalePriceParams params) async {
-    return await repository.updateSalePrice(products: params.products);
+  Future<Either<Failure, bool>> call(RivalSalePriceParams params) async {
+    return await repository.updateRivalSalePrice(rivals: params.rivals);
   }
 
 }
-class SalePriceParams extends Params{
-  final List<ProductEntity> products;
+class RivalSalePriceParams extends Params{
+  final List<RivalProductEntity> rivals;
 
-  SalePriceParams({this.products});
+  RivalSalePriceParams({this.rivals});
 }

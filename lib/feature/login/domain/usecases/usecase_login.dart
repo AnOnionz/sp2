@@ -7,7 +7,7 @@ import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart'
 class UsecaseLogin implements UseCase<LoginEntity, LoginParams>{
   final LoginRepository repository;
 
-  UsecaseLogin(this.repository);
+  UsecaseLogin({this.repository});
   @override
   Future<Either<Failure, LoginEntity>> call(LoginParams params) async {
       return await repository.login(username: params.username, password: params.password, deviceId: params.deviceid);

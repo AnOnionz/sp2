@@ -5,8 +5,13 @@ abstract class ReceiveGiftEvent extends Equatable{
   @override
   List<Object> get props => [];
 }
+class ReceiveGiftStart extends ReceiveGiftEvent {}
 class ReceiveGiftLoadData extends ReceiveGiftEvent {}
-class CheckVoucher extends ReceiveGiftEvent {}
+class UseVoucher extends ReceiveGiftEvent {
+  final String phone;
+
+  UseVoucher({this.phone});
+}
 class ReceiveGiftSubmitForm extends ReceiveGiftEvent {
   final FormEntity form;
 
@@ -18,46 +23,38 @@ class ReceiveGiftConfirm extends ReceiveGiftEvent {
   ReceiveGiftConfirm({this.form});
 }
 class ShowGiftWheel extends ReceiveGiftEvent {
-  final CustomerEntity customer;
-  final List<ProductEntity> products;
-  final List<File> takeProductImg;
+  final FormEntity form;
   final List<Gift> giftReceive;
   final List<GiftEntity> giftReceived;
+  final List<GiftEntity> giftSBReceived;
   final int giftAt;
   final GiftEntity gift;
 
-  ShowGiftWheel({this.customer, this.products, this.takeProductImg, this.giftReceive, this.giftReceived, this.giftAt, this.gift});
-
+  ShowGiftWheel({this.form, this.giftReceive, this.giftReceived, this.giftSBReceived, this.giftAt, this.gift,});
 
 }
 class GiftNext extends ReceiveGiftEvent {
-  final CustomerEntity customer;
-  final List<ProductEntity> products;
-  final List<File> takeProductImg;
+  final FormEntity form;
+  final SetGiftEntity setCurrent;
   final List<Gift> giftReceive;
   final List<GiftEntity> giftReceived;
+  final List<GiftEntity> giftSBReceived;
   final int giftAt;
 
-  GiftNext({this.customer, this.products, this.takeProductImg, this.giftReceive, this.giftReceived, this.giftAt});
+  GiftNext({this.form, this.giftReceive, this.setCurrent, this.giftReceived, this.giftSBReceived, this.giftAt,});
 
 
 }
-class ReceiveGiftResult  extends ReceiveGiftEvent {
-  final CustomerEntity customer;
-  final List<ProductEntity> products;
-  final List<GiftEntity> gifts;
-  final List<File> takeProductImg;
-  final List<File> takeGiftImg;
-  final List<File> approveImg;
+class ReceiveGiftResult extends ReceiveGiftEvent {
+  final ReceiveGiftEntity receiveGiftEntity;
 
-  ReceiveGiftResult({this.customer, this.products, this.gifts, this.takeProductImg, this.takeGiftImg, this.approveImg});
+  ReceiveGiftResult({this.receiveGiftEntity});
 
-  @override
-  String toString() {
-    return 'ReceiveGiftFinal{customer: $customer, products: $products, gifts: $gifts, takeProductImg: $takeProductImg, takeGiftImg: $takeGiftImg, approveImg: $approveImg}';
-  }
 }
 class ReceiveGiftSubmit extends ReceiveGiftEvent {
+  final ReceiveGiftEntity receiveGiftEntity;
+
+  ReceiveGiftSubmit({this.receiveGiftEntity});
 
 }
 

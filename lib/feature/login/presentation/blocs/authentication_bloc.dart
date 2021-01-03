@@ -1,72 +1,63 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
 import 'package:sp_2021/core/storage/secure_storage.dart';
+import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+
+import '../../../../di.dart';
+import '../../../../my_application.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
 
-
-class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc
+    extends Bloc<AuthenticationEvent, AuthenticationState> {
   final SecureStorage storage;
-  LoginEntity _loginEntity;
-  LoginEntity get loginEntity => _loginEntity;
+  static LoginEntity outlet;
   AuthenticationBloc({@required this.storage}) : super(AuthenticationInitial());
   @override
   Stream<AuthenticationState> mapEventToState(
     AuthenticationEvent event,
   ) async* {
     if (event is AppStarted) {
-      try{
+      try {
         // user from login success
-        final user = await storage.readUser<String>(key: OUTLET_IN_STORAGE);
-        print('OUTLET:' + user.toString());
-        if(user != null) {
-          _loginEntity = user;
+        outlet = await storage.readOutlet(key: OUTLET_IN_STORAGE);
+        print('OUTLET:' + outlet.toString());
+        if (outlet != null) {
           Future.delayed(Duration.zero);
-          yield AuthenticationAuthenticated(user: user);
-        }
-        else{
+          yield AuthenticationAuthenticated(outlet: outlet);
+        } else {
           yield AuthenticationUnauthenticated();
         }
-        } catch (e) {
-          yield AuthenticationUnauthenticated();
-        }
+      } catch (e) {
+        yield AuthenticationUnauthenticated();
       }
+    }
 
     if (event is LoggedIn) {
       yield AuthenticationLoading();
-      storage.writeUser(key: OUTLET_IN_STORAGE, value: event.loginEntity).toString();
-      _loginEntity = event.loginEntity;
+      storage.writeOutlet(key: OUTLET_IN_STORAGE, value: event.loginEntity);
+      outlet = event.loginEntity;
       Future.delayed(Duration.zero);
-      yield AuthenticationAuthenticated(user: event.loginEntity);
+      yield AuthenticationAuthenticated(outlet: event.loginEntity);
     }
 
     if (event is LoggedOut) {
       storage.delete(key: OUTLET_IN_STORAGE);
       yield AuthenticationUnauthenticated();
     }
-    if(event is ShutDown){
-      yield AuthenticationUnauthenticated();
+    if (event is ShutDown) {
+      yield AuthenticationDuplicated(willPop: event.willPop);
     }
   }
-  @override
-  void onTransition(Transition<AuthenticationEvent, AuthenticationState> transition) {
-    print(transition);
-    super.onTransition(transition);
-  }
-  @override
-  void onEvent(AuthenticationEvent event) {
-    print(event);
-    super.onEvent(event);
-  }
-  @override
-  void onChange(Change<AuthenticationState> change) {
-    print(change);
-    super.onChange(change);
-  }
+
 }

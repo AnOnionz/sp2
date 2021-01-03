@@ -8,10 +8,15 @@ abstract class AuthenticationState extends Equatable {
 class AuthenticationInitial extends AuthenticationState {}
 class AuthenticationLoading extends AuthenticationState {}
 class AuthenticationAuthenticated extends AuthenticationState {
-  final LoginEntity user;
-  AuthenticationAuthenticated({this.user});
+  final LoginEntity outlet;
+  AuthenticationAuthenticated({this.outlet});
   @override
-  List<Object> get props => [user];
+  List<Object> get props => [outlet];
 }
 class AuthenticationUnauthenticated extends AuthenticationState {}
+class AuthenticationDuplicated extends AuthenticationState {
+  final int willPop;
+
+  AuthenticationDuplicated({this.willPop});
+}
 

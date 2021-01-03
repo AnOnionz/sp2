@@ -1,32 +1,42 @@
 part of 'attendance_bloc.dart';
 
 @immutable
-abstract class AttendanceState {}
-
-class AttendanceInitial extends AttendanceState {}
-
-class AttendanceLoading extends AttendanceState {}
-
-class AttendanceSuccess extends AttendanceState {
-  final AttendanceEntity attendanceEntity;
-  final String message;
-
-  AttendanceSuccess({this.attendanceEntity, this.message});
+class AttendanceState extends Equatable {
+  @override
+  List<Object> get props => [];
 }
-class AttendanceFailure extends AttendanceState {
+@immutable
+class CheckAttendanceState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+class CheckAttendanceInitial extends CheckAttendanceState{}
+class CheckAttendanceSuccess extends CheckAttendanceState{
+  final AttendanceType type;
+
+  CheckAttendanceSuccess({this.type});
+}
+class CheckAttendanceFailure extends CheckAttendanceState{
   final String error;
+
+  CheckAttendanceFailure({this.error});
+}
+class AttendanceInitial extends AttendanceState{}
+class AttendanceLoading extends AttendanceState{}
+class AttendanceSuccess extends AttendanceState{}
+class AttendanceFailure extends AttendanceState{
+  final String error ;
 
   AttendanceFailure({this.error});
 }
+class AttendanceHighlightNullFailure extends AttendanceState{
+  final String message ;
 
-// CHECK IN OR OUT
-class CheckInOrOutLoading extends AttendanceState {}
-
-class CheckInOrOutSuccess extends AttendanceState {}
-
-class CheckInOrOutFailure extends AttendanceState {
-  final String error;
-  final AttendanceEntity attendanceEntity;
-
-  CheckInOrOutFailure({this.attendanceEntity, this.error});
+  AttendanceHighlightNullFailure({this.message});
 }
+class AttendanceInventoryNullFailure extends AttendanceState{
+  final String message ;
+
+  AttendanceInventoryNullFailure({this.message});
+}
+

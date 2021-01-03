@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
@@ -8,7 +10,7 @@ part 'product_entity.g.dart';
 
 @HiveType(typeId: 8 )
 // ignore: must_be_immutable
-class ProductEntity extends Equatable with HiveObject {
+  class ProductEntity extends HiveObject {
   @HiveField(0)
   final int productId;
   @HiveField(1)
@@ -19,12 +21,146 @@ class ProductEntity extends Equatable with HiveObject {
   int price;
   @HiveField(4)
   int count;
+  int buyQty;
   TextEditingController controller = TextEditingController();
   TextEditingController countController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   FocusNode focus = FocusNode();
 
-  ProductEntity({this.productId, this.productName, this.count, this.price, this.imgUrl});
+  ProductEntity({this.productId, this.productName, this.count, this.price, this.imgUrl}) {
+    buyQty = buyQty ?? 0;
+    count = count ?? 0;
+    price = price ?? 0;
+  }
+//  switch(fields[0] as int){
+//  case 8: return HeinekenNormal(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 9: return Heineken0(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 10: return HeinekenSilver(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 11: return TigerNormal(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 12: return TigerCrystal(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 13: return StrongBow(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 14: return Larue(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 15: return BiaViet(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//  case 16: return Bivina(
+//  productId: fields[0] as int,
+//  productName: fields[1] as String,
+//  count: fields[4] as int ?? 0,
+//  price: fields[3] as int ?? 0,
+//  imgUrl: fields[2] as String,
+//  );
+//
+//  }
+
+  factory ProductEntity.fromJson(Map<String, dynamic> json) {
+    switch(json['id'] as int){
+      case 8 : return HeinekenNormal(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 9 : return Heineken0(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 10 : return HeinekenSilver(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 11 : return TigerNormal(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 12 : return TigerCrystal(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 13 : return StrongBow(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 14 : return Larue(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 15 : return BiaViet(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+      case 16 : return Bivina(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+      );
+    }
+    return ProductEntity(
+        productId: json['id'] as int,
+        productName: json['name'] as String,
+        imgUrl: json["img_url"] as String,
+    );
+
+  }
+  Map<String, dynamic> toBuyQtyJson(){
+    return {
+      'sku_id': productId,
+      'qty': buyQty,
+    };
+  }
+
 
   Future<List<Gift>> getGift({LoginEntity outlet}) async{
     return [];
@@ -38,8 +174,12 @@ class ProductEntity extends Equatable with HiveObject {
     return ;
   }
 
+
   @override
-  List<Object> get props => [productName, price, count];
+  String toString() {
+    return 'ProductEntity{productId: $productId, productName: $productName, imgUrl: $imgUrl, price: $price, count: $count';
+  }
+
 }
 // ignore: must_be_immutable
 class Heineken extends ProductEntity {
@@ -53,30 +193,30 @@ class Heineken extends ProductEntity {
       imgUrl: imgUrl);
 
   Heineken.internal(int count){
-    this.count = count;
+    this.buyQty = count;
   }
   @override
   String toString() {
-    return 'Heineken ${controller.text}';
+    return 'Heineken ${buyQty}';
   }
 
   @override
   Future<List<Gift>> getGift({LoginEntity outlet}) async{
     List<Gift> giftResult = List<Gift>();
-    if(count >= 2) {
-      giftResult.add(Pack6.internal());
-       List.generate(count-2 < 3 ? count-2 : 3, (index)  => giftResult.add(Wheel(id: index + 10)));
+    if(buyQty >= 2) {
+      giftResult.add(Pack6());
+       List.generate(buyQty-2 < 3 ? buyQty-2 : 3, (index)  => giftResult.add(Wheel(id: index + 10)));
     }
     if(outlet.province == "HN" || outlet.province == "HCM"){
-      if(count >= 1) {
+      if(buyQty >= 1) {
         print('hcm');
-         giftResult.add(StrongBowGift.internal());
+         giftResult.add(StrongBowGift());
       }
     }
     if(outlet.province != "HN" && outlet.province != "HCM"){
-      if(count >= 1) {
+      if(buyQty >= 1) {
         print("not hcm");
-         giftResult.add(Nen.internal());
+         giftResult.add(Nen());
       }
     }
     return await Future.value(giftResult);
@@ -99,7 +239,11 @@ class HeinekenNormal extends Heineken{
       count: count,
       imgUrl: imgUrl);
 
-  HeinekenNormal.internal();
+
+  @override
+  String toString() {
+    return 'HeinekenNormal{buy: $buyQty, qty: $count, price: $price }';
+  }
 
   @override
   ProductEntity copyWith({int count, int price}) {
@@ -109,7 +253,13 @@ class HeinekenNormal extends Heineken{
 // ignore: must_be_immutable
 class Heineken0 extends Heineken{
   Heineken0({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  Heineken0.internal();
+
+
+  @override
+  String toString() {
+    return 'Heineken0{buy: $buyQty, qty: $count, price: $price }';
+  }
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return Heineken0(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -118,7 +268,12 @@ class Heineken0 extends Heineken{
 // ignore: must_be_immutable
 class HeinekenSilver extends Heineken{
   HeinekenSilver({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  HeinekenSilver.internal();
+
+  @override
+  String toString() {
+    return 'HeinekenSilver{buy: $buyQty, qty: $count, price: $price }';
+  }
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return HeinekenSilver(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -127,8 +282,9 @@ class HeinekenSilver extends Heineken{
 // ignore: must_be_immutable
 class Tiger extends ProductEntity{
   Tiger({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
+
   Tiger.internal(int count){
-    this.count = count;
+    this.buyQty = count;
   }
 
   @override
@@ -138,18 +294,18 @@ class Tiger extends ProductEntity{
 
   @override
   String toString() {
-    return 'Tiger';
+    return 'Tiger{$buyQty}';
   }
 
   @override
   Future<List<Gift>> getGift({LoginEntity outlet}) async {
     List<Gift> giftResult = List<Gift>();
-    if(count >= 2){
-      giftResult.add(Pack4.internal());
-      List.generate(count-2 < 3? count - 2 : 3, (index)  => giftResult.add(Wheel(id: index +20)));
+    if(buyQty >= 2){
+      giftResult.add(Pack4());
+      List.generate(buyQty-2 < 3? buyQty - 2 : 3, (index)  => giftResult.add(Wheel(id: index +20)));
     }
-    if(count >= 1) {
-        giftResult.add(Nen.internal());
+    if(buyQty >= 1) {
+        giftResult.add(Nen());
       }
     return await Future.value(giftResult);
     // return list gift receive
@@ -158,7 +314,13 @@ class Tiger extends ProductEntity{
 // ignore: must_be_immutable
 class TigerNormal extends Tiger{
   TigerNormal({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  TigerNormal.internal();
+
+
+  @override
+  String toString() {
+    return 'TigerNormal{$count,$price}';
+  }
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return TigerNormal(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -167,7 +329,12 @@ class TigerNormal extends Tiger{
 // ignore: must_be_immutable
 class TigerCrystal extends Tiger{
   TigerCrystal({int productId, String productName, int count, int price, String imgUrl }) : super(productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
-  TigerCrystal.internal();
+
+  @override
+  String toString() {
+    return 'TigerCrystal{buy: $buyQty, qty: $count, price: $price }';
+  }
+
   @override
   ProductEntity copyWith({int count, int price}) {
     return TigerCrystal( productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
@@ -178,7 +345,7 @@ class StrongBow extends ProductEntity{
   StrongBow({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
 
   StrongBow.internal(int count){
-    this.count = count;
+    this.buyQty = count;
   }
   @override
   ProductEntity copyWith({int count, int price}) {
@@ -187,20 +354,26 @@ class StrongBow extends ProductEntity{
 
   @override
   String toString() {
-    return 'StrongBow';
+    return 'StrongBow{buy: $buyQty, qty: $count, price: $price }';
   }
 
   @override
   Future<List<Gift>> getGift({LoginEntity outlet}) async{
-    List<Gift> giftResult = List<Gift>();
+    print(1);
+    List<Gift> giftResult = [];
     if(outlet.province == "HN" || outlet.province == "HCM"){
-      if(count >= 1) {
-        giftResult.add(Nen.internal());
+      if(buyQty >= 1) {
+        print(1);
+        giftResult.add(Nen());
       }
-      if(count >= 2){
-        List.generate(count-1 < 4 ? count-1 : 4, (index)  => giftResult.add(Wheel(id: index +30)));
+      if(buyQty >= 2){
+        print(2);
+        List.generate(buyQty-1 < 4 ? buyQty-1 : 4, (index)  => giftResult.add(Wheel(id: index + 30)));
       }
+    }else{
+      List.generate(buyQty < 5 ? buyQty : 5, (index)  => giftResult.add(Wheel(id: index + 110)));
     }
+
     return await Future.value(giftResult);
     // return list gift receive
   }
@@ -210,7 +383,7 @@ class NormalBeer extends ProductEntity{
   NormalBeer({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
 
   NormalBeer.internal(int count){
-    this.count = count;
+    this.buyQty = count;
   }
 
   @override
@@ -220,17 +393,17 @@ class NormalBeer extends ProductEntity{
 
   @override
   String toString() {
-    return 'NormalBeer';
+    return 'NormalBeer{$buyQty}';
   }
 
   @override
   Future<List<Gift>> getGift({LoginEntity outlet}) async{
     List<Gift> giftResult = [];
-    if(count >= 1) {
-      giftResult.add(Voucher.internal());
+    if(buyQty >= 1) {
+      giftResult.add(Voucher());
     }
-    if(count >= 2){
-      List.generate(count-1 < 4 ? count-1 : 4, (index)  => giftResult.add(Wheel(id: index + 40)));
+    if(buyQty >= 2){
+      List.generate(buyQty-1 < 4 ? buyQty-1 : 4, (index)  => giftResult.add(Wheel(id: index + 40)));
     }
     return await Future.value(giftResult);
   }
@@ -238,6 +411,11 @@ class NormalBeer extends ProductEntity{
 // ignore: must_be_immutable
 class BiaViet extends NormalBeer{
   BiaViet({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
+
+  @override
+  String toString() {
+    return 'BiaViet{buy: $buyQty, qty: $count, price: $price }';
+  }
 
   @override
   ProductEntity copyWith({int count, int price}) {
@@ -249,18 +427,45 @@ class Larue extends NormalBeer{
   Larue({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
 
   @override
-  ProductEntity copyWith({int count, int price}) {
-    return Larue( productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
+  String toString() {
+    return 'Larue{buy: $buyQty, qty: $count, price: $price }';
   }
+
 }
 // ignore: must_be_immutable
-class Bivina extends NormalBeer{
-  Bivina({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
+class Bivina extends NormalBeer {
+  Bivina(
+      {int productId, String productName, int count, int price, String imgUrl })
+      : super(productId: productId,
+      productName: productName,
+      price: price,
+      count: count,
+      imgUrl: imgUrl);
 
   @override
-  ProductEntity copyWith({int count, int price}) {
-    return Bivina(productName: this.productName, productId: this.productId, imgUrl: this.imgUrl, count: count ?? this.count, price: price ?? this.price);
+  String toString() {
+    return 'Bivina{buy: $buyQty, qty: $count, price: $price }';
   }
+}
+  // ignore: must_be_immutable
+  class StrongBowPack6 extends ProductEntity{
+  StrongBowPack6({int productId, String productName, int count, int price, String imgUrl }) : super( productId: productId, productName: productName, price: price, count: count, imgUrl: imgUrl);
+
+  @override
+  Future<List<Gift>> getGift({LoginEntity outlet}) async{
+    List<Gift> giftResult = [];
+    if(buyQty >= 1){
+      List.generate(buyQty < 5 ? buyQty : 5, (index)  => giftResult.add(StrongBowWheel(id: index + 200)));
+    }
+    return await Future.value(giftResult);
+  }
+
+  @override
+  String toString() {
+    return 'StrongBowPack6{buy: $buyQty, qty: $count, price: $price }';
+  }
+
+
 }
 
 

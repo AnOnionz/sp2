@@ -1,8 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sp_2021/core/entities/gift_entity.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
@@ -19,29 +15,40 @@ class DashboardRepositoryImpl implements DashboardRepository{
 
   @override
   Future<Either<Failure, bool>> saveGiftFromServer() async {
-    try{
-      if(await networkInfo.isConnected){
+    try {
+      if (await networkInfo.isConnected) {
         final gifts = await remote.fetchGift();
+        print("remote: $gifts");
         await local.cacheGifts(gifts: gifts);
+        print("gifts: ${local.fetchGift()}");
         return Right(true);
       }
-      return Right(false);
-    } on ResponseException catch(error){
+      return Left(InternetFailure());
+    } on ResponseException catch (error) {
       return Left(ResponseFailure(message: error.message));
+    } on UnAuthenticateException catch (error) {
+      return Left(UnAuthenticateFailure());
+    } on InternalException catch (error) {
+      return Left(InternalFailure());
     }
   }
-
   @override
   Future<Either<Failure, bool>> saveProductFromServer() async {
     try{
       if(await networkInfo.isConnected){
         final products = await remote.fetchProduct();
+        print("remote: $products");
         await local.cacheProducts(products: products);
+        print("products: ${local.fetchProduct()}");
         return Right(true);
       }
-      return Right(false);
+      return Left(InternetFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
+    } on UnAuthenticateException catch (error) {
+      return Left(UnAuthenticateFailure());
+    } on InternalException catch (error) {
+      return Left(InternalFailure());
     }
   }
 
@@ -52,11 +59,16 @@ class DashboardRepositoryImpl implements DashboardRepository{
         final setGift = await remote.fetchSetGiftCurrent();
         print('remote: $setGift');
         await local.cacheSetGiftCurrent(setGiftEntity: setGift);
+        print(local.fetchSetGiftCurrent());
         return Right(true);
       }
-      return Right(false);
+      return Left(InternetFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
+    } on UnAuthenticateException catch (error) {
+      return Left(UnAuthenticateFailure());
+    } on InternalException catch (error) {
+      return Left(InternalFailure());
     }
   }
 
@@ -65,27 +77,37 @@ class DashboardRepositoryImpl implements DashboardRepository{
     try{
       if(await networkInfo.isConnected){
         final listSetGift = await remote.fetchSetGift();
+        print("remote: $listSetGift");
         await local.cacheSetGifts(setGifts: listSetGift);
+        print("list set gift: ${local.fetchSetGift()}");
         return Right(true);
       }
-      return Right(false);
+      return Left(InternalFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
+    } on UnAuthenticateException catch (error) {
+      return Left(UnAuthenticateFailure());
+    } on InternalException catch (error) {
+      return Left(InternalFailure());
     }
 
   }
 
   @override
-  Future<Either<Failure, void>> saveRivalProductFromServer() async {
+  Future<Either<Failure, bool>> saveRivalProductFromServer() async {
     try{
       if(await networkInfo.isConnected){
         final products = await remote.fetchRivalProduct();
         await local.cacheRivalProducts(products: products);
         return Right(true);
       }
-      return Right(false);
-    } on ResponseException catch(error){
+      return Left(InternalFailure());
+    }  on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
+    } on UnAuthenticateException catch (error) {
+      return Left(UnAuthenticateFailure());
+    } on InternalException catch (error) {
+      return Left(InternalFailure());
     }
   }
 
