@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:sp_2021/core/util/custom_toast.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/presentation/screens/highlight_page.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
@@ -20,22 +21,8 @@ import 'feature/inventory/presentation/screens/inventory_page.dart';
 import 'feature/login/presentation/blocs/authentication_bloc.dart';
 import 'feature/dashboard/presentation/screens/dashboard.dart';
 import 'feature/login/presentation/screens/login_page.dart';
+import 'feature/notification/data/datasources/notification_local_data_source.dart';
 
-Future<dynamic> myBackgroundMessageHandler(
-    Map<String, dynamic> message) async {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-    print(data);
-  }
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-    print(notification);
-  }
-
-  // Or do other work.
-}
 class MyApplication extends StatefulWidget {
   const MyApplication();
 
@@ -44,10 +31,11 @@ class MyApplication extends StatefulWidget {
 }
 
 class _MyApplicationState extends State<MyApplication> {
+
   String _deviceToken;
   List<FcmEntity> messages = [];
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
+  final globalKey = GlobalKey<NavigatorState>();
   Future<String> _getDeviceToken() async {
     await _firebaseMessaging.getToken().then((deviceToken) {
       _deviceToken = deviceToken;
@@ -62,36 +50,61 @@ class _MyApplicationState extends State<MyApplication> {
     super.initState();
     _getDeviceToken();
     print(_deviceToken);
-
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        final notification = message['notification'];
-        setState(() {
-          messages.add(FcmEntity(
-              title: notification['title'], body: notification['body']));
-        });
+        FcmEntity fcm = FcmEntity(
+            title: '${message['notification']['title']}',
+            body: '${message['notification']['body']}',
+            time: DateTime.now(),
+            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+            screen: message['data']['screen'],
+            isClick: false,
+        );
+        _saveFcmToLocal(fcm);
+        Toasts.showNewMessageToast();
       },
-      onBackgroundMessage: myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-
-        final notification = message['data'];
-        setState(() {
-          messages.add(FcmEntity(
-            title: '${notification['title']}',
-            body: '${notification['body']}',
-            screen: '${notification['tab']}',
-            tab: notification['tab'] as int,
-          ));
-        });
+        FcmEntity fcm = FcmEntity(
+            title: '${message['notification']['title']}',
+            body: '${message['notification']['body']}',
+            time: DateTime.now(),
+            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+            screen: message['data']['screen'],
+            isClick: true,
+        );
+        _generateRouteWhenReceiveMessage(fcm);
       },
       onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
+        FcmEntity fcm = FcmEntity(
+            title: '${message['notification']['title']}',
+            body: '${message['notification']['body']}',
+            time: DateTime.now(),
+            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+            screen: message['data']['screen'],
+            isClick: true,
+        );
+        _saveFcmToLocal(fcm);
+        _generateRouteWhenReceiveMessage(fcm);
       },
     );
     _firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
+  }
+  _saveFcmToLocal(FcmEntity fcm){
+    sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
+  }
+  _generateRouteWhenReceiveMessage(FcmEntity fcm){
+    if(fcm.screen == null){
+      sl<TabBloc>().add(TabPressed(index: fcm.tab));
+      return;
+    }
+    if(fcm.tab == null){
+     globalKey.currentState.pushNamed(fcm.screen);
+      print(2);
+      return;
+    }
+    sl<TabBloc>().add(TabPressed(index: 4));
+
   }
 
   @override
@@ -114,6 +127,7 @@ class _MyApplicationState extends State<MyApplication> {
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
+        navigatorKey: globalKey,
         theme: ThemeData(
           unselectedWidgetColor: Colors.white,
         ),

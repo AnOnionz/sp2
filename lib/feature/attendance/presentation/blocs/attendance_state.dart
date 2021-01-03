@@ -21,6 +21,7 @@ class CheckAttendanceFailure extends CheckAttendanceState{
 
   CheckAttendanceFailure({this.error});
 }
+class CheckAttendanceNoInternet extends CheckAttendanceState{}
 class AttendanceInitial extends AttendanceState{}
 class AttendanceLoading extends AttendanceState{}
 class AttendanceSuccess extends AttendanceState{}
@@ -39,4 +40,5 @@ class AttendanceInventoryNullFailure extends AttendanceState{
 
   AttendanceInventoryNullFailure({this.message});
 }
+
 

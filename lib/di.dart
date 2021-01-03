@@ -36,6 +36,7 @@ import 'package:sp_2021/feature/inventory/presentation/blocs/inventory_bloc.dart
 import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart';
 import 'package:sp_2021/feature/login/domain/usecases/usecase_login.dart';
 import 'package:sp_2021/feature/login/domain/usecases/usecase_logout.dart';
+import 'package:sp_2021/feature/notification/data/datasources/notification_local_data_source.dart';
 import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_local_datasource.dart';
 import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_remote_datasource.dart';
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
@@ -255,8 +256,8 @@ Future<void> init() async {
   sl.registerLazySingleton<HighlightValidateUseCase>(() => HighlightValidateUseCase());
   // Bloc
   sl.registerFactory<HighlightBloc>(() => HighlightBloc(highlightValidate: sl(), authenticationBloc: sl(), dashboardBloc: sl(), uploadHighlight: sl()));
-
-
+  
+  
   //! Feature Send Requirement
   // Data Source
   sl.registerLazySingleton<SendRequirementLocalDataSource>(() => SendRequirementLocalDataSourceImpl(syncLocal: sl()));
@@ -267,5 +268,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SendRequirementUseCase>(() => SendRequirementUseCase(repository: sl()));
   // Bloc
   sl.registerLazySingleton<SendRequirementBloc>(() => SendRequirementBloc(sendRequirement: sl()));
+  
+  //! Feature Notification
+  // Data Source
+  sl.registerLazySingleton<NotificationLocalDataSource>(() => NotificationLocalDataSourceImpl());
 
 }

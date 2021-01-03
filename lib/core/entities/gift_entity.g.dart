@@ -16,56 +16,12 @@ class GiftEntityAdapter extends TypeAdapter<GiftEntity> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-      switch(fields[0] as int){
-  case 1: return Nen(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 2: return Voucher(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 3: return StrongBowGift(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 4: return Pack4(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 5: return Pack6(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 6: return Alu(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  case 7: return Magnum(
-  giftId: fields[0] as int,
-  name: fields[1] as String,
-  image: fields[2] as String,
-  amountCurrent: fields[3] as int,
-  );
-  }
-    return GiftEntity(
+    return GiftEntity.create(GiftEntity(
       giftId: fields[0] as int,
       name: fields[1] as String,
       image: fields[2] as String,
       amountCurrent: fields[3] as int,
-    );
+    ));
   }
 
   @override

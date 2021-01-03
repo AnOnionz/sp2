@@ -28,7 +28,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   @override
   Stream<DashboardState> mapEventToState(DashboardEvent event) async* {
     if (event is SaveServerDataToLocalData) {
-      if (true) {
+      if (local.loadInitDataToLocal) {
         yield DashboardSaving();
         final result = await saveDataToLocal(NoParams());
         await Hive.openBox<DataTodayEntity>(

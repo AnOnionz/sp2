@@ -19,23 +19,29 @@ class FcmEntityAdapter extends TypeAdapter<FcmEntity> {
     return FcmEntity(
       title: fields[0] as String,
       body: fields[1] as String,
-      tab: fields[2] as int,
-      screen: fields[3] as String,
+      time: fields[2] as DateTime,
+      tab: fields[3] as int,
+      screen: fields[4] as String,
+      isClick: fields[5] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, FcmEntity obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
       ..write(obj.body)
       ..writeByte(2)
-      ..write(obj.tab)
+      ..write(obj.time)
       ..writeByte(3)
-      ..write(obj.screen);
+      ..write(obj.tab)
+      ..writeByte(4)
+      ..write(obj.screen)
+      ..writeByte(5)
+      ..write(obj.isClick);
   }
 
   @override

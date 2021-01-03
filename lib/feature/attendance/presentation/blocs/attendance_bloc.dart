@@ -86,8 +86,7 @@ Stream<CheckAttendanceState> _eitherCheckAttendanceState(
       return CheckAttendanceFailure(error: failure.message);
     }
     if (failure is InternetFailure) {
-      dashboardBloc.add(AccessInternet());
-      return null;
+      return CheckAttendanceNoInternet();
     }
     return CheckAttendanceFailure(error: failure.message);
   }, (type) => CheckAttendanceSuccess(type: type));

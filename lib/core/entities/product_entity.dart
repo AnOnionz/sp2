@@ -32,7 +32,75 @@ part 'product_entity.g.dart';
     count = count ?? 0;
     price = price ?? 0;
   }
-//  switch(fields[0] as int){
+  factory ProductEntity.create(ProductEntity productEntity){
+      switch(productEntity.productId){
+  case 8: return HeinekenNormal(
+  productId: productEntity.productId,
+  productName: productEntity.productName,
+  count: productEntity.count,
+  price: productEntity.price,
+  imgUrl: productEntity.imgUrl,
+  );
+  case 9: return Heineken0(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 10: return HeinekenSilver(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 11: return TigerNormal(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 12: return TigerCrystal(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 13: return StrongBow(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 14: return Larue(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 15: return BiaViet(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  case 16: return Bivina(
+    productId: productEntity.productId,
+    productName: productEntity.productName,
+    count: productEntity.count,
+    price: productEntity.price,
+    imgUrl: productEntity.imgUrl,
+  );
+  }
+  return productEntity;
+  }
+  //  switch(fields[0] as int){
 //  case 8: return HeinekenNormal(
 //  productId: fields[0] as int,
 //  productName: fields[1] as String,
@@ -68,7 +136,7 @@ part 'product_entity.g.dart';
 //  price: fields[3] as int ?? 0,
 //  imgUrl: fields[2] as String,
 //  );
-//  case 13: return StrongBow(
+//  c/ase 13: return StrongBow(
 //  productId: fields[0] as int,
 //  productName: fields[1] as String,
 //  count: fields[4] as int ?? 0,

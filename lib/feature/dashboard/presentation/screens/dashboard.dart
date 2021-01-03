@@ -338,7 +338,7 @@ class DashboardPage extends StatelessWidget {
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        child: Text("Hủy")),
+                                        child: Text("Đóng")),
                                     CupertinoDialogAction(
                                         isDefaultAction: true,
                                         onPressed: () {

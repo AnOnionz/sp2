@@ -50,6 +50,61 @@ class GiftEntity extends Gift with HiveObject {
 
   String get asset {return name != "Nến" ? "assets/images/$name.png" : "assets/images/Nen.png"; }
 
+  factory GiftEntity.create(GiftEntity giftEntity){
+      switch(giftEntity.giftId){
+  case 1: return Nen(
+  giftId: giftEntity.giftId,
+  name: giftEntity.name,
+  image: giftEntity.image,
+  amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 2: return Voucher(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 3: return StrongBowGift(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 4: return Pack4(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 5: return Pack6(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 6: return Alu(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  case 7: return Magnum(
+    giftId: giftEntity.giftId,
+    name: giftEntity.name,
+    image: giftEntity.image,
+    amountCurrent: giftEntity.amountCurrent,
+    amountReceive: giftEntity.amountReceive,
+  );
+  }
+  return giftEntity;
+
+  }
 //  switch(fields[0] as int){
 //  case 1: return Nen(
 //  giftId: fields[0] as int,

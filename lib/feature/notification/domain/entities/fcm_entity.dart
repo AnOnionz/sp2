@@ -9,17 +9,21 @@ class FcmEntity extends Equatable with HiveObject {
   @HiveField(1)
   final String body;
   @HiveField(2)
-  final int tab;
+  final DateTime time;
   @HiveField(3)
+  final int tab;
+  @HiveField(4)
   final String screen;
+  @HiveField(5)
+  final bool isClick;
 
-  FcmEntity({this.title, this.body, this.tab, this.screen});
+  FcmEntity({this.title, this.body, this.time, this.tab, this.screen, this.isClick});
 
   @override
-  List<Object> get props => [title, body, tab, screen];
+  List<Object> get props => [title, body, time, tab, screen, isClick];
 
   @override
   String toString() {
-    return 'FcmEntity{title: $title, body: $body, tab: $tab, screen: $screen}';
+    return 'FcmEntity{title: $title, body: $body, time: $time, tab: $tab, screen: $screen, isClick: $isClick';
   }
 }
