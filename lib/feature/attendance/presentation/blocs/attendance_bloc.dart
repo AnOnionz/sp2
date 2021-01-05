@@ -96,6 +96,10 @@ Stream<AttendanceState> _eitherAttendanceState(
     Either<Failure, AttendanceStatus> either, DashboardBloc dashboardBloc,
     AuthenticationBloc authenticationBloc) async* {
   yield either.fold((failure) {
+    if(failure is HasSyncFailure){
+      dashboardBloc.add(SyncRequired(message: failure.message));
+      return null;
+    }
   if (failure is InternalFailure) {
     dashboardBloc.add(InternalServer());
     return null;

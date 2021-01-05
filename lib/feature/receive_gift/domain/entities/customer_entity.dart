@@ -24,7 +24,7 @@ class CustomerEntity extends Equatable with HiveObject {
     uuid = uUid.v1(options: {
       'node': [0x22, 0x17, 0x09, 0x19, 0x98, 0xab],
       'clockSeq': 0x1234,
-      'mSecs': DateTime.now().millisecondsSinceEpoch,
+      'mSecs': DateTime.now().millisecondsSinceEpoch ~/1000,
       'nSecs': int.parse(phoneNumber.substring(1,5)),
     });
   }

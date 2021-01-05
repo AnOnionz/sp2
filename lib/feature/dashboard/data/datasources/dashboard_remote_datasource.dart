@@ -54,48 +54,49 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
             name: "Nến",
             giftId: 1,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Voucher(
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 3
+            amountCurrent: 10,
+            amountReceive: 1
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
       ]),
@@ -104,50 +105,50 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
             name: "Nến",
             giftId: 1,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Voucher(
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 3,
-            amountReceive: 1,
+            amountCurrent: 10,
+            amountReceive: 1
         ),
       ]),
       SetGiftEntity(index: 3, gifts: [
@@ -155,101 +156,253 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
             name: "Nến",
             giftId: 1,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Voucher(
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
-
       ]),
       SetGiftEntity(index: 4, gifts: [
         Nen(
             name: "Nến",
             giftId: 1,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Voucher(
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
             amountReceive: 1
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 3,
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+      ]),
+      SetGiftEntity(index: 5, gifts: [
+        Nen(
+            name: "Nến",
+            giftId: 1,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Voucher(
+            name: "Voucher",
+            giftId: 2,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        StrongBowGift(
+            name: "Strongbow",
+            giftId: 3,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack4(
+            name: "Pack4",
+            giftId: 4,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack6(
+            name: "Pack6",
+            giftId: 5,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Alu(
+            name: "Alu",
+            giftId: 6,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Magnum(
+            name: "Magnum",
+            giftId: 7,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+      ]),
+      SetGiftEntity(index: 6, gifts: [
+        Nen(
+            name: "Nến",
+            giftId: 1,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Voucher(
+            name: "Voucher",
+            giftId: 2,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        StrongBowGift(
+            name: "Strongbow",
+            giftId: 3,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack4(
+            name: "Pack4",
+            giftId: 4,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack6(
+            name: "Pack6",
+            giftId: 5,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Alu(
+            name: "Alu",
+            giftId: 6,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Magnum(
+            name: "Magnum",
+            giftId: 7,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+      ]),
+      SetGiftEntity(index: 7, gifts: [
+        Nen(
+            name: "Nến",
+            giftId: 1,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Voucher(
+            name: "Voucher",
+            giftId: 2,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        StrongBowGift(
+            name: "Strongbow",
+            giftId: 3,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack4(
+            name: "Pack4",
+            giftId: 4,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Pack6(
+            name: "Pack6",
+            giftId: 5,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Alu(
+            name: "Alu",
+            giftId: 6,
+            image: "",
+            amountCurrent: 10,
+            amountReceive: 1
+        ),
+        Magnum(
+            name: "Magnum",
+            giftId: 7,
+            image: "",
+            amountCurrent: 10,
             amountReceive: 1
         ),
       ]),
@@ -268,48 +421,49 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
           name: "Nến",
           giftId: 1,
           image: "",
-          amountCurrent: 3,
+          amountCurrent: 10,
           amountReceive: 1
       ),
       Voucher(
           name: "Voucher",
           giftId: 2,
           image: "",
-          amountCurrent: 2,
+          amountCurrent: 10,
           amountReceive: 1
       ),
       StrongBowGift(
           name: "Strongbow",
           giftId: 3,
           image: "",
-          amountCurrent: 1,
+          amountCurrent: 10,
           amountReceive: 1
       ),
       Pack4(
           name: "Pack4",
           giftId: 4,
           image: "",
-          amountCurrent: 1,
+          amountCurrent: 10,
           amountReceive: 1
       ),
       Pack6(
           name: "Pack6",
           giftId: 5,
           image: "",
-          amountCurrent: 1,
+          amountCurrent: 10,
           amountReceive: 1
       ),
       Alu(
           name: "Alu",
           giftId: 6,
           image: "",
-          amountCurrent: 1
+          amountCurrent: 10,
+          amountReceive: 1
       ),
       Magnum(
           name: "Magnum",
           giftId: 7,
           image: "",
-          amountCurrent: 1,
+          amountCurrent: 10,
           amountReceive: 1
       ),
     ]);

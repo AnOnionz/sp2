@@ -54,49 +54,49 @@ class GiftEntity extends Gift with HiveObject {
   name: giftEntity.name,
   image: giftEntity.image,
   amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 2: return Voucher(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 3: return StrongBowGift(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 4: return Pack4(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 5: return Pack6(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 6: return Alu(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   case 7: return Magnum(
     giftId: giftEntity.giftId,
     name: giftEntity.name,
     image: giftEntity.image,
     amountCurrent: giftEntity.amountCurrent,
-    amountReceive: giftEntity.amountReceive,
+    amountReceive: 1,
   );
   }
   return giftEntity;

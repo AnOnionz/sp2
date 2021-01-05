@@ -35,23 +35,23 @@ class OutletInfo extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Outlet code: ${snapshot.data.id}", style: infoOutletSubtext,),
+                  child: Text("Outlet code : ${snapshot.data.id}", style: infoOutletSubtext,),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Địa chỉ: ${snapshot.data.address}", style: infoOutletSubtext,),
+                  child: Text("Địa chỉ : ${snapshot.data.address}", style: infoOutletSubtext,),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Tên SR: ${snapshot.data.spName}", style: infoOutletSubtext),
+                  child: Text("Tên SP : ${snapshot.data.spName}", style: infoOutletSubtext),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("SĐT SR: ${snapshot.data.spSDT}", style: infoOutletSubtext),
+                  child: Text("SĐT SP : ${snapshot.data.spSDT}", style: infoOutletSubtext),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Thời gian thực hiện: ${snapshot.data.time}", style: infoOutletSubtext),
+                  child: Text("Thời gian thực hiện : ${snapshot.data.time}", style: infoOutletSubtext),
                 ),
               ],
             ),

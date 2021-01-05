@@ -31,7 +31,7 @@ class ReceiveGiftEntity {
       receiptImage: receiptImage.isNotEmpty ? receiptImage.map((e) => e.path).toList():[],
       voucherReceived: voucherReceived,
       voucherPhone: voucher != null ? voucher.phone : customer.phoneNumber,
-      voucherQty: voucher != null ? voucher.qty : 0,
+      voucherQty: voucher != null ? voucher.qty : 0 ,
     );
   }
   Map<String, dynamic> toJson(){

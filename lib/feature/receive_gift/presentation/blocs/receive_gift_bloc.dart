@@ -150,6 +150,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
                 gifts: [...event.giftReceived, ...event.giftSBReceived],
                 products: event.form.products,
                 productImage: event.form.images,
+                voucher: event.form.voucher,
                 receiptImage: [],
                 customerImage: [])));
       } else {
@@ -212,15 +213,22 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           });
         }
         if (event.giftReceive.elementAt(event.giftAt) is GiftEntity) {
-          yield ReceiveGiftStateNow(
-              form: event.form,
-              giftReceive: event.giftReceive,
-              giftReceived: [
-                ...event.giftReceived,
-                ...[event.giftReceive[event.giftAt]],
-              ],
-              giftSBReceived: event.giftSBReceived,
-              giftAt: event.giftAt);
+            yield ReceiveGiftStateWheel(
+                form: event.form,
+                giftLucky: [event.giftReceive.elementAt(event.giftAt)],
+                giftReceive: event.giftReceive,
+                giftReceived: event.giftReceived,
+                giftSBReceived: event.giftSBReceived,
+                giftAt: event.giftAt);
+//          yield ReceiveGiftStateNow(
+//              form: event.form,
+//              giftReceive: event.giftReceive,
+//              giftReceived: [
+//                ...event.giftReceived,
+//                ...[event.giftReceive[event.giftAt]],
+//              ],
+//              giftSBReceived: event.giftSBReceived,
+//              giftAt: event.giftAt);
         }
       }
     }
@@ -245,10 +253,16 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       List<GiftEntity> giftReceived = event.receiveGiftEntity.gifts;
       // gift had in list
       giftReceived.forEach((element) {
-        if (gifts.map((e) => e.id).toList().contains(element.id)) {
-          gifts[gifts.indexOf(element)] = element.upReceive();
-        } else {
+        if(gifts.isEmpty){
           gifts.add(element);
+        }else{
+          final listID = gifts.map((e) => e.giftId).toList();
+          if(listID.contains(element.giftId)){
+            int index = listID.indexOf(element.giftId);
+            gifts[index] = gifts[index].upReceive();
+          }else{
+            gifts.add(element);
+          }
         }
       });
       print("setCurrent final: $setCurrent");

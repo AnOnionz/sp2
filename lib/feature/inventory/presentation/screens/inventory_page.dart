@@ -236,7 +236,7 @@ class _InventoryPageState extends State<InventoryPage> {
                                       onTap: () {
                                         _controller.animateToPage(1,
                                             duration:
-                                                Duration(milliseconds: 1000),
+                                                Duration(milliseconds: 600),
                                             curve: Curves.fastOutSlowIn);
                                       },
                                       child: Container(

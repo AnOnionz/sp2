@@ -105,8 +105,8 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   SetGiftEntity fetchNewSetGift(int index) {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    final set = box.get(index);
-    return SetGiftEntity(index: set.index, gifts: set.gifts);
+    final set = box.get(index, defaultValue: null);
+    return set == null ? null : SetGiftEntity(index: set.index, gifts: set.gifts);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +10,11 @@ import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
-import 'package:sp_2021/feature/receive_gift/domain/usecases/handle_receive_gift_usecase.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/widgets/build_list_product.dart';
 
@@ -83,8 +84,12 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
       voucher: null,
       isCheckedVoucher: false,
     );
-    ctrlPhoneNumber = TextEditingController(text: _form.customer.phoneNumber);
-    ctrlCustomerName = TextEditingController(text: _form.customer.name);
+    ctrlPhoneNumber = kDebugMode
+        ? TextEditingController()
+        : TextEditingController(text: _form.customer.phoneNumber);
+    ctrlCustomerName = kDebugMode
+        ? TextEditingController()
+        : TextEditingController(text: _form.customer.name);
     ctrlVoucher = TextEditingController();
 
     phoneNumberFocus = FocusNode();
@@ -150,7 +155,10 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                       hint: '',
                                       textCapitalization:
                                           TextCapitalization.words,
-                                      inputFormatter: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z ]+$'))],
+                                      inputFormatter: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.deny(
+                                            RegExp(r'[0-9]'))
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -320,40 +328,18 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                           if (state is UseVoucherSuccess) {
                                             _form.isCheckedVoucher = true;
                                             _form.voucher = state.voucher;
-                                            _scaffoldKey.currentState
-                                                .removeCurrentSnackBar();
-                                            _scaffoldKey.currentState
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 10.0),
-                                                  child: Text(
-                                                      "Số điện thoại này có ${state.voucher.qty} mã giảm giá"),
-                                                ),
-                                                backgroundColor: greenColor,
-                                              ),
-                                            );
+                                            Dialogs().showMessageDialog(
+                                                context: context,
+                                                content:
+                                                    "Số điện thoại này có ${state.voucher.qty} mã giảm giá");
                                           }
                                           if (state is UseVoucherFailure) {
                                             _form.isCheckedVoucher = false;
                                             _form.voucher = null;
-                                            _scaffoldKey.currentState
-                                                .removeCurrentSnackBar();
-                                            _scaffoldKey.currentState
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 10.0),
-                                                  child: Text(
-                                                      "Số điện thoại này không có mã giảm giá"),
-                                                ),
-                                                backgroundColor: Colors.red,
-                                              ),
-                                            );
+                                            Dialogs().showMessageDialog(
+                                                context: context,
+                                                content:
+                                                    "Số điện thoại này không có mã giảm giá");
                                           }
                                         }, builder: (context, state) {
                                           if (state is UseVoucherLoading) {
@@ -863,8 +849,10 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                                         context)
                                                                     .add(
                                                                         GiftNext(
-                                                                  form: state.form,
-                                                                  setCurrent: state.setCurrent,
+                                                                  form: state
+                                                                      .form,
+                                                                  setCurrent: state
+                                                                      .setCurrent,
                                                                   giftAt: 0,
                                                                   giftReceive:
                                                                       state
@@ -963,7 +951,12 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                             InkWell(
                                                                 onTap:
                                                                     () async {
-                                                                  BlocProvider.of<ReceiveGiftBloc>(context).add(ReceiveGiftOnlyBuyProducts(form: state.form));
+                                                                  BlocProvider.of<
+                                                                              ReceiveGiftBloc>(
+                                                                          context)
+                                                                      .add(ReceiveGiftOnlyBuyProducts(
+                                                                          form:
+                                                                              state.form));
                                                                   Navigator.pop(
                                                                       context);
                                                                   Navigator.pop(
@@ -1031,10 +1024,17 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                           ? () async {
                                               FocusScope.of(context)
                                                   .requestFocus(FocusNode());
-                                              BlocProvider.of<ReceiveGiftBloc>(context)
+                                              BlocProvider.of<ReceiveGiftBloc>(
+                                                      context)
                                                   .add(ReceiveGiftSubmitForm(
                                                       form: FormEntity(
-                                                          products: _form.products.where((element) => element.buyQty > 0).toList(),
+                                                          products: _form
+                                                              .products
+                                                              .where((element) =>
+                                                                  element
+                                                                      .buyQty >
+                                                                  0)
+                                                              .toList(),
                                                           voucher:
                                                               _form.voucher,
                                                           customer:

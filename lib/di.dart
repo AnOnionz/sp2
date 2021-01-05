@@ -255,8 +255,8 @@ Future<void> init() async {
   sl.registerLazySingleton<HighlightValidateUseCase>(() => HighlightValidateUseCase());
   // Bloc
   sl.registerFactory<HighlightBloc>(() => HighlightBloc(highlightValidate: sl(), authenticationBloc: sl(), dashboardBloc: sl(), uploadHighlight: sl()));
-  
-  
+
+
   //! Feature Send Requirement
   // Data Source
   sl.registerLazySingleton<SendRequirementLocalDataSource>(() => SendRequirementLocalDataSourceImpl(syncLocal: sl()));
@@ -266,7 +266,7 @@ Future<void> init() async {
   // UseCase
   sl.registerLazySingleton<SendRequirementUseCase>(() => SendRequirementUseCase(repository: sl()));
   // Bloc
-  sl.registerLazySingleton<SendRequirementBloc>(() => SendRequirementBloc(sendRequirement: sl()));
+  sl.registerFactory<SendRequirementBloc>(() => SendRequirementBloc(sendRequirement: sl()));
   
   //! Feature Notification
   // Data Source

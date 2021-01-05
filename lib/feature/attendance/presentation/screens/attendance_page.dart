@@ -18,10 +18,7 @@ import 'package:sp_2021/feature/attendance/presentation/blocs/attendance_bloc.da
 import 'package:sp_2021/feature/attendance/presentation/blocs/map_bloc.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/img_button.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
-import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/tab_bloc.dart';
-import 'package:sp_2021/feature/dashboard/presentation/screens/home_page.dart';
-import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 
 import '../../../../di.dart';
 
@@ -99,6 +96,12 @@ class _AttendancePageState extends State<AttendancePage>
                     if (state is CheckAttendanceNoInternet) {
                       return Center(
                         child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage("assets/images/background.png"),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                             height: MediaQuery.of(context).size.height,
                             child: FlareActor("assets/images/no_internet.flr",
                                 alignment: Alignment.center,

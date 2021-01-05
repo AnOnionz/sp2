@@ -76,7 +76,7 @@ class RivalSalePriceUi extends StatelessWidget {
                           LengthLimitingTextInputFormatter(10),
                         ],
                         decoration: InputDecoration(
-                          suffixText: 'VNĐ',
+                          suffixText: 'VNĐ/thùng',
                           suffixStyle: TextStyle(color: Colors.black, fontSize: 17),
                           contentPadding: const EdgeInsets.only(left: 15, right: 15),
                           filled: true,

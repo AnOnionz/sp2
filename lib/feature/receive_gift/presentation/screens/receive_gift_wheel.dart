@@ -108,7 +108,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
                   child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        "CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC 1 VÒNG QUAY ",
+                        "BẠN CÒN LẠI ${widget.giftReceive.length - widget.giftReceived.length} LƯỢT QUAY",
                         style: TextStyle(color: Colors.white, fontSize: 30),
                       )),
                 ),

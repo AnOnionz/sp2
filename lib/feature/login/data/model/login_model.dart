@@ -18,10 +18,10 @@ class LoginModel extends LoginEntity {
   factory LoginModel.fromJson(Map<String, dynamic> json) {
     return LoginModel(
       id: json['id'] as int ?? 12345,
-      name: json['outlet_name'] ?? "Outlet Name",
+      name: json['outlet_name'] ?? "Outlet Bình Lợi",
       code: json['code'] ?? "jh179",
       accessToken: json['access_token'] ?? "",
-      address: "HCM",//json['address']
+      address: "Bình thạnh, Hồ Chí Minh", //json['address']
       srCode: json['sr_code'] ?? "1357",
       srName: json['sr_name'] ??"Nguyễn Văn Thị",
       srSDT: json['sr_sdt'] ??"0933123321",

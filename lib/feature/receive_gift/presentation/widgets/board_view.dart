@@ -67,8 +67,8 @@ class _BoardViewState extends State<BoardView> {
           decoration: BoxDecoration(
             image: DecorationImage(
               alignment: Alignment.topCenter,
-              image: indexOf % 2 == 0 ? AssetImage("assets/images/vong2.png"): AssetImage("assets/images/vong1.png"),
-              scale: 5.426 //7.3//
+              image: indexOf % 2 == 0 ? AssetImage("assets/images/vong22.png"): AssetImage("assets/images/vong11.png"),
+              scale: 2.479 //7.3//5.6
             ),
           ),
         ),

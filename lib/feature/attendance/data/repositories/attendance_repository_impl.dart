@@ -1,19 +1,13 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
-import 'package:hive/hive.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
-import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
 import 'package:sp_2021/feature/attendance/domain/repositories/attendance_repository.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
-import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
-import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {

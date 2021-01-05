@@ -24,6 +24,7 @@ class Dialogs {
               CupertinoDialogAction(
                 child: Text("Đóng"),
                 onPressed: onPress ?? () {
+                  FocusScope.of(context).requestFocus(FocusNode());
                   Navigator.pop(context);
                 },
               ),
@@ -45,6 +46,7 @@ class Dialogs {
               CupertinoDialogAction(
                 child: Text("Đóng"),
                 onPressed: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
                   Navigator.pop(context);
                 },
               ),
@@ -77,6 +79,7 @@ class Dialogs {
                 isDefaultAction: true,
                 child: Text("Đóng"),
                 onPressed: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
                   Navigator.pop(context);
                 },
               ),

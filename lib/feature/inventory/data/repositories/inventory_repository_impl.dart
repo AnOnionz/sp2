@@ -29,18 +29,17 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (await networkInfo.isConnected) {
       try {
         // end inventory not found
-        print('111 ${inventory.outInventory}');
         if(inventory.outInventory.every((element) => element['qty'] == 0)){
           await local.cacheInventory(inventory);
           await dashboardLocal.cacheDataToday(
               inventory: false, inventoryEntity: inventory);
           return Left(NotInternetItWillCacheLocalFailure());
         }
-        await local.cacheInventory(inventory);
-        await dashboardLocal.cacheDataToday(
-            inventory: true, inventoryEntity: inventory);
+        await syncInventory();
         await remote.updateInventory(inventory.inInventory);
         await remote.updateInventory(inventory.outInventory);
+        await dashboardLocal.cacheDataToday(
+            inventory: true, inventoryEntity: inventory);
         return Right(true);
       } on UnAuthenticateException catch (_) {
         await local.cacheInventory(inventory);
@@ -73,11 +72,11 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (await hasSync()) {
       final data = local.fetchInventory();
       print(data);
-      final begin = await remote.updateInventory(data.inInventory);
-      final end = await remote.updateEndInventory(data.outInventory);
-      if (begin && end) {
-        await local.clearInventory();
+      await remote.updateInventory(data.inInventory);
+      if(data.outInventory.any((element) => element['qty'] != 0)) {
+        await remote.updateEndInventory(data.outInventory);
       }
+      await local.clearInventory();
     }
   }
 

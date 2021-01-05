@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
@@ -91,6 +92,19 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                               "Nhập SĐT cần kiểm tra giảm giá",
                                           controller: _controller,
                                           onSubmit: (_) {
+                                            if (_controller.text.length != 10 ||
+                                                !RegExp(r'^0[^01]([0-9]+)')
+                                                    .hasMatch(_controller.text)) {
+                                              _scaffoldKey.currentState.removeCurrentSnackBar();
+                                              _scaffoldKey.currentState.showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Số điện thoại không chính xác.'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                              return;
+                                            }
                                             bloc.add(CheckVoucherStart(
                                                 code: _controller.text));
                                           },
@@ -130,19 +144,19 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                             print(_controller.text);
                                             FocusScope.of(context)
                                                 .requestFocus(FocusNode());
-//                                      if (_controller.text.length != 9 ||
-//                                          !RegExp(r'^0[^01]([0-9]+)')
-//                                              .hasMatch(_controller.text)) {
-//                                        _scaffoldKey.currentState.removeCurrentSnackBar();
-//                                        _scaffoldKey.currentState.showSnackBar(
-//                                          SnackBar(
-//                                            content: Text(
-//                                                'Số điện thoại không chính xác.'),
-//                                            backgroundColor: Colors.red,
-//                                          ),
-//                                        );
-//                                        return;
-//                                      }
+                                      if (_controller.text.length != 10 ||
+                                          !RegExp(r'^0[^01]([0-9]+)')
+                                              .hasMatch(_controller.text)) {
+                                        _scaffoldKey.currentState.removeCurrentSnackBar();
+                                        _scaffoldKey.currentState.showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Số điện thoại không chính xác.'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
                                             bloc.add(CheckVoucherStart(
                                                 code: _controller.text));
                                           },
@@ -200,7 +214,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                   padding:
                                                       const EdgeInsets.all(8.0),
                                                   child: Text(
-                                                    state.history[index].time
+                                                    DateFormat('hh:mm dd-MM-yyyy').format(state.history[index].time)
                                                         .toString(),
                                                     style: TextStyle(
                                                         fontSize: 20,
@@ -243,7 +257,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                         height: 3,
                                                       ),
                                                       Text(
-                                                        'địa chỉ: ${state.history[index].address}',
+                                                        'Địa chỉ: ${state.history[index].address}',
                                                         style: Subtitle1white,
                                                       ),
                                                     ],

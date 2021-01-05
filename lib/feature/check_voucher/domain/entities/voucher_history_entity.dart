@@ -13,11 +13,11 @@ class VoucherHistoryEntity extends Equatable {
 
   factory VoucherHistoryEntity.fromJson(Map<String, dynamic> json) {
     return VoucherHistoryEntity(
-        time: DateTime.fromMicrosecondsSinceEpoch(json['time']),
+        time: DateTime.fromMillisecondsSinceEpoch(json['time'] *1000),
         qty: json['qty'],
-        outletName: json['outlet']['name'],
-        address: json['outlet']['address'],
-        spName: json['outlet']['se_name']);
+        outletName: 'Outlet Bình Lợi',//json['outlet']['name'],
+        address: 'Bình thạnh, Hồ Chí Minh' ,//json['outlet']['address'],
+        spName: 'Nguyễn Văn Thị');//json['outlet']['se_name']);
   }
   @override
   String toString() {

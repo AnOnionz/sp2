@@ -55,11 +55,11 @@ class SyncRepositoryImpl implements SyncRepository {
 
   @override
   Future<bool> get hasDataNonSync async {
-    return await inventoryRepository.hasSync() &&
-        await rivalSalePriceRepository.hasSync() &&
-        await sendRequirementRepository.hasSync() &&
-        await salePriceRepository.hasSync() &&
-        await highlightRepository.hasSync() &&
+    return await inventoryRepository.hasSync() ||
+        await rivalSalePriceRepository.hasSync() ||
+        await sendRequirementRepository.hasSync() ||
+        await salePriceRepository.hasSync() ||
+        await highlightRepository.hasSync() ||
         await receiveGiftRepository.hasSync();
   }
 }

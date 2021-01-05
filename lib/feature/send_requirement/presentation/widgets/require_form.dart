@@ -5,10 +5,16 @@ import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/blocs/send_requirement_bloc.dart';
 
-class RequireForm extends StatelessWidget {
-  final TextEditingController controller = TextEditingController();
+class RequireForm extends StatefulWidget {
 
   RequireForm({Key key}) : super(key: key);
+
+  @override
+  _RequireFormState createState() => _RequireFormState();
+}
+
+class _RequireFormState extends State<RequireForm> {
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +130,7 @@ class RequireForm extends StatelessWidget {
                 ));
                 return;
               }
+              print('a');
               BlocProvider.of<SendRequirementBloc>(context)
                   .add(SendRequirement(message: controller.text.trim()));
             },
