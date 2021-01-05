@@ -1,27 +1,44 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
+import 'package:hive/hive.dart';
 import 'package:location_platform_interface/location_platform_interface.dart';
+import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
+import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
 import 'package:sp_2021/feature/attendance/domain/repositories/attendance_repository.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
   final AttendanceRemoteDataSource dataSource;
   final DashBoardLocalDataSource dashBoardLocal;
-  AttendanceRepositoryImpl({this.dataSource, this.dashBoardLocal});
+  final SyncRepository syncRepository;
+  AttendanceRepositoryImpl({this.dataSource, this.dashBoardLocal, this.syncRepository});
 
   @override
   Future<Either<Failure, AttendanceStatus>> checkInOrOut(
       {String type, LocationData position, File image}) async {
-    final today = await  dashBoardLocal.dataToday;
+    final today = dashBoardLocal.dataToday;
+
     try {
-//      if(type == 'CHECK_OUT' && !today.highLight){
-//        return Left(HighLightNullFailure());
-//      }
+      if(type == 'CHECK_OUT'){
+        if(await syncRepository.hasDataNonSync){
+          return Left(HasSyncFailure(message: "Phải đồng bộ tất cả dữ liệu trước khi chấm công"));
+        }
+        if(!today.highLight) {
+          return Left(HighLightNullFailure());
+        }
+        if(!today.inventory) {
+          return Left(InventoryNullFailure());
+        }
+      }
       final response = await dataSource.checkInOrOut(
           type: type, position: position, image: image);
 

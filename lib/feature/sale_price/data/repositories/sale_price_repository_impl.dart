@@ -26,36 +26,40 @@ class SalePriceRepositoryImpl implements SalePriceRepository {
   @override
   Future<Either<Failure, bool>> updateSalePrice(
       {List<ProductEntity> products}) async {
-    final dataToday = await dashBoardLocal.dataToday;
-    if (dataToday.checkIn != true) {
-      return Left(CheckInNullFailure(
-          message: "Phải chấm công trước khi nhập giá bia bán"));
+      final dataToday = dashBoardLocal.dataToday;
+      if (dataToday.checkIn != true) {
+        return Left(CheckInNullFailure(
+            message: 'Phải chấm công trước khi nhập giá bia bán ',));
     }
     if (await networkInfo.isConnected) {
       try {
-        dashBoardLocal.cacheProducts(products: products);
+        await dashBoardLocal.cacheProducts(products: products);
         final data = products
             .map((e) => {"sku_id": e.productId, "price": e.price})
             .toList();
         final update = await remote.updateSalePrice(data: data);
         if (update == false) {
-          local.cacheSalePrice(products);
+          await local.cacheSalePrice(products);
         }
         await dashBoardLocal.cacheDataToday(highLight: false, checkOut: false, checkIn: true, inventory: false);
         return Right(update);
       } on UnAuthenticateException catch (_) {
-        local.cacheSalePrice(products);
+        await dashBoardLocal.cacheProducts(products: products);
+        await local.cacheSalePrice(products);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {
         return Left(ResponseFailure(message: error.message));
       } on InternalException catch (_) {
-        local.cacheSalePrice(products);
+        await dashBoardLocal.cacheProducts(products: products);
+        await local.cacheSalePrice(products);
         return Left(InternalFailure());
       } on InternetException catch (_) {
+        await dashBoardLocal.cacheProducts(products: products);
         await local.cacheSalePrice(products);
         return Left(NotInternetItWillCacheLocalFailure());
       }
     } else {
+      await dashBoardLocal.cacheProducts(products: products);
       await local.cacheSalePrice(products);
       return Left(NotInternetItWillCacheLocalFailure());
     }

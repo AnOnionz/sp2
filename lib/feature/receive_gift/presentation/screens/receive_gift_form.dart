@@ -8,10 +8,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/common/textfield.dart';
+import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/usecases/handle_receive_gift_usecase.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/widgets/build_list_product.dart';
 
@@ -44,7 +46,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   Future getImage() async {
     if (_form.images.length < 5) {
       final pickedFile = await picker.getImage(
-          source: ImageSource.camera, maxWidth: 500, maxHeight: 600);
+          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
       if (pickedFile != null) {
         setState(() {
           _form.images.add(File(pickedFile.path));
@@ -73,7 +75,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   @override
   void initState() {
     super.initState();
-    final products = local.fetchProduct();
+    final List<ProductEntity> products = List.castFrom(local.fetchProduct());
     _form = FormEntity(
       customer: CustomerEntity(name: "abs", phoneNumber: "0908783465"),
       products: products,
@@ -961,6 +963,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                             InkWell(
                                                                 onTap:
                                                                     () async {
+                                                                  BlocProvider.of<ReceiveGiftBloc>(context).add(ReceiveGiftOnlyBuyProducts(form: state.form));
                                                                   Navigator.pop(
                                                                       context);
                                                                   Navigator.pop(

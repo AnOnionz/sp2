@@ -15,10 +15,10 @@ Future<void> main() async {
   await di.init();
   await hive.init();
   SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
       .then((_) async {
     await SentryFlutter.init(
-      (options) {
+          (options) {
         options..dsn =
             'https://7b09fb656f9f4d5198f1c5f2297851d9@o496763.ingest.sentry.io/5571917'..addEventProcessor(processTagEvent);
       },

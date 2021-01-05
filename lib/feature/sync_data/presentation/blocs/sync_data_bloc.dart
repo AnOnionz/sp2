@@ -40,7 +40,6 @@ Stream<SyncDataState> _eitherSyncToState(Either<Failure, bool> either, Authentic
       return SyncDataCloseDialog();
     }
     if(fail is InternetFailure){
-      print("abc");
       dashboardBloc.add(AccessInternet());
       return SyncDataCloseDialog();
     }

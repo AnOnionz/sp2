@@ -15,7 +15,7 @@ class FcmEntity extends Equatable with HiveObject {
   @HiveField(4)
   final String screen;
   @HiveField(5)
-  final bool isClick;
+  bool isClick;
 
   FcmEntity({this.title, this.body, this.time, this.tab, this.screen, this.isClick});
 

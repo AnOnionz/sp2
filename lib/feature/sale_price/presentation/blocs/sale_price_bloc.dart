@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/error/failure.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/sale_price/domain/usecases/sale_price_usecase.dart';
@@ -14,10 +15,11 @@ part 'sale_price_event.dart';
 part 'sale_price_state.dart';
 
 class SalePriceBloc extends Bloc<SalePriceEvent, SalePriceState> {
+  final DashBoardLocalDataSource dashBoardLocal;
   final SalePriceUseCase updateSalePrice;
   final AuthenticationBloc authenticationBloc;
   final DashboardBloc dashboardBloc;
-  SalePriceBloc({this.authenticationBloc, this.updateSalePrice, this.dashboardBloc})
+  SalePriceBloc({this.authenticationBloc, this.updateSalePrice, this.dashboardBloc, this.dashBoardLocal})
       : super(SalePriceInitial());
 
   @override

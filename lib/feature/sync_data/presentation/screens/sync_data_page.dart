@@ -148,7 +148,7 @@ class _SyncDataPageState extends State<SyncDataPage> {
               cubit: bloc,
               listener: (context, state) {
                 if(state is SyncDataCloseDialog){
-                  Navigator.pop(context);
+                  Navigator.of(context).pop(true);
                 }
                 if(state is SyncDataLoading){
                   showDialog(context: context,

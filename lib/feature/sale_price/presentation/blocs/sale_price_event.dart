@@ -5,7 +5,11 @@ abstract class SalePriceEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+class SalePriceStart extends SalePriceEvent {
+  @override
 
+  List<Object> get props => [];
+}
 class SalePriceUpdate extends SalePriceEvent{
   final List<ProductEntity> products;
 

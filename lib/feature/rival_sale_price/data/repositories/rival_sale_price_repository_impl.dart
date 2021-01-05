@@ -22,7 +22,7 @@ class RivalSalePriceRepositoryImpl implements RivalSalePriceRepository {
   @override
   Future<Either<Failure, bool>> updateRivalSalePrice(
       {List<RivalProductEntity> rivals}) async {
-    final dataToday = await dashBoardLocal.dataToday;
+    final dataToday = dashBoardLocal.dataToday;
     if (dataToday.checkIn != true) {
       return Left(CheckInNullFailure(
           message: "Phải chấm công trước khi nhập giá bia đối thủ"));
@@ -36,7 +36,7 @@ class RivalSalePriceRepositoryImpl implements RivalSalePriceRepository {
           local.cacheRivalSalePrice(rivals);
         }
         return Right(update);
-      } on UnAuthenticateException catch (error) {
+      } on UnAuthenticateException catch (_) {
         local.cacheRivalSalePrice(rivals);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {

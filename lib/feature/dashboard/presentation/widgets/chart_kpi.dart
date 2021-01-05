@@ -14,12 +14,12 @@ class ChartKPI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:  EdgeInsets.only(top: 20, right: 20, bottom: 50),
+      padding: EdgeInsets.only(top: 20, right: 20, bottom: 50),
       child: Column(
         children: [
           MyChart(kpi: kpi, sell: sell,),
           Padding(
-            padding: const EdgeInsets.only(top: 40),
+            padding: const EdgeInsets.only(top: 20),
             child: Text(
               "biểu đồ KPI",
               textAlign: TextAlign.center,

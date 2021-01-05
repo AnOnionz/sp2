@@ -31,8 +31,8 @@ class RequireGifts extends StatelessWidget {
                   child:  CachedNetworkImage(
                     placeholderFadeInDuration: Duration(milliseconds: 300),
                     imageUrl: gifts[index].image,
-                    height: 100,
-                    width: 100,
+                    height: 80,
+                    width: 80,
                     placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                   ),

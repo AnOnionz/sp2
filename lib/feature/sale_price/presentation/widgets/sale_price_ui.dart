@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
@@ -67,7 +68,7 @@ class SalePriceUi extends StatelessWidget {
                               ? null
                               :  products[index + 1].focus);
                         },
-                        controller: products[index].priceController..value = TextEditingValue(text: ((products[index].price) / 1000).toString().split('.').join(','))..addListener(() {
+                        controller: products[index].priceController..value = TextEditingValue(text: NumberFormat.currency(symbol: '', decimalDigits: 0).format(products[index].price))..addListener(() {
                           products[index].price = products[index].priceController.text.isEmpty ? 0 : int.parse(products[index].priceController.text.replaceAll(",", ""))~/1;
 
                         }) ,

@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:sp_2021/core/api/myDio.dart';
-import 'package:sp_2021/core/entities/rival_product_entity.dart';
-import 'package:sp_2021/core/error/Exception.dart';
 
 abstract class RivalSalePriceRemoteDataSource {
   Future<bool> updateRivalSalePrice({List<dynamic> rivals});

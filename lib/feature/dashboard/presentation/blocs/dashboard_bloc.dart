@@ -21,22 +21,20 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final DashBoardLocalDataSource local;
   final AuthenticationBloc authenticationBloc;
 
-
   DashboardBloc({this.saveDataToLocal, this.local, this.authenticationBloc})
       : super(DashboardInitial());
 
   @override
   Stream<DashboardState> mapEventToState(DashboardEvent event) async* {
     if (event is SaveServerDataToLocalData) {
+      await MyDateTime.getToday();
+      await Hive.openBox<DataTodayEntity>(AuthenticationBloc.outlet.code + DATA_DAY);
+      await Hive.openBox<CustomerEntity>(MyDateTime.today + CUSTOMER_BOX);
       if (local.loadInitDataToLocal) {
         yield DashboardSaving();
         final result = await saveDataToLocal(NoParams());
-        await Hive.openBox<DataTodayEntity>(
-            AuthenticationBloc.outlet.code + DATA_DAY);
-        await Hive.openBox<CustomerEntity>(MyDateTime.today + CUSTOMER_BOX);
         yield result.fold((failure) {
           if (failure is UnAuthenticateFailure) {
-
             authenticationBloc.add(ShutDown(willPop: 1));
             return null;
           }

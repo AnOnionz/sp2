@@ -1,5 +1,3 @@
-
-import 'package:access_settings_menu/access_settings_menu.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -26,16 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passWordController = !kDebugMode ? TextEditingController() : TextEditingController(text: '123456');
   bool _obscureText = true;
   final focus = FocusNode();
-
-  openSettingsMenu(settingsName) async {
-    var resultSettingsOpening = false;
-    try {
-      resultSettingsOpening =
-      await AccessSettingsMenu.openSettings(settingsType: settingsName);
-    } catch (e) {
-      resultSettingsOpening = false;
-    }
-  }
 
   void _toggle() {
     setState(() {
@@ -206,13 +194,6 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.pop(context);
                                   },
                                   child: Text("Hủy")),
-                              CupertinoDialogAction(
-                                  isDefaultAction: true,
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    openSettingsMenu('ACTION_WIRELESS_SETTINGS');
-                                  },
-                                  child: Text("Cài đặt")),
                             ],
                           ),
                         ));

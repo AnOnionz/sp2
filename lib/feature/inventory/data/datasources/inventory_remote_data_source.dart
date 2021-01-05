@@ -5,7 +5,8 @@ import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 
 abstract class InventoryRemoteDataSource {
-  Future<bool> updateInventory(List<ProductEntity> products);
+  Future<bool> updateInventory(List<dynamic> beginInventory);
+  Future<bool> updateEndInventory(List<dynamic> endInventory);
 }
 
 class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
@@ -14,20 +15,19 @@ class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
   InventoryRemoteDataSourceImpl({this.cDio});
 
   @override
-  Future<bool> updateInventory(List<ProductEntity> products) async {
-    final data =  products.map((e) => {"sku_id": e.productId, "qty": e.count}).toList();
-    Response _resp = await cDio.client.post('home/oos',
-        data: data);
-    print(data);
+  Future<bool> updateInventory(List<dynamic> beginInventory) async {
+    Response _resp = await cDio.postResponse(path: 'home/oos',
+        data: beginInventory);
     print(_resp);
-    if (_resp.statusCode == 200 && _resp.data['success'] == true) {
-      return true;
-    }
-    if(_resp.statusCode ==401){
-      throw(UnAuthenticateException(message: _resp.statusMessage));
-    }
-    else{
-      throw(ResponseException(message: _resp.data['message']));
-    }
+
+    return _resp.data['success'];
+  }
+  @override
+  Future<bool> updateEndInventory(List<dynamic>endInventory) async {
+    Response _resp = await cDio.postResponse(path: 'home/oos',
+        data: endInventory);
+    print(_resp);
+
+    return _resp.data['success'];
   }
 }

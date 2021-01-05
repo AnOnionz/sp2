@@ -25,12 +25,12 @@ class ReceiveGiftEntity {
       outletCode: outletCode,
       customer: customer,
       products: products.map((e) => e.toBuyQtyJson()).toList(),
-      gifts: gifts.map((e) => e.toJson()).toList(),
-      productImage: productImage.map((e) => e.path).toList(),
-      customerImage: customerImage.map((e) => e.path).toList(),
-      receiptImage: receiptImage.map((e) => e.path).toList(),
+      gifts: gifts.isNotEmpty ? gifts.map((e) => e.toJson()).toList() : gifts,
+      productImage: productImage.isNotEmpty ? productImage.map((e) => e.path).toList() : [],
+      customerImage: customerImage.isNotEmpty ? customerImage.map((e) => e.path).toList(): [],
+      receiptImage: receiptImage.isNotEmpty ? receiptImage.map((e) => e.path).toList():[],
       voucherReceived: voucherReceived,
-      voucherPhone: voucher != null ? voucher.phone : "0",
+      voucherPhone: voucher != null ? voucher.phone : customer.phoneNumber,
       voucherQty: voucher != null ? voucher.qty : 0,
     );
   }

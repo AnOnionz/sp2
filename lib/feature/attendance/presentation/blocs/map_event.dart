@@ -4,7 +4,6 @@ part of 'map_bloc.dart';
 abstract class MapEvent extends Equatable{
   const MapEvent();
   @override
-  // TODO: implement props
   List<Object> get props => [];
 }
 class MapStarted extends MapEvent{}

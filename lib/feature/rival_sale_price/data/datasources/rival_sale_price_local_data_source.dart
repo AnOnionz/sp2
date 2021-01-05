@@ -18,10 +18,15 @@ class RivalSalePriceLocalDataSourceImpl implements RivalSalePriceLocalDataSource
   @override
   Future<void> cacheRivalSalePrice(List<RivalProductEntity> products) async{
     Box<List<dynamic>> box = Hive.box<List<dynamic>>(RIVAL_SALE_PRICE_BOX);
-    await box.clear();
     final data = products.map((e) => {"sku_id": e.id, "price": e.price}).toList();
-    await box.add(data);
-    await syncLocalDataSource.addSync(type: 1, value: 1);
+    if(box.isNotEmpty){
+      await box.clear();
+      await box.add(data);
+    }
+    if(box.isEmpty){
+      await box.add(data);
+      await syncLocalDataSource.addSync(type: 1, value: 1);
+    }
   }
 
   @override

@@ -4,9 +4,9 @@ part 'inventory_entity.g.dart';
 @HiveType(typeId: 2)
 class InventoryEntity extends HiveObject{
   @HiveField(0)
-  List<int> inInventory;
+  List<dynamic> inInventory;
   @HiveField(1)
-  List<int> outInventory;
+  List<dynamic> outInventory;
 
   InventoryEntity({this.inInventory, this.outInventory});
 

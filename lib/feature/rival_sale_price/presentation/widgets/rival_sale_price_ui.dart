@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/rival_product_entity.dart';
 
 class RivalSalePriceUi extends StatelessWidget {
@@ -53,21 +53,53 @@ class RivalSalePriceUi extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       height: 43,
-                      child: InputField(
-                        thisFocus: rivals[index].focus,
-                        nextFocus: index == rivals.length - 1
-                            ? null
-                            :  rivals[index + 1].focus,
-                        controller: rivals[index].priceController..addListener(() {
+                      child: TextFormField(
+                        focusNode:  rivals[index].focus,
+                        textInputAction: index == rivals.length - 1
+                            ? TextInputAction.done
+                            : TextInputAction.next,
+                        textAlign: TextAlign.center,
+                        autofocus: false,
+                        onFieldSubmitted: (v) {
+                          FocusScope.of(context).requestFocus(index == rivals.length - 1
+                              ? null
+                              :  rivals[index + 1].focus);
+                        },
+                        controller: rivals[index].priceController..value = TextEditingValue(text: NumberFormat.currency(symbol: '', decimalDigits: 0).format(rivals[index].price))..addListener(() {
                           rivals[index].price = rivals[index].priceController.text.isEmpty ? 0 : int.parse(rivals[index].priceController.text.replaceAll(",", ""))~/1;
 
-                        }),
-                        textCapitalization: TextCapitalization.characters,
-                        action:index == rivals.length-1 ? TextInputAction.done: TextInputAction.next,
-                        inputType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        inputFormatter: <TextInputFormatter>[ThousandsFormatter(), LengthLimitingTextInputFormatter(10),],
-                      ),
+                        }) ,
+                        style: textInput,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: <TextInputFormatter>[
+                          ThousandsFormatter(),
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        decoration: InputDecoration(
+                          suffixText: 'VNĐ',
+                          suffixStyle: TextStyle(color: Colors.black, fontSize: 17),
+                          contentPadding: const EdgeInsets.only(left: 15, right: 15),
+                          filled: true,
+                          fillColor: Colors.white ,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Color(0xffeaeaea)),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            gapPadding: double.infinity,
+                          ),
+                        ),
+                      )
                     ),
                   ),
                 ],

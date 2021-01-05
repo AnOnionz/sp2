@@ -2,9 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 @immutable
 class InventoryUi extends StatelessWidget {
@@ -23,7 +21,7 @@ class InventoryUi extends StatelessWidget {
             Expanded(
               child: GridView.count(
                 physics: BouncingScrollPhysics(),
-                childAspectRatio: 0.7,
+                childAspectRatio: 0.66,
                 crossAxisCount: 3,
                 crossAxisSpacing: 13,
                 mainAxisSpacing: 13,
@@ -42,8 +40,8 @@ class InventoryUi extends StatelessWidget {
                       children: <Widget>[
                          CachedNetworkImage(
                           imageUrl: e.imgUrl,
-                          height: 100,
-                          width: 100,
+                          height: 80,
+                          width: 80,
                           placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
                           errorWidget: (context, url, error) => Icon(Icons.error),
                         ),
@@ -66,7 +64,8 @@ class InventoryUi extends StatelessWidget {
                           child: TextFormField(
                             focusNode: e.focus,
                             controller: e.countController..addListener(() {
-                              e.count = e.countController.text == null ? 0 : int.parse(e.countController.text)~/1;
+                              print(e.count);
+                              e.count = e.countController.text == null || e.countController.text == '' ? 0 : int.parse(e.countController.text)~/1;
                             }),
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,

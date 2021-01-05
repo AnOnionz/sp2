@@ -16,10 +16,15 @@ class HighlightLocalDataSourceImpl implements HighLightLocalDataSource {
   @override
   Future<void> cacheHighlight(HighlightCacheEntity highlight) async{
     Box<HighlightCacheEntity> box = Hive.box(HIGHLIGHT_BOX);
-    await box.clear();
-    await box.add(highlight);
-    await syncLocal.addSync(type: 1, value: 1);
-    await syncLocal.addSync(type: 2, value: 4);
+    if(box.isNotEmpty) {
+      await box.clear();
+      await box.add(highlight);
+    }
+    if(box.isEmpty) {
+      await box.add(highlight);
+      await syncLocal.addSync(type: 1, value: 1);
+      await syncLocal.addSync(type: 2, value: 4);
+    }
   }
 
   @override

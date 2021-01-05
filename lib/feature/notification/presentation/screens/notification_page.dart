@@ -2,11 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
-
-import '../../../../di.dart';
 
 class NotificationPage extends StatelessWidget {
   @override
@@ -40,7 +39,10 @@ class NotificationPage extends StatelessWidget {
                   builder: (context, Box<FcmEntity> box, _) {
                     if (box.values.isEmpty)
                       return Center(
-                        child: Text("Bạn chưa nhận được thông báo nào", style: Subtitle1white,),
+                        child: Text(
+                          "Bạn chưa nhận được thông báo nào",
+                          style: Subtitle1white,
+                        ),
                       );
                     return Align(
                       alignment: Alignment.topCenter,
@@ -51,12 +53,25 @@ class NotificationPage extends StatelessWidget {
                         reverse: true,
                         itemBuilder: (context, index) {
                           FcmEntity fcm = box.getAt(index);
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: fcm.isClick ? Colors.white70 : Colors.white,
-                            ),
-                            child: Row(
-                              children: [Text(fcm.title??"title"), Text(fcm.body??"body")],
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 12, bottom: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color:
+                                     Colors.white70
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(fcm.title, style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 28),),
+                                    Text(DateFormat('hh:mm dd-MM-yyyy').format(fcm.time), style: TextStyle(fontStyle: FontStyle.italic),),
+                                    Text(fcm.body, style: TextStyle(color: Colors.black, fontSize: 20),)
+                                  ],
+                                ),
+                              ),
                             ),
                           );
                         },

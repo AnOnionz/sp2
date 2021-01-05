@@ -5,7 +5,6 @@ import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/platform/date_time.dart';
-import 'package:sp_2021/core/storage/secure_storage.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
@@ -29,11 +28,10 @@ abstract class ReceiveGiftLocalDataSource{
   bool isRequireSync();
 }
 class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
-  final SecureStorage storage;
   final DashBoardLocalDataSource local;
   final SyncLocalDataSource syncLocal;
 
-  ReceiveGiftLocalDataSourceImpl({this.storage, this.local, this.syncLocal});
+  ReceiveGiftLocalDataSourceImpl({this.local, this.syncLocal});
 
   @override
   Future<HandleGiftEntity> handleGift({List<
@@ -55,8 +53,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     // get set gift current
     final gifts = local.fetchGift();
     // get all Gift can receive
-    LoginEntity outlet = await storage.readOutlet(
-        key: OUTLET_IN_STORAGE); // check province
+    LoginEntity outlet = AuthenticationBloc.outlet; // check province
     resultGift = await getGift(products, outlet);
     print("gift will receive1: $resultGift");
     // change temp gift to gift
@@ -270,6 +267,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   @override
   Future<void> cacheCustomerGift({CustomerGiftEntity customerGiftEntity}) async {
     Box<CustomerGiftEntity> box = Hive.box(CUSTOMER_GIFT_BOX);
+    await box.clear();
     await box.add(customerGiftEntity);
     await syncLocal.addSync(type: 1, value: 1);
     await syncLocal.addSync(type: 2, value: 3);
@@ -279,7 +277,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   @override
   Future<void> clearCustomerGift() async{
     await syncLocal.removeSync(type: 1, value: 1);
-    await syncLocal.removeSync(type: 1, value: 3);
+    await syncLocal.removeSync(type: 2, value: 3);
   }
 
   @override
@@ -296,7 +294,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
           name: customer.name, phone: customer.phoneNumber);
       customerInDB.inTurn = customer.inTurn;
       customerInDB.save();
-    } on HiveError catch (error) {
+    } on HiveError catch (_) {
       // new customer
       Box<CustomerEntity> box = Hive.box(MyDateTime.today + CUSTOMER_BOX);
       box.add(customer);
@@ -306,20 +304,19 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   @override
   Future<CustomerEntity> getCustomer({String name, String phone}) async {
     Box<CustomerEntity> box = Hive.box(MyDateTime.today + CUSTOMER_BOX);
+    final outlet = AuthenticationBloc.outlet;
     List<CustomerEntity> customers = box.values.toList();
     if (customers.isEmpty) {
       return CustomerEntity(name: name,
           phoneNumber: phone,
-          inTurn: AuthenticationBloc.outlet.turn);
+          inTurn: outlet.turn);
     }
     CustomerEntity customer;
     try {
-      customer = customers.firstWhere((element) => element.name == name &&
-          element.phoneNumber == phone);
+      customer = customers.firstWhere((element) => element.phoneNumber == phone);
     } catch (e) {
-      customer = CustomerEntity(name: name, phoneNumber: phone,inTurn: AuthenticationBloc.outlet.turn);
+      customer = CustomerEntity(name: name, phoneNumber: phone, inTurn: outlet.turn);
     }
-
     return customer;
   }
 

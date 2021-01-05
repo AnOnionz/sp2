@@ -3,10 +3,14 @@ part of 'inventory_bloc.dart';
 abstract class InventoryEvent extends Equatable {
   const InventoryEvent();
 }
-class InventoryUpdate extends InventoryEvent{
-  final List<ProductEntity> products;
-
-  InventoryUpdate({this.products});
+class InventoryStart extends InventoryEvent {
   @override
-  List<Object> get props => [products];
+  List<Object> get props => [];
+}
+class InventoryUpdate extends InventoryEvent{
+  final InventoryEntity inventory;
+
+  InventoryUpdate({this.inventory});
+  @override
+  List<Object> get props => [inventory];
 }

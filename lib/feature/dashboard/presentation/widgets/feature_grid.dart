@@ -8,11 +8,12 @@ class FeatureGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final List items = <Feature>[LuckyWheel(), SalePrice(), RivalSalePrice(), Inventory(), Highlight(), SyncData()];
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20,),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: GridView(
         physics: NeverScrollableScrollPhysics(),
         gridDelegate:
-        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 5/4),
+        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 7/6),
+        shrinkWrap: true,
         children: items.map((feature) => FeatureButton(feature: feature)).toList(),
       ),
     );

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +30,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
   Future getTakeGiftImage() async {
     if (takeGiftImg.length < 5) {
       final pickedFile = await picker.getImage(
-          source: ImageSource.camera, maxWidth: 500, maxHeight: 600);
+          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
       if (pickedFile != null) {
         setState(() {
           takeGiftImg.add(File(pickedFile.path));
@@ -40,7 +42,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
   Future getApproveImage() async {
     if (approveImg.length < 5) {
       final pickedFile = await picker.getImage(
-          source: ImageSource.camera, maxWidth: 500, maxHeight: 600);
+          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
       if (pickedFile != null) {
         setState(() {
           approveImg.add(File(pickedFile.path));
@@ -182,9 +184,12 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                     children: [
                                       Expanded(
                                         flex: 1,
-                                        child: Image.asset(
-                                          widget.entity.gifts[index].asset,
+                                        child: CachedNetworkImage(
+                                          imageUrl: widget.entity.gifts[index].image,
                                           height: 100,
+                                          width: 100,
+                                          placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
+                                          errorWidget: (context, url, error) => Icon(Icons.error),
                                         ),
                                       ),
                                       Expanded(

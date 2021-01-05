@@ -7,7 +7,6 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:access_settings_menu/access_settings_menu.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/colors.dart';
@@ -47,7 +46,7 @@ class _AttendancePageState extends State<AttendancePage>
   }
 
   Future getImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    final pickedFile = await picker.getImage(source: ImageSource.camera, maxHeight: 480, maxWidth: 640);
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -424,6 +423,45 @@ class _AttendancePageState extends State<AttendancePage>
                                                           TabPressed(
                                                               index: 0));
                                                     });
+                                              }
+                                              if (state is AttendanceInventoryNullFailure) {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (_) {
+                                                    return CupertinoAlertDialog(
+                                                      title: Text('Thông báo'),
+                                                      content: Text(
+                                                        state.message,
+                                                        style: Subtitle1black,
+                                                      ),
+                                                      actions: [
+                                                        CupertinoDialogAction(
+                                                          isDefaultAction: true,
+                                                          textStyle: TextStyle(
+                                                              color: Colors
+                                                                  .red),
+                                                          child: Text('Đóng'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                context).pop();
+                                                          },
+                                                        ),
+                                                        CupertinoDialogAction(
+                                                          isDefaultAction: true,
+                                                          child: Text(
+                                                              'Nhập tồn kho'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                context).pop();
+                                                            Navigator.pushNamed(
+                                                                context,
+                                                                '/inventory');
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
                                               }
                                               if (state is AttendanceHighlightNullFailure) {
                                                 showDialog(

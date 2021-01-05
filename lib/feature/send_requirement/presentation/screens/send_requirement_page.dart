@@ -105,13 +105,13 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                                   _controller.animateToPage(0, duration:  Duration(milliseconds: 1000), curve: Curves.fastLinearToSlowEaseIn);
                                 },
                                 child: Container(
-                                  color: page == 1 ? Colors.black54 : Colors.black12,
+                                  color: page == 0 ? Colors.black54 : Colors.black12,
                                   height: 50,
                                   child: Center(
                                     child: Text(
                                       "Quà",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 20),
+                                          color:  page == 0 ? Colors.blueAccent : Colors.white, fontSize: 20),
                                     ),
                                   ),
                                 ),
@@ -127,12 +127,12 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                                 },
                                 child: Container(
                                   height: 50,
-                                  color: page == 1 ? Colors.black12 : Colors.black54,
+                                  color: page == 0 ? Colors.black12 : Colors.black54,
                                   child: Center(
                                       child: Text(
                                     "Bia",
                                     style:
-                                        TextStyle(color: Colors.white, fontSize: 20),
+                                        TextStyle(color: page == 0 ? Colors.white : Colors.blueAccent , fontSize: 20),
                                   )),
                                 ),
                               ),

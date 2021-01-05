@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
-import 'package:sp_2021/core/entities/gift_entity.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:path/path.dart';
 import 'customer_entity.dart';
 
@@ -39,7 +37,7 @@ class CustomerGiftEntity extends Equatable with HiveObject{
       'outlet_code': outletCode,
       'customer': customer.toJson(),
       'products': products,
-      'gifts': gifts,
+      'gifts': gifts ,
       'product_images': productImage.map((e) =>
           MultipartFile.fromFileSync(
             e, filename: basename(e),
@@ -52,10 +50,10 @@ class CustomerGiftEntity extends Equatable with HiveObject{
           MultipartFile.fromFileSync(
             e, filename: basename(e),
           ),).toList(),
-      'voucher_received': voucherReceived,
+      'voucher_received': voucherReceived.toString(),
       'voucher_used': {
-        'phone': "009090321",
-        'qty': 1,
+        'phone': voucherPhone,
+        'qty': voucherQty.toString(),
       }
     };
   }

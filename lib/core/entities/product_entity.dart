@@ -28,9 +28,12 @@ part 'product_entity.g.dart';
   FocusNode focus = FocusNode();
 
   ProductEntity({this.productId, this.productName, this.count, this.price, this.imgUrl}) {
-    buyQty = buyQty ?? 0;
+    buyQty = 0;
     count = count ?? 0;
     price = price ?? 0;
+    countController.text = count.toString();
+    priceController.text = price.toString();
+
   }
   factory ProductEntity.create(ProductEntity productEntity){
       switch(productEntity.productId){

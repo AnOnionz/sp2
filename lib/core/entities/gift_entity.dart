@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -47,8 +46,6 @@ class GiftEntity extends Gift with HiveObject {
   @HiveField(3)
   int amountCurrent;
   int amountReceive;
-
-  String get asset {return name != "Nến" ? "assets/images/$name.png" : "assets/images/Nen.png"; }
 
   factory GiftEntity.create(GiftEntity giftEntity){
       switch(giftEntity.giftId){
@@ -151,12 +148,12 @@ class GiftEntity extends Gift with HiveObject {
 //  }
 
   GiftEntity upReceive() {
-    this.amountReceive += amountReceive;
+    this.amountReceive += 1;
     return this;
   }
 
   GiftEntity downCurrent() {
-    this.amountCurrent -= amountReceive;
+    this.amountCurrent -= 1;
     return this;
   }
 

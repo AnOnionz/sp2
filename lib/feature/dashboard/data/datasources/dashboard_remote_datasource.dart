@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:sp_2021/core/api/myDio.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
@@ -51,7 +49,7 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
     //return compute(SetGiftEntity.parseSetGift, _resp);
 
     return [
-      SetGiftEntity(index: 0, gifts: [
+      SetGiftEntity(index: 1, gifts: [
         Nen(
             name: "Nến",
             giftId: 1,
@@ -63,252 +61,198 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 2,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 1
+            amountCurrent: 3
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
       ]),
-      SetGiftEntity(index: 1, gifts: [
+      SetGiftEntity(index: 2, gifts: [
         Nen(
             name: "Nến",
             giftId: 1,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Voucher(
             name: "Voucher",
             giftId: 2,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         StrongBowGift(
             name: "Strongbow",
             giftId: 3,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Pack4(
             name: "Pack4",
             giftId: 4,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Pack6(
             name: "Pack6",
             giftId: 5,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Alu(
             name: "Alu",
             giftId: 6,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1
         ),
         Magnum(
             name: "Magnum",
             giftId: 7,
             image: "",
-            amountCurrent: 1,
+            amountCurrent: 3,
             amountReceive: 1,
         ),
       ]),
-//      SetGiftEntity(index: 2, gifts: [
-//        Nen(
-//            name: "Nến",
-//            giftId: 1,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        Voucher(
-//            name: "Voucher",
-//            giftId: 2,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        StrongBowGift(
-//            name: "Strongbow",
-//            giftId: 3,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        Pack4(
-//            name: "Pack4",
-//            giftId: 4,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        Pack6(
-//            name: "Pack6",
-//            giftId: 5,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        Alu(
-//            name: "Alu",
-//            giftId: 6,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        Magnum(
-//            name: "Magnum",
-//            giftId: 7,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//
-//      ]),
-//      SetGiftEntity(index: 3, gifts: [
-//        Nen(
-//            name: "Nến",
-//            giftId: 1,
-//            image: "",
-//            amountCurrent: 3,
-//            amountReceive: 1
-//        ),
-//        Voucher(
-//            name: "Voucher",
-//            giftId: 2,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        StrongBowGift(
-//            name: "Strongbow",
-//            giftId: 3,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Pack4(
-//            name: "Pack4",
-//            giftId: 4,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Pack6(
-//            name: "Pack6",
-//            giftId: 5,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Alu(
-//            name: "Alu",
-//            giftId: 6,
-//            image: "",
-//            amountCurrent: 0,
-//            amountReceive: 1
-//        ),
-//        Magnum(
-//            name: "Magnum",
-//            giftId: 7,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//
-//      ]),
-//      SetGiftEntity(index: 1, gifts: [
-//        Nen(
-//            name: "Nến",
-//            giftId: 1,
-//            image: "",
-//            amountCurrent: 3,
-//            amountReceive: 1
-//        ),
-//        Voucher(
-//            name: "Voucher",
-//            giftId: 2,
-//            image: "",
-//            amountCurrent: 2,
-//            amountReceive: 1
-//        ),
-//        StrongBowGift(
-//            name: "Strongbow",
-//            giftId: 3,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Pack4(
-//            name: "Pack4",
-//            giftId: 4,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Pack6(
-//            name: "Pack6",
-//            giftId: 5,
-//            image: "",
-//            amountCurrent: 0,
-//            amountReceive: 1
-//        ),
-//        Alu(
-//            name: "Alu",
-//            giftId: 6,
-//            image: "",
-//            amountCurrent: 1,
-//            amountReceive: 1
-//        ),
-//        Magnum(
-//            name: "Magnum",
-//            giftId: 7,
-//            image: "",
-//            amountCurrent: 0,
-//            amountReceive: 1
-//        ),
-//
-//      ]
-    //)
+      SetGiftEntity(index: 3, gifts: [
+        Nen(
+            name: "Nến",
+            giftId: 1,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Voucher(
+            name: "Voucher",
+            giftId: 2,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        StrongBowGift(
+            name: "Strongbow",
+            giftId: 3,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Pack4(
+            name: "Pack4",
+            giftId: 4,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Pack6(
+            name: "Pack6",
+            giftId: 5,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Alu(
+            name: "Alu",
+            giftId: 6,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Magnum(
+            name: "Magnum",
+            giftId: 7,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+
+      ]),
+      SetGiftEntity(index: 4, gifts: [
+        Nen(
+            name: "Nến",
+            giftId: 1,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Voucher(
+            name: "Voucher",
+            giftId: 2,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        StrongBowGift(
+            name: "Strongbow",
+            giftId: 3,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Pack4(
+            name: "Pack4",
+            giftId: 4,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Pack6(
+            name: "Pack6",
+            giftId: 5,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Alu(
+            name: "Alu",
+            giftId: 6,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+        Magnum(
+            name: "Magnum",
+            giftId: 7,
+            image: "",
+            amountCurrent: 3,
+            amountReceive: 1
+        ),
+      ]),
     ];
   }
 
@@ -319,53 +263,54 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
     //print(_resp);
 
     //return SetGiftEntity.fromJson(_resp.data['data']);
-    return SetGiftEntity(index: 0, gifts: [
+   return SetGiftEntity(index: 1, gifts: [
       Nen(
-        name: "Nến",
-        giftId: 1,
-        image: "",
-        amountCurrent: 0,
-        amountReceive: 1
+          name: "Nến",
+          giftId: 1,
+          image: "",
+          amountCurrent: 3,
+          amountReceive: 1
       ),
       Voucher(
-        name: "Voucher",
-        giftId: 2,
-        image: "",
-          amountCurrent: 0,
+          name: "Voucher",
+          giftId: 2,
+          image: "",
+          amountCurrent: 2,
           amountReceive: 1
       ),
       StrongBowGift(
-        name: "Strongbow",
-        giftId: 3,
-        image: "",
-          amountCurrent: 0,
+          name: "Strongbow",
+          giftId: 3,
+          image: "",
+          amountCurrent: 1,
           amountReceive: 1
       ),
       Pack4(
-        name: "Pack4",
-        giftId: 4,
-        image: "",
-          amountCurrent: 0,
+          name: "Pack4",
+          giftId: 4,
+          image: "",
+          amountCurrent: 1,
           amountReceive: 1
       ),
       Pack6(
-        name: "Pack6",
-        giftId: 5,
-        image: "",
-          amountCurrent: 0,
+          name: "Pack6",
+          giftId: 5,
+          image: "",
+          amountCurrent: 1,
           amountReceive: 1
       ),
       Alu(
           name: "Alu",
           giftId: 6,
           image: "",
-          amountCurrent: 0,amountReceive: 1
+          amountCurrent: 1
       ),
       Magnum(
-        name: "Magnum",
-        giftId: 7,
-        image: "",
-          amountCurrent: 0,amountReceive: 1
+          name: "Magnum",
+          giftId: 7,
+          image: "",
+          amountCurrent: 1,
+          amountReceive: 1
       ),
     ]);
   }
@@ -379,11 +324,4 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
     return (_resp.data['data'] as List<dynamic>).map((e) => RivalProductEntity.fromJson(e)).toList();
 
   }
-}
-List<ProductEntity> _parseProducts(List<dynamic> data){
-  return data.map((e) => ProductEntity.fromJson(e)).toList();
-}
-
-List<GiftEntity> _parseGifts( List<dynamic> data){
-  return data.map((e) => GiftEntity.fromJson(e)).toList();
 }

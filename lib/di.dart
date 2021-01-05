@@ -1,10 +1,6 @@
 import 'package:data_connection_checker/data_connection_checker.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:sp_2021/core/storage/secure_storage.dart';
-import 'package:sp_2021/core/usecases/usecase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/core/util/validate_form.dart';
 import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
@@ -29,6 +25,7 @@ import 'package:sp_2021/feature/highlight/data/repositories/highlight_repository
 import 'package:sp_2021/feature/highlight/domain/usecases/highlight_usecase.dart';
 import 'package:sp_2021/feature/highlight/domain/usecases/highlight_validate.dart';
 import 'package:sp_2021/feature/highlight/presentation/blocs/highlight_bloc.dart';
+import 'package:sp_2021/feature/inventory/data/datasources/inventory_local_data_source.dart';
 import 'package:sp_2021/feature/inventory/data/datasources/inventory_remote_data_source.dart';
 import 'package:sp_2021/feature/inventory/domain/repositories/inventory_repository.dart';
 import 'package:sp_2021/feature/inventory/domain/usecases/inventory_usecase.dart';
@@ -87,9 +84,10 @@ import 'feature/sync_data/data/repositories/sync_repository_impl.dart';
 final sl = GetIt.instance;
 Future<void> init() async {
   //! Core
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
   sl.registerLazySingleton<Dialogs>(() => Dialogs());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-  sl.registerLazySingleton<SecureStorage>(() => SecureStorage());
   sl.registerLazySingleton<ValidateForm>(() => ValidateForm());
   //! External
   sl.registerLazySingleton<CDio>(() => CDio());
@@ -103,14 +101,14 @@ Future<void> init() async {
       () => LoginRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<LoginRepository>(
-      () => LoginRepositoryImpl(remoteDataSource: sl(),networkInfo: sl(), dashBoardLocal: sl(), syncLocalData: sl()));
+      () => LoginRepositoryImpl(remoteDataSource: sl(),networkInfo: sl(), dashBoardLocal: sl()));
   //Use case
   sl.registerLazySingleton<UsecaseLogin>(() => UsecaseLogin(repository: sl()));
   sl.registerLazySingleton<UseCaseLogout>(
       () => UseCaseLogout(repository: sl()));
   // Bloc
   sl.registerLazySingleton<AuthenticationBloc>(
-      () => AuthenticationBloc(storage: sl()));
+      () => AuthenticationBloc(sharedPreferences: sl()));
   sl.registerFactory<LoginBloc>(
       () => LoginBloc(login: sl(), logout: sl(), authenticationBloc: sl(), dashboardBloc: sl()));
 
@@ -120,7 +118,7 @@ Future<void> init() async {
   sl.registerLazySingleton<DashBoardRemoteDataSource>(
       () => DashBoardRemoteDataSourceImpl(cDio: sl()));
   sl.registerLazySingleton<DashBoardLocalDataSource>(
-      () => DashBoardLocalDataSourceImpl(storage: sl()));
+      () => DashBoardLocalDataSourceImpl());
   // Repository
   sl.registerLazySingleton<DashboardRepository>(() =>
       DashboardRepositoryImpl(remote: sl(), local: sl(), networkInfo: sl()));
@@ -137,7 +135,7 @@ Future<void> init() async {
   // Data Source
   sl.registerLazySingleton<SyncLocalDataSource>(() => SyncLocalDataSourceImpl());
   // Repository
-  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(networkInfo: sl(), salePriceRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
+  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(networkInfo: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
   // UseCase
   sl.registerLazySingleton<SyncUseCase>(() => SyncUseCase(repository: sl()));
   // Bloc
@@ -150,7 +148,7 @@ Future<void> init() async {
       () => AttendanceRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<AttendanceRepository>(
-      () => AttendanceRepositoryImpl(dataSource: sl(),dashBoardLocal: sl()));
+      () => AttendanceRepositoryImpl(dataSource: sl(),dashBoardLocal: sl(), syncRepository: sl()));
   // Use case
   sl.registerLazySingleton<UseCaseCheckInOrOut>(
       () => UseCaseCheckInOrOut(repository: sl()));
@@ -165,11 +163,11 @@ Future<void> init() async {
   //! Future Receive Gift
   sl.registerLazySingleton<ValidateFormUseCase>(() => ValidateFormUseCase(validateForm: sl()));
   // Data Source
-  sl.registerLazySingleton<ReceiveGiftLocalDataSource>(() => ReceiveGiftLocalDataSourceImpl(storage: sl(),local: sl(), syncLocal: sl()));
+  sl.registerLazySingleton<ReceiveGiftLocalDataSource>(() => ReceiveGiftLocalDataSourceImpl(local: sl(), syncLocal: sl()));
   sl.registerLazySingleton<ReceiveGiftRemoteDataSource>(() => ReceiveGiftRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<ReceiveGiftRepository>(
-      () => ReceiveGiftRepositoryImpl(storage: sl(), local: sl(),networkInfo: sl(),remote: sl(),));
+      () => ReceiveGiftRepositoryImpl(local: sl(),networkInfo: sl(),remote: sl(),dashboardLocal: sl()));
   // UseCase
   sl.registerLazySingleton<UseVoucherUseCase>(() => UseVoucherUseCase(repository: sl()));
   sl.registerLazySingleton<HandleGiftUseCase>(
@@ -201,17 +199,18 @@ Future<void> init() async {
 
   //! Feature Inventory//
   // Data Source
+  sl.registerLazySingleton<InventoryLocalDataSource>(() => InventoryLocalDataSourceImpl(syncLocal: sl()));
   sl.registerLazySingleton<InventoryRemoteDataSource>(
       () => InventoryRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<InventoryRepository>(
-      () => InventoryRepositoryImpl(local: sl(), remote: sl()));
+      () => InventoryRepositoryImpl(local: sl(), remote: sl(),syncLocal: sl(),networkInfo: sl(),dashboardLocal: sl()));
   // UseCase
   sl.registerLazySingleton<UpdateInventory>(
       () => UpdateInventory(repository: sl()));
   // Bloc
   sl.registerFactory<InventoryBloc>(
-      () => InventoryBloc(updateInventory: sl(), authenticationBloc: sl()));
+      () => InventoryBloc(updateInventory: sl(), authenticationBloc: sl(), dashboardBloc: sl(), localData: sl()));
 
 
   //! Feature SalePrice
@@ -227,7 +226,7 @@ Future<void> init() async {
       () => SalePriceUseCase(repository: sl()));
   // Bloc
   sl.registerFactory<SalePriceBloc>(
-      () => SalePriceBloc(dashboardBloc: sl(), authenticationBloc: sl(), updateSalePrice: sl()));
+      () => SalePriceBloc(dashboardBloc: sl(), authenticationBloc: sl(), updateSalePrice: sl(), dashBoardLocal: sl()));
 
 
   //! Feature RivalSalePrice

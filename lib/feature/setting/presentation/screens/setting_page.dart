@@ -90,7 +90,10 @@ class SettingPage extends StatelessWidget {
                           context: context,
                           builder: (_) => CupertinoAlertDialog(
                             title: Text("Đăng xuất ?"),
-                            content: Text("Bạn có chắc muốn đăng xuất ?", style: Subtitle1black,),
+                            content: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Bạn có chắc muốn đăng xuất ?", style: Subtitle1black,),
+                            ),
                             actions: [
                               CupertinoDialogAction(
                                 isDefaultAction: true,
@@ -146,7 +149,7 @@ class SettingPage extends StatelessWidget {
                                   CupertinoActivityIndicator(radius: 17, animating: true,),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Text("Đang đăng xuất ..."),
+                                    child: Text("Đang đăng xuất ...", style: Subtitle1black,),
                                   )
                                 ],
                               ),

@@ -20,7 +20,7 @@ class HighlightRepositoryImpl implements HighlightRepository {
   @override
   Future<Either<Failure, bool>> uploadToServer(
       {HighlightCacheEntity highlights}) async {
-    final dataToday = await dashboardLocal.dataToday;
+    final dataToday = dashboardLocal.dataToday;
     if (dataToday.checkIn != true) {
       return Left(CheckInNullFailure(
           message: "Phải chấm công trước khi nhập thông tin cuối ngày"));

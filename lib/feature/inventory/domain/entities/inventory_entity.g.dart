@@ -17,8 +17,8 @@ class InventoryEntityAdapter extends TypeAdapter<InventoryEntity> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return InventoryEntity(
-      inInventory: (fields[0] as List)?.cast<int>(),
-      outInventory: (fields[1] as List)?.cast<int>(),
+      inInventory: (fields[0] as List)?.cast<dynamic>(),
+      outInventory: (fields[1] as List)?.cast<dynamic>(),
     );
   }
 

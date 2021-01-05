@@ -44,14 +44,14 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
     final nen = Nen.clone(giftId: 333, image: _items[0].image, name: "Nen",);
     _items.insert(4, nen);
     _lucky = widget.giftLucky.map<int>((e) { return e.giftId < 5 ? e.giftId - 1 : e.giftId ; }).toList();
-    var _duration = Duration(milliseconds: 1000);
+    var _duration = Duration(milliseconds: 3000);
     _ctrl = AnimationController(duration: _duration, vsync: this)
       ..addListener(() async{
         if (_ctrl.status == AnimationStatus.completed) {
           setState(() {
             doAnimation = false;
           });
-          await Future.delayed(Duration(milliseconds: 800));
+          await Future.delayed(Duration(milliseconds: 1000));
           setState(() {
             _indexGift = _calIndex(_ani.value * _angle + _current);
 //            print('index $_indexGift');
@@ -84,101 +84,89 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
           child: Padding(
             padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FittedBox(
-                    fit: BoxFit.contain,
-                    child: Text(
-                      "CHÚC MỪNG BẠN ĐÃ NHẬN ĐUỢC 1 VÒNG QUAY ",
-                      style: TextStyle(color: Colors.white, fontSize: 30),
-                    )),
-                AnimatedBuilder(
-                    animation: _ani,
-                    builder: (context, child) {
-                      final _value = _ani.value;
-                      final _angle = _value * this._angle;
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          BoardView(
-                              items: _items, current: _current, angle: _angle),
-                          _buildGo(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: AnimatedBuilder(
+                      animation: _ani,
+                      builder: (context, child) {
+                        final _value = _ani.value;
+                        final _angle = _value * this._angle;
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            BoardView(
+                                items: _items, current: _current, angle: _angle),
+                            _buildGo(),
+                          ],
+                        );
+                      }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 50),
+                  child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text(
+                        "CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC 1 VÒNG QUAY ",
+                        style: TextStyle(color: Colors.white, fontSize: 30),
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 30),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                border: Border.all(
+                                  width: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    widget.form.customer.name,
+                                    style: Subtitle1white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                border: Border.all(
+                                  width: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    widget.form.customer.phoneNumber,
+                                    style: Subtitle1white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
-                      );
-                    }),
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              border: Border.all(
-                                width: 2,
-                                color: Colors.white,
-                              ),
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Center(
-                                child: Text(
-                                  widget.form.customer.name,
-                                  style: Subtitle1white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              border: Border.all(
-                                width: 2,
-                                color: Colors.white,
-                              ),
-                            ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Center(
-                                child: Text(
-                                  widget.form.customer.phoneNumber,
-                                  style: Subtitle1white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20, top: 15),
-                        child: Container(
-                          width: double.infinity,
-                          height: 45,
-                          padding: const EdgeInsets.all(12.0),
-                          decoration: BoxDecoration(
-                            color: Color(0XFFFF0000),
-                            borderRadius: BorderRadius.circular(3.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Tiếp tục",
-                              style: Subtitle1white,
-                            ),
-                          ),
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 
@@ -82,11 +84,18 @@ class _SBBoardViewState extends State<SBBoardView> {
         height: size.height,
         width: size.width,
         alignment: Alignment.topCenter,
-        child:FittedBox(
-          fit: BoxFit.contain,
-          child: ConstrainedBox(
-            constraints: BoxConstraints.expand(height: size.height / 2.6, width: 80),
-            child: Image.asset(gift.asset, height: 160, width: 80, scale: 5.3, fit: BoxFit.scaleDown,alignment: Alignment.center,),
+        child:ConstrainedBox(
+          constraints: BoxConstraints.expand(height: size.height / 2.6, width: 70,),
+          child: Transform.scale(
+            scale: gift.id == 1 ||  gift.id == 3 ||  gift.id == 7 ||  gift.id == 333 ?  0.55: 0.85,
+            child: CachedNetworkImage(
+              imageUrl: gift.image,
+              fit: BoxFit.scaleDown,
+              height: 100,
+              width: 100,
+              placeholder: (context, url) => SizedBox(height: 25, width: 25, child: Center(child:CupertinoActivityIndicator())),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
           ),
         ),
       ),

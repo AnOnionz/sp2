@@ -14,6 +14,7 @@ import 'package:sp_2021/feature/sale_price/presentation/screens/sale_price_page.
 import 'package:sp_2021/feature/sync_data/presentation/screens/sync_data_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
+import 'core/common/text_styles.dart';
 import 'di.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
 import 'feature/dashboard/presentation/blocs/tab_bloc.dart';
@@ -159,7 +160,10 @@ class _MyApplicationState extends State<MyApplication> {
                           duration: Duration(milliseconds: 100),
                           child: CupertinoAlertDialog(
                             title: Text('Thông báo'),
-                            content: Text("Phiên đăng nhập đã hết hạn"),
+                            content: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Phiên đăng nhập đã hết hạn", style: Subtitle1black,),
+                            ),
                             actions: <Widget>[
                               CupertinoDialogAction(
                                 isDefaultAction: true,

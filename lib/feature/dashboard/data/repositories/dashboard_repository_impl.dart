@@ -26,9 +26,9 @@ class DashboardRepositoryImpl implements DashboardRepository{
       return Left(InternetFailure());
     } on ResponseException catch (error) {
       return Left(ResponseFailure(message: error.message));
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
-    } on InternalException catch (error) {
+    } on InternalException catch (_) {
       return Left(InternalFailure());
     }
   }
@@ -45,9 +45,9 @@ class DashboardRepositoryImpl implements DashboardRepository{
       return Left(InternetFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
-    } on InternalException catch (error) {
+    } on InternalException catch (_) {
       return Left(InternalFailure());
     }
   }
@@ -65,9 +65,9 @@ class DashboardRepositoryImpl implements DashboardRepository{
       return Left(InternetFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
-    } on InternalException catch (error) {
+    } on InternalException catch (_) {
       return Left(InternalFailure());
     }
   }
@@ -85,9 +85,9 @@ class DashboardRepositoryImpl implements DashboardRepository{
       return Left(InternalFailure());
     } on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
-    } on InternalException catch (error) {
+    } on InternalException catch (_) {
       return Left(InternalFailure());
     }
 
@@ -104,9 +104,9 @@ class DashboardRepositoryImpl implements DashboardRepository{
       return Left(InternalFailure());
     }  on ResponseException catch(error){
       return Left(ResponseFailure(message: error.message));
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
-    } on InternalException catch (error) {
+    } on InternalException catch (_) {
       return Left(InternalFailure());
     }
   }

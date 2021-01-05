@@ -1,8 +1,7 @@
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+
 import 'package:hive/hive.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 
 abstract class SalePriceLocalDataSource {
@@ -17,14 +16,18 @@ class SalePriceLocalDataSourceImpl implements SalePriceLocalDataSource{
 
   SalePriceLocalDataSourceImpl({this.syncLocalDataSource});
   @override
-  Future<void> cacheSalePrice(List<ProductEntity> products) async{
+  Future<void> cacheSalePrice(List<ProductEntity> products) async {
     Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
-    final data =  products.map((e) => {"sku_id": e.productId, "price": e.price}).toList();
-    if(box.isNotEmpty){
-      await clearSalePrice();
+    final data = products.map((e) => {"sku_id": e.productId, "price": e.price})
+        .toList();
+    if (box.isNotEmpty) {
+      await box.clear();
+      await box.add(data);
     }
-    await box.add(data);
-    await syncLocalDataSource.addSync(type: 1, value: 1);
+    if (box.isEmpty) {
+      await box.add(data);
+      await syncLocalDataSource.addSync(type: 1, value: 1);
+    }
   }
 
   @override

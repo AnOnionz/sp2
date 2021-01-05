@@ -1,21 +1,12 @@
-import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
-import 'package:ntp/ntp.dart';
-import 'package:pattern_formatter/date_formatter.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/entities/rival_product_entity.dart';
 import 'package:sp_2021/core/entities/set_gift_entity.dart';
-import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/platform/date_time.dart';
-import 'package:sp_2021/core/storage/secure_storage.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
-import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
@@ -43,9 +34,6 @@ abstract class DashBoardLocalDataSource {
 }
 
 class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
-  final SecureStorage storage;
-
-  DashBoardLocalDataSourceImpl({this.storage});
 
   @override
   DataTodayEntity get dataToday {
@@ -62,17 +50,15 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   bool get loadInitDataToLocal {
     Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    Box<SetGiftEntity> currentBox =
-        Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
-    Box<RivalProductEntity> rivalBox =
-        Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
+    Box<SetGiftEntity> currentBox = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
+    Box<RivalProductEntity> rivalBox = Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
     Box<ProductEntity> productBox = Hive.box<ProductEntity>(PRODUCT_BOX);
     Box<GiftEntity> giftBox = Hive.box<GiftEntity>(GIFT_BOX);
-    return setGiftBox.isNotEmpty &&
-        giftBox.isNotEmpty &&
-        currentBox.isNotEmpty &&
-        rivalBox.isNotEmpty &&
-        productBox.isNotEmpty;
+    return setGiftBox.isEmpty ||
+        giftBox.isEmpty ||
+        currentBox.isEmpty ||
+        rivalBox.isEmpty ||
+        productBox.isEmpty ;
   }
 
   @override
@@ -85,6 +71,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   List<ProductEntity> fetchProduct() {
     Box<ProductEntity> box = Hive.box<ProductEntity>(PRODUCT_BOX);
     box.values.toList().forEach((element) {
+      element.buyQty = 0;
       element.controller = TextEditingController();
       element.countController = TextEditingController();
       element.priceController = TextEditingController();
@@ -177,7 +164,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   Future<void> cacheDataToday(
       {bool highLight, bool checkIn, bool checkOut, bool inventory, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity}) async {
-    final data = await dataToday;
+    final data = dataToday;
     data.checkOut = checkOut ?? data.checkOut;
     data.checkIn = checkIn ?? data.checkIn;
     data.inventory = inventory ?? data.inventory;

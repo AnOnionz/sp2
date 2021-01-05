@@ -1,4 +1,3 @@
-import 'package:access_settings_menu/access_settings_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/colors.dart';
@@ -9,16 +8,6 @@ class DialogContent extends StatelessWidget {
   final SyncDataBloc bloc;
 
   const DialogContent({Key key, this.bloc}) : super(key: key);
-
-  openSettingsMenu(settingsName) async {
-    var resultSettingsOpening = false;
-    try {
-      resultSettingsOpening =
-          await AccessSettingsMenu.openSettings(settingsType: settingsName);
-    } catch (e) {
-      resultSettingsOpening = false;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

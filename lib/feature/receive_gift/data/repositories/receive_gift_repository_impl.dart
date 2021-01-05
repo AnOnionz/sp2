@@ -5,7 +5,7 @@ import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
-import 'package:sp_2021/core/storage/secure_storage.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_local_datasource.dart';
 import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_remote_datasource.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
@@ -16,13 +16,13 @@ import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
 
 class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
-  final SecureStorage storage;
   final ReceiveGiftLocalDataSource local;
   final ReceiveGiftRemoteDataSource remote;
+  final DashBoardLocalDataSource dashboardLocal;
   final NetworkInfo networkInfo;
 
   ReceiveGiftRepositoryImpl(
-      {this.storage, this.local, this.remote, this.networkInfo});
+      {this.local, this.remote, this.networkInfo, this.dashboardLocal});
 
   @override
   Future<Either<Failure, VoucherEntity>> useVoucher({String phone}) async {
@@ -39,7 +39,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
       } on ResponseException catch (error) {
         return Left(ResponseFailure(message: error.message));
       }
-    }else{
+    } else {
       return Left(InternetFailure());
     }
   }
@@ -65,7 +65,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
       final result = await local.handleWheel(
           setCurrent: setCurrent, giftReceived: giftReceived);
       return Right(result);
-    } on SetOver catch (e) {
+    } on SetOver catch (_) {
       return Left(SetOverFailure());
     }
   }
@@ -77,7 +77,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
       final result = await local.handleStrongBowWheel(
           setCurrent: setCurrent, giftReceived: giftReceived);
       return Right(result);
-    } on SetOver catch (e) {
+    } on SetOver catch (_) {
       return Left(SetOverFailure());
     }
   }
@@ -85,23 +85,22 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
   @override
   Future<Either<Failure, bool>> handleReceiveGift(
       {ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent}) async {
+    final time = DateTime.now();
+    receiveGiftEntity.outletCode =
+        'INIT_CODE'; //AuthenticationBloc.outlet.code;
+    receiveGiftEntity.customer.inTurn -= receiveGiftEntity.gifts.length;
+    print(receiveGiftEntity.customer);
+    receiveGiftEntity.customer.deviceCreatedAt =
+        time.millisecondsSinceEpoch ~/ 1000;
+    print(receiveGiftEntity.customer.deviceCreatedAt);
     if (await networkInfo.isConnected) {
-      try{
-        final time = DateTime.now();
-        receiveGiftEntity.outletCode =
-            'INIT_CODE'; //AuthenticationBloc.outlet.code;
-        receiveGiftEntity.customer.inTurn -= receiveGiftEntity.gifts.length;
-        receiveGiftEntity.customer.deviceCreatedAt =
-            time.millisecondsSinceEpoch ~/ 1000;
-        print(receiveGiftEntity.customer.deviceCreatedAt);
+      try {
+        await local.cacheCustomer(customer: receiveGiftEntity.customer);
         final updateCustomerGift = await remote
             .updateCustomerGiftToServer(receiveGiftEntity.toCustomerGift());
-        print(1);
-        final updateSetCurrent =
-            await remote.updateSetGiftCurrentToServer(setCurrent);
-        print(1);
-        await local.cacheCustomer(customer: receiveGiftEntity.customer);
-        print(1);
+        final updateSetCurrent = setCurrent != null
+            ? await remote.updateSetGiftCurrentToServer(setCurrent)
+            : true;
         return Right(updateSetCurrent && updateCustomerGift);
       } on InternetException catch (_) {
         await local.cacheCustomerGift(
@@ -119,34 +118,38 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
         await local.cacheCustomer(customer: receiveGiftEntity.customer);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {
+        await local.cacheCustomerGift(
+            customerGiftEntity: receiveGiftEntity.toCustomerGift());
+        await local.cacheCustomer(customer: receiveGiftEntity.customer);
         return Left(ResponseFailure(message: error.message));
-      } catch(e){
+      } catch (e) {
         print(e.toString());
       }
     } else {
       await local.cacheCustomerGift(
           customerGiftEntity: receiveGiftEntity.toCustomerGift());
+      await dashboardLocal.cacheSetGiftCurrent(setGiftEntity: setCurrent);
       return Left(NotInternetItWillCacheLocalFailure());
     }
   }
 
   @override
   Future<void> syncReceiveGift() async {
-    if(await hasSync()) {
-        final data = await local.fetchCustomerGift();
-        print(data);
-        for (int i = 0; i < data.length; i++) {
-          await remote.updateCustomerGiftToServer(data[i]);
-          await local.clearCustomerGift();
-        }
-        await local.clearAllCustomerGift();
+    if (await hasSync()) {
+      final data = await local.fetchCustomerGift();
+      final setCurrent = dashboardLocal.fetchSetGiftCurrent();
+      print(data);
+      for (int i = 0; i < data.length; i++) {
+        await remote.updateCustomerGiftToServer(data[i]);
+        await remote.updateSetGiftCurrentToServer(setCurrent);
+        await local.clearCustomerGift();
       }
+      await local.clearAllCustomerGift();
     }
-
+  }
 
   @override
   Future<bool> hasSync() async {
     return local.isRequireSync();
   }
-
 }

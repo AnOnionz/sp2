@@ -42,7 +42,7 @@ Stream<RivalSalePriceState> _eitherSalePriceToState(
       return RivalSalePriceCloseDialog();
     }
     if (fail is UnAuthenticateFailure) {
-      bloc.add(ShutDown(willPop: 1));
+      bloc.add(ShutDown(willPop: 2));
       return RivalSalePriceCloseDialog();
     }
     if (fail is InternalFailure) {

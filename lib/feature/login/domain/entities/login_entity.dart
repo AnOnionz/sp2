@@ -17,16 +17,16 @@ class LoginEntity extends Equatable {
 
   Map<String, dynamic> toJson() => {
     'id' : id ,
-    'name': name ?? "nqa",
-    'code': code ?? "code",
+    'name': name ,
+    'code': code ,
     'access_token' : accessToken ,
     'address' : address ,
     'sr_code': spCode,
     'sr_name' : spName ,
     'sr_sdt' : spSDT ,
-    'turn': turn ?? 5,
+    'turn': turn ,
     'time' : time ,
-    'province' : province ?? "HCM",
+    'province' : province ,
   };
 
   @override
@@ -34,8 +34,6 @@ class LoginEntity extends Equatable {
 
   @override
   String toString() {
-    return 'LoginEntity{id: $id, name: $name, code: $code, accessToken: $accessToken, address: $address, srCode: $spCode, srName: $spName, srSDT: $spSDT, time: $time, turn: $turn, province: $province}';
+    return 'LoginEntity{id: $id, name: $name, code: $code, accessToken: $accessToken, address: $address, spCode: $spCode, spName: $spName, spSDT: $spSDT, time: $time, turn: $turn, province: $province}';
   }
-
-
 }

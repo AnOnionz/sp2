@@ -12,7 +12,7 @@ class BarChart extends StatelessWidget {
           child: Text(value.toString(), textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
         ),
         Container(
-          height: value < 40 ? a * value : 40 *a,
+          height: value < 38 ? a * value : 38 *a,
           width: 50,
           decoration: BoxDecoration(color: Colors.blue),
         ),

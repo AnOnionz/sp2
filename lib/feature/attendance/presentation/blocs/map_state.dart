@@ -4,7 +4,6 @@ part of 'map_bloc.dart';
 abstract class MapState extends Equatable {
   const MapState();
   @override
-  // TODO: implement props
   List<Object> get props => [];
 }
 class MapInitial extends MapState {}
@@ -17,7 +16,6 @@ class MapLoaded extends MapState {
 
   MapLoaded({this.position});
   @override
-  // TODO: implement props
   List<Object> get props => [position];
 }
 

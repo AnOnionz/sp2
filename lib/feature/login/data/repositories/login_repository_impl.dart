@@ -8,14 +8,14 @@ import 'package:sp_2021/feature/login/data/datasources/login_remote_datasource.d
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 import 'package:sp_2021/feature/login/domain/repositories/login_repository.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
+import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 
 class LoginRepositoryImpl implements LoginRepository{
   final LoginRemoteDataSource remoteDataSource;
   final DashBoardLocalDataSource dashBoardLocal;
-  final SyncLocalDataSource syncLocalData;
   final NetworkInfo networkInfo;
 
-  LoginRepositoryImpl({this.remoteDataSource, this.networkInfo, this.dashBoardLocal, this.syncLocalData});
+  LoginRepositoryImpl({this.remoteDataSource, this.networkInfo, this.dashBoardLocal});
   @override
   Future<Either<Failure, LoginEntity>> login({@required String username, @required String password, @required String deviceId}) async {
     if (await networkInfo.isConnected) {
@@ -36,13 +36,6 @@ class LoginRepositoryImpl implements LoginRepository{
     }
   @override
   Future<Either<Failure, bool>> logout() async {
-    final dataToday = await dashBoardLocal.dataToday;
-    if(syncLocalData.hasDataNonSync){
-      return Left(HasSyncFailure(message: "Đồng bộ tất cả dữ liệu trước khi đăng xuất"));
-    }
-    if(dataToday.checkOut == false){
-      return Left(CheckOutNullFailure());
-    }
     if (await networkInfo.isConnected) {
       try {
         final logout = await remoteDataSource.logout();

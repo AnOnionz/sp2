@@ -105,6 +105,18 @@ class _SalePricePageState extends State<SalePricePage> {
                                   child: InkWell(
                                     onTap: () {
                                       FocusScope.of(context).requestFocus(FocusNode());
+                                      if (products.every(
+                                              (element) => element.price == 0)) {
+                                        Scaffold.of(context)
+                                            .removeCurrentSnackBar();
+                                        Scaffold.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              'Giá bia bán không hợp lệ, vui lòng kiểm tra lại'),
+                                          backgroundColor: Colors.red,
+                                        ));
+                                        return ;
+                                      }
                                       BlocProvider.of<SalePriceBloc>(context)
                                           .add(SalePriceUpdate(
                                               products: products));

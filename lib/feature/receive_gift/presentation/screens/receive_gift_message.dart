@@ -1,10 +1,10 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 
@@ -32,6 +32,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final gift = widget.giftReceived[widget.giftAt];
     return Scaffold(
       body: SafeArea(
@@ -44,7 +45,14 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
           ),
           child: Stack(
             children: [
-              Align(alignment: Alignment.center ,child: Image(image: AssetImage(gift.asset))),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 100),
+                child: Align(alignment: Alignment.center ,child: CachedNetworkImage(
+            imageUrl: gift.image,
+            placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),),
+              ),
               Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -56,14 +64,17 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    FittedBox(
-                        fit: BoxFit.contain,
-                        child: Text(
-                          "CHÚC MỪNG BẠN ĐÃ NHẬN ĐUỢC 1 ${gift.name.toUpperCase()}",
-                          style: TextStyle(color: Colors.white, fontSize: 30),
-                        )),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 50),
+                      child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Text(
+                            "CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC 1 ${gift.name.toUpperCase()}",
+                            style: TextStyle(color: Colors.white, fontSize: 30),
+                          )),
+                    ),
                     Column(
                       children: [
                         Row(

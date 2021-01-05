@@ -22,6 +22,11 @@ class ReceiveGiftConfirm extends ReceiveGiftEvent {
 
   ReceiveGiftConfirm({this.form});
 }
+class ReceiveGiftOnlyBuyProducts extends ReceiveGiftEvent{
+    final FormEntity form;
+
+    ReceiveGiftOnlyBuyProducts({this.form});
+}
 class ShowGiftWheel extends ReceiveGiftEvent {
   final FormEntity form;
   final List<Gift> giftReceive;

@@ -1,25 +1,25 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
 import 'package:sp_2021/feature/inventory/presentation/blocs/inventory_bloc.dart';
 import 'package:sp_2021/feature/inventory/presentation/widgets/inventory_ui.dart';
 
 import '../../../../di.dart';
 
 class InventoryPage extends StatefulWidget {
-  final List<ProductEntity> products;
-
-  const InventoryPage({Key key, this.products}) : super(key: key);
   @override
   _InventoryPageState createState() => _InventoryPageState();
 }
 
 class _InventoryPageState extends State<InventoryPage> {
   DashBoardLocalDataSource local = sl<DashBoardLocalDataSource>();
-  List<ProductEntity> products;
+  List<ProductEntity> inProducts;
+  List<ProductEntity> outProducts;
   int page = 0;
   PageController _controller;
   @override
@@ -27,11 +27,20 @@ class _InventoryPageState extends State<InventoryPage> {
     _controller = PageController(
       initialPage: page,
     );
-    products = local.fetchProduct();
-    print(products);
+    final dataToday = local.dataToday;
+    print(dataToday);
+    final products = local.fetchProduct();
+    inProducts = dataToday.inventoryEntity == null ? List.castFrom(products.map((e) => e.copyWith(count: 0)).toList()) :
+    List.castFrom(products.map((e) => e.copyWith(count: dataToday.inventoryEntity.inInventory.firstWhere((element) => element['sku_id'] == e.productId)['qty'])).toList());
+    outProducts = dataToday.inventoryEntity == null ? List.castFrom(products.map((e) => e.copyWith(count: 0)).toList()) :
+    List.castFrom(products.map((e) => e.copyWith(count: dataToday.inventoryEntity.outInventory.firstWhere((element) => element['sku_id'] == e.productId)['qty'])).toList());
     super.initState();
   }
+  @override
+  void dispose() {
+    super.dispose();
 
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -39,7 +48,7 @@ class _InventoryPageState extends State<InventoryPage> {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: BlocProvider<InventoryBloc>(
-            create: (context) => sl<InventoryBloc>(),
+            create: (context) => sl<InventoryBloc>()..add(InventoryStart()),
             child: Scaffold(
               body: SafeArea(
                 child: Container(
@@ -52,49 +61,73 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                   child: BlocListener<InventoryBloc, InventoryState>(
                     listener: (context, state) {
-                      if (state is InventoryUpdated) {
+                      if(state is InventoryLoading){
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Thông báo'),
-                              content: Text("Dữ liệu cập nhật thành công"),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Đóng'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                          builder: (_) {
+                            return Center(
+                              child: Container(
+                                height: 80,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: Colors.white,
                                 ),
-                              ],
+                                child: CupertinoActivityIndicator(
+                                  radius: 20,
+                                ),
+                              ),
                             );
                           },
                         );
                       }
-                      if (state is InventoryUpdateFailure) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Thông báo'),
-                              content: Text("Dữ liệu đang chờ đồng bộ"),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Đóng'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                      if(state is InventoryCloseDialog){
+                        Navigator.pop(context);
+                      }
+                      if (state is InventoryUpdated) {
+                        Navigator.pop(context);
+                        Dialogs().showMessageDialog(context: context, content: "Tồn kho cập nhật thành công");
+                      }
+                      if(state is InventoryCached){
+                        Navigator.pop(context);
+                        Dialogs().showMessageDialog(context: context, content: "Tồn kho đã được lưu lại");
+                      }
+                      if (state is InventoryFailure) {
+                        Navigator.pop(context);
+                        Dialogs().showFailureDialog(context: context, content: state.message, reTry: (){
+                          FocusScope.of(context)
+                              .requestFocus(FocusNode());
+                          if (inProducts.every(
+                                  (element) => element.count == 0)) {
+                            Scaffold.of(context)
+                                .removeCurrentSnackBar();
+                            Scaffold.of(context)
+                                .showSnackBar(SnackBar(
+                              content: Text(
+                                  'Thông tin tồn kho đầu ca không hợp lệ'),
+                              backgroundColor: Colors.red,
+                            ));
+                            return ;
+                          }
+                          final inInventory = inProducts
+                              .map((e) => {
+                            "sku_id": e.productId,
+                            "qty": e.count
+                          })
+                              .toList();
+                          final outInventory = outProducts
+                              .map((e) => {
+                            "sku_id": e.productId,
+                            "qty": e.count
+                          })
+                              .toList();
+                          BlocProvider.of<InventoryBloc>(context)
+                              .add(InventoryUpdate(
+                              inventory: InventoryEntity(
+                                  inInventory: inInventory,
+                                  outInventory:
+                                  outInventory)));
+                        });
                       }
                     },
                     child: Builder(
@@ -117,10 +150,38 @@ class _InventoryPageState extends State<InventoryPage> {
                                     borderRadius: BorderRadius.circular(5),
                                     child: InkWell(
                                       onTap: () {
-                                        FocusScope.of(context).requestFocus(FocusNode());
+                                        FocusScope.of(context)
+                                            .requestFocus(FocusNode());
+                                        if (inProducts.every(
+                                            (element) => element.count == 0)) {
+                                          Scaffold.of(context)
+                                              .removeCurrentSnackBar();
+                                          Scaffold.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Thông tin tồn đầu không hợp lệ'),
+                                            backgroundColor: Colors.red,
+                                          ));
+                                          return ;
+                                        }
+                                        final inInventory = inProducts
+                                            .map((e) => {
+                                                  "sku_id": e.productId,
+                                                  "qty": e.count
+                                                })
+                                            .toList();
+                                        final outInventory = outProducts
+                                            .map((e) => {
+                                                  "sku_id": e.productId,
+                                                  "qty": e.count
+                                                })
+                                            .toList();
                                         BlocProvider.of<InventoryBloc>(context)
                                             .add(InventoryUpdate(
-                                                products: products));
+                                                inventory: InventoryEntity(
+                                                    inInventory: inInventory,
+                                                    outInventory:
+                                                        outInventory)));
                                       },
                                       borderRadius: BorderRadius.circular(5),
                                       child: Center(
@@ -143,15 +204,13 @@ class _InventoryPageState extends State<InventoryPage> {
                             children: [
                               Row(
                                 children: [
-
                                   Expanded(
                                     child: InkWell(
                                       onTap: () {
                                         _controller.animateToPage(0,
                                             duration:
                                                 Duration(milliseconds: 1000),
-                                            curve:
-                                                Curves.fastOutSlowIn);
+                                            curve: Curves.fastOutSlowIn);
                                       },
                                       child: Container(
                                         color: page == 0
@@ -160,9 +219,9 @@ class _InventoryPageState extends State<InventoryPage> {
                                         height: 50,
                                         child: Center(
                                           child: Text(
-                                            "Đầu ca",
+                                            "Tồn đầu",
                                             style: TextStyle(
-                                                color: Colors.white,
+                                                color: page == 0 ? Colors.blueAccent : Colors.white ,
                                                 fontSize: 20),
                                           ),
                                         ),
@@ -178,8 +237,7 @@ class _InventoryPageState extends State<InventoryPage> {
                                         _controller.animateToPage(1,
                                             duration:
                                                 Duration(milliseconds: 1000),
-                                            curve:
-                                                Curves.fastOutSlowIn);
+                                            curve: Curves.fastOutSlowIn);
                                       },
                                       child: Container(
                                         height: 50,
@@ -188,9 +246,9 @@ class _InventoryPageState extends State<InventoryPage> {
                                             : Colors.black54,
                                         child: Center(
                                             child: Text(
-                                          "Cuối ca",
+                                          "Tồn cuối",
                                           style: TextStyle(
-                                              color: Colors.white,
+                                              color: page == 0 ? Colors.white : Colors.blueAccent,
                                               fontSize: 20),
                                         )),
                                       ),
@@ -211,14 +269,14 @@ class _InventoryPageState extends State<InventoryPage> {
                                     Column(
                                       children: [
                                         InventoryUi(
-                                          products: products,
+                                          products: inProducts,
                                         )
                                       ],
                                     ),
                                     Column(
                                       children: [
                                         InventoryUi(
-                                          products: products,
+                                          products: outProducts,
                                         )
                                       ],
                                     ),

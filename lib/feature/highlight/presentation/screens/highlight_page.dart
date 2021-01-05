@@ -28,10 +28,10 @@ void initState() {
   super.initState();
   final dataToday = sl<DashBoardLocalDataSource>().dataToday;
   _highlights = <HighlightEntity>[
-    HighlightEntity(title: "Những vấn đề gặp phải của buổi làm việc", content: dataToday.highlightCached.workContent ?? "", images: dataToday.highlightCached.workImages.map((e) => File(e)).toList() ?? [], hint: "Chủ outlet không hợp tác, không có chỗ đứng trong outlet, trời mưa nhiều nên không bán được hàng, vắng khách,…"),
-    HighlightEntity(title: "Thông tin đối thủ", content:  dataToday.highlightCached.rivalContent ?? "", images: dataToday.highlightCached.rivalImages.map((e) => File(e)).toList() ?? [], hint: "Đối thủ đang có chương trình khuyến mãi hấp dẫn hơn, Bia SàiGòn đang có chương trình mua 1 thùng tặng thẻ cào 50k,…" ),
-    HighlightEntity(title: "Cập nhật hiện trạng POSM", content: dataToday.highlightCached.posmContent ??  "", images:dataToday.highlightCached.posmImages.map((e) => File(e)).toList() ?? [], hint: "Tốt, standee bị hư hỏng, mất standee,…"),
-    HighlightEntity(title: "Cập nhật hiện trạng quà tặng, bia tồn", content:  dataToday.highlightCached.giftContent ?? "", images:dataToday.highlightCached.giftImages.map((e) => File(e)).toList() ?? [], hint: "Tốt, cần thêm quà tặng, đã hết quà,…")
+    HighlightEntity(title: "Những vấn đề gặp phải của buổi làm việc", content: dataToday.highlightCached != null ? dataToday.highlightCached.workContent : "", images: dataToday.highlightCached != null ? dataToday.highlightCached.workImages.map((e) => File(e)).toList() : [], hint: "Chủ outlet không hợp tác, không có chỗ đứng trong outlet, trời mưa nhiều nên không bán được hàng, vắng khách,…"),
+    HighlightEntity(title: "Thông tin đối thủ", content: dataToday.highlightCached != null ? dataToday.highlightCached.rivalContent : "", images:dataToday.highlightCached != null ? dataToday.highlightCached.rivalImages.map((e) => File(e)).toList() : [], hint: "Đối thủ đang có chương trình khuyến mãi hấp dẫn hơn, Bia SàiGòn đang có chương trình mua 1 thùng tặng thẻ cào 50k,…" ),
+    HighlightEntity(title: "Cập nhật hiện trạng POSM", content: dataToday.highlightCached != null ? dataToday.highlightCached.posmContent : "", images:dataToday.highlightCached != null ? dataToday.highlightCached.posmImages.map((e) => File(e)).toList() : [], hint: "Tốt, standee bị hư hỏng, mất standee,…"),
+    HighlightEntity(title: "Cập nhật hiện trạng quà tặng, bia tồn", content:  dataToday.highlightCached != null ? dataToday.highlightCached.giftContent : "", images:dataToday.highlightCached != null ? dataToday.highlightCached.giftImages.map((e) => File(e)).toList() : [], hint: "Tốt, cần thêm quà tặng, đã hết quà,…")
   ];
   }
 
@@ -247,12 +247,8 @@ void initState() {
                                                                      .images
                                                                      .length <
                                                                      5) {
-                                                                   final pickedFile = await picker
-                                                                       .getImage(
-                                                                       source: ImageSource
-                                                                           .camera,
-                                                                       maxWidth: 500,
-                                                                       maxHeight: 600);
+                                                                   final pickedFile = await picker.getImage(
+                                                                       source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
                                                                    if (pickedFile !=
                                                                        null) {
                                                                      setState(() {

@@ -4,7 +4,6 @@ import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
 
 abstract class SyncLocalDataSource{
-  bool get hasDataNonSync;
   SyncEntity getSync();
   Future<void> addSync({int type, int value});
   Future<void> removeSync({int type, int value});
@@ -49,10 +48,5 @@ class SyncLocalDataSourceImpl implements SyncLocalDataSource{
    await sync.save();
   }
 
-  @override
-  bool get hasDataNonSync {
-    Box<List<dynamic>> salePriceBox = Hive.box(SALE_PRICE_BOX);
-    return salePriceBox.isNotEmpty;
-  }
 
 }

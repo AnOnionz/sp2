@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -57,7 +56,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
     ReceiveGiftEvent event,
   ) async* {
     if (event is ReceiveGiftStart) {
-      final dataToday = await localData.dataToday;
+      final dataToday = localData.dataToday;
       if (dataToday.checkIn != true) {
         dashboardBloc.add(RequiredCheckInOrCheckOut(
             message: 'Phải chấm công trước khi đổi quà', willPop: 2));
@@ -86,6 +85,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
         CustomerEntity customer = await local.getCustomer(
             name: event.form.customer.name,
             phone: event.form.customer.phoneNumber);
+        print(customer);
         event.form.customer = customer;
         if (customer.inTurn == 0) {
           yield ReceiveGifShowTurn(
@@ -117,6 +117,20 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           });
         }
       }
+    }
+    if(event is ReceiveGiftOnlyBuyProducts){
+      final ReceiveGiftEntity receiveGiftEntity = ReceiveGiftEntity(
+          customer: event.form.customer,
+        products: event.form.products,
+        voucher: event.form.voucher,
+        gifts: [],
+        voucherReceived: 0,
+        receiptImage: [],
+        productImage: event.form.images,
+        customerImage: [],
+      );
+      await handleReceiveGift(HandleReceiveGiftParams(
+          receiveGiftEntity: receiveGiftEntity, setCurrent: setCurrent));
     }
     if (event is GiftNext) {
       setCurrent = event.setCurrent ?? setCurrent;
@@ -231,7 +245,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       List<GiftEntity> giftReceived = event.receiveGiftEntity.gifts;
       // gift had in list
       giftReceived.forEach((element) {
-        if (gifts.contains(element)) {
+        if (gifts.map((e) => e.id).toList().contains(element.id)) {
           gifts[gifts.indexOf(element)] = element.upReceive();
         } else {
           gifts.add(element);
