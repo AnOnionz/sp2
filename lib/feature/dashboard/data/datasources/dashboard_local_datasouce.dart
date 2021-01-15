@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
@@ -10,50 +13,84 @@ import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
+import 'package:sp_2021/feature/dashboard/domain/entities/kpi_entity.dart';
+
 
 abstract class DashBoardLocalDataSource {
   bool get loadInitDataToLocal;
   int get indexLast;
   bool get isSetOver;
+  int get sbIndexLast;
+  bool get isSetSBOver;
+  bool get isChangeSet;
+  void cacheChangedSet(bool value);
   DataTodayEntity get dataToday;
   List<ProductEntity> fetchProduct();
   List<RivalProductEntity> fetchRivalProduct();
+  List<RivalProductEntity> fetchAvailableRivalProduct();
   List<GiftEntity> fetchGift();
-  List<GiftEntity> fetchSBGift();
+  List<GiftEntity> fetchGiftStrongbow();
   List<SetGiftEntity> fetchSetGift();
   SetGiftEntity fetchSetGiftCurrent();
+  List<SetGiftEntity> fetchSBSetGift();
+  SetGiftEntity fetchSetGiftSBCurrent();
   SetGiftEntity fetchNewSetGift(int index);
   SetGiftEntity fetchNewSBSetGift(int index);
   Future<void> cacheDataToday(
-      {bool highLight, bool checkIn, bool checkOut, bool inventory, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity});
+      {bool highLight, bool checkIn, bool checkOut, bool inventory,List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity});
   Future<void> cacheProducts({List<ProductEntity> products});
   Future<void> cacheRivalProducts({List<RivalProductEntity> products});
+  Future<void> cacheGiftsStrongbow({List<GiftEntity> gifts});
   Future<void> cacheGifts({List<GiftEntity> gifts});
   Future<void> cacheSetGifts({List<SetGiftEntity> setGifts});
   Future<void> cacheSetGiftCurrent({SetGiftEntity setGiftEntity});
+  Future<void> cacheSBSetGifts({List<SetGiftEntity> setGifts});
+  Future<void> cacheSetGiftSBCurrent({SetGiftEntity setGiftEntity});
 }
 
 class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
+  final SharedPreferences sharedPrefer;
 
+  DashBoardLocalDataSourceImpl({this.sharedPrefer});
   @override
   DataTodayEntity get dataToday {
-    Box<DataTodayEntity> box = Hive.box(AuthenticationBloc.outlet.code + DATA_DAY);
-    final defaultData = DataTodayEntity(
-        checkIn: false, checkOut: false, highLight: false, inventory: false, highlightCached: null, inventoryEntity: null);
+    Box<DataTodayEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
+//    final todayCached = sharedPrefer.getString(MyDateTime.today);
+//    print(todayCached);
+    DataTodayEntity defaultData = DataTodayEntity(checkIn: false, checkOut: false, highLight: false, inventory: false, highlightCached: null, inventoryEntity: null, rivalSalePrice: null, salePrice: null);
     final result = box.get(MyDateTime.today ,defaultValue: defaultData);
     if (result == defaultData) {
       box.put(MyDateTime.today, result);
     }
     return result;
   }
-
+  
+  @override
+  Future<void> cacheDataToday(
+      {bool highLight, bool checkIn, bool checkOut, bool inventory, List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity}) async {
+    final data = dataToday;
+    data.checkOut = checkOut ?? data.checkOut;
+    data.checkIn = checkIn ?? data.checkIn;
+    data.inventory = inventory ?? data.inventory;
+    data.highLight = highLight ?? data.highLight;
+    data.highlightCached = highlightCacheEntity ?? data.highlightCached;
+    data.inventoryEntity = inventoryEntity ?? data.inventoryEntity;
+    data.salePrice = salePrice ?? data.salePrice;
+    data.rivalSalePrice = rivalSalePrice ?? data.rivalSalePrice;
+    await data.save();
+    //sharedPrefer.setString(MyDateTime.today, jsonEncode(data.toJson()));
+    print(data);
+  }
+  
   @override
   bool get loadInitDataToLocal {
-    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    Box<SetGiftEntity> currentBox = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
-    Box<RivalProductEntity> rivalBox = Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
-    Box<ProductEntity> productBox = Hive.box<ProductEntity>(PRODUCT_BOX);
-    Box<GiftEntity> giftBox = Hive.box<GiftEntity>(GIFT_BOX);
+    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
+    Box<SetGiftEntity> setGiftSBBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+    Box<SetGiftEntity> currentBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
+    Box<RivalProductEntity> rivalBox = Hive.box<RivalProductEntity>(AuthenticationBloc.outlet.id.toString() + RIVAL_PRODUCT_BOX);
+    Box<ProductEntity> productBox = Hive.box<ProductEntity>(AuthenticationBloc.outlet.id.toString() + PRODUCT_BOX);
+    Box<GiftEntity> giftBox = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_BOX);
+    Box<GiftEntity> giftStrongBowBox = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_STRONGBOW_BOX);
     return setGiftBox.isEmpty ||
         giftBox.isEmpty ||
         currentBox.isEmpty ||
@@ -63,13 +100,18 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   List<GiftEntity> fetchGift() {
-    Box<GiftEntity> box = Hive.box<GiftEntity>(GIFT_BOX);
+    Box<GiftEntity> box = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_BOX);
+    return box.values.toList();
+  }
+  @override
+  List<GiftEntity> fetchGiftStrongbow() {
+    Box<GiftEntity> box = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_STRONGBOW_BOX);
     return box.values.toList();
   }
 
   @override
   List<ProductEntity> fetchProduct() {
-    Box<ProductEntity> box = Hive.box<ProductEntity>(PRODUCT_BOX);
+    Box<ProductEntity> box = Hive.box<ProductEntity>(AuthenticationBloc.outlet.id.toString() + PRODUCT_BOX);
     box.values.toList().forEach((element) {
       element.buyQty = 0;
       element.controller = TextEditingController();
@@ -82,42 +124,80 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   List<RivalProductEntity> fetchRivalProduct() {
     Box<RivalProductEntity> box =
-        Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
+        Hive.box<RivalProductEntity>(AuthenticationBloc.outlet.id.toString() + RIVAL_PRODUCT_BOX);
+    return box.values.toList();
+  }
+  @override
+  List<RivalProductEntity> fetchAvailableRivalProduct() {
+    Box<RivalProductEntity> box =
+    Hive.box<RivalProductEntity>(AuthenticationBloc.outlet.id.toString() + RIVAL_PRODUCT_BOX);
     box.values.toList().forEach((element) {
       element.priceController = TextEditingController();
+      element.save();
     });
-    return box.values.toList();
+    return box.values.toList().where((element) => element.isAvailable == true).toList();
   }
 
   @override
   List<SetGiftEntity> fetchSetGift() {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
+    return box.values.toList();
+  }
+  @override
+  List<SetGiftEntity> fetchSBSetGift() {
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
     return box.values.toList();
   }
 
   @override
   SetGiftEntity fetchSetGiftCurrent() {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
-    final setCurrent = box.get(CURRENT_SET_GIFT);
-    return SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
+    final setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT);
+    return setCurrent != null ? SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts) : setCurrent;
+  }
+
+  @override
+  SetGiftEntity fetchSetGiftSBCurrent() {
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
+    final setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW, defaultValue: null);
+    return setCurrent != null ? SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts) :  setCurrent;
   }
 
   @override
   SetGiftEntity fetchNewSetGift(int index) {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
-    final set = box.get(index, defaultValue: null);
-    return set == null ? null : SetGiftEntity(index: set.index, gifts: set.gifts);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
+    SetGiftEntity set = box.get(index, defaultValue: null);
+    print("new set:$set");
+    if(set != null) {
+      set = SetGiftEntity(index: set.index, gifts: set.gifts);
+      cacheChangedSet(true);
+    }
+    return set;
   }
 
   @override
   SetGiftEntity fetchNewSBSetGift(int index) {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_STRONGBOW_BOX);
-    return box.get(index);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+    SetGiftEntity set = box.get(index, defaultValue: null);
+    print("new set:$set");
+    if(set != null) {
+      set = SetGiftEntity(index: set.index, gifts: set.gifts);
+      cacheChangedSet(true);
+    }
+    return set;
   }
 
   @override
   Future<void> cacheGifts({List<GiftEntity> gifts}) async {
-    Box<GiftEntity> box = Hive.box<GiftEntity>(GIFT_BOX);
+    Box<GiftEntity> box = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_BOX);
+    if (box.isNotEmpty) {
+      await box.clear();
+    }
+    await box.addAll(gifts);
+  }
+  @override
+  Future<void> cacheGiftsStrongbow({List<GiftEntity> gifts}) async {
+    Box<GiftEntity> box = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_STRONGBOW_BOX);
     if (box.isNotEmpty) {
       await box.clear();
     }
@@ -126,7 +206,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   Future<void> cacheProducts({List<ProductEntity> products}) async {
-    Box<ProductEntity> box = Hive.box<ProductEntity>(PRODUCT_BOX);
+    Box<ProductEntity> box = Hive.box<ProductEntity>(AuthenticationBloc.outlet.id.toString() + PRODUCT_BOX);
     if (box.isNotEmpty) {
       await box.clear();
     }
@@ -136,7 +216,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   Future<void> cacheRivalProducts({List<RivalProductEntity> products}) async {
     Box<RivalProductEntity> box =
-        Hive.box<RivalProductEntity>(RIVAL_PRODUCT_BOX);
+        Hive.box<RivalProductEntity>(AuthenticationBloc.outlet.id.toString() + RIVAL_PRODUCT_BOX);
     if (box.isNotEmpty) {
       await box.clear();
     }
@@ -145,39 +225,44 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   Future<void> cacheSetGiftCurrent({SetGiftEntity setGiftEntity}) async {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_CURRENT_BOX);
-    if (box.containsKey(CURRENT_SET_GIFT)) {
-      await box.delete(CURRENT_SET_GIFT);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
+    if (box.containsKey(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT)) {
+      await box.delete(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT);
     }
-    await box.put(CURRENT_SET_GIFT, setGiftEntity);
+    await box.put(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT, setGiftEntity);
   }
 
   @override
   Future<void> cacheSetGifts({List<SetGiftEntity> setGifts}) async {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
     if (box.isNotEmpty) {
       await box.clear();
     }
     await box.addAll(setGifts);
+    cacheChangedSet(false);
+  }
+  @override
+  Future<void> cacheSBSetGifts({List<SetGiftEntity> setGifts}) async {
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+    if (box.isNotEmpty) {
+      await box.clear();
+    }
+    await box.addAll(setGifts);
+    cacheChangedSet(false);
   }
 
   @override
-  Future<void> cacheDataToday(
-      {bool highLight, bool checkIn, bool checkOut, bool inventory, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity}) async {
-    final data = dataToday;
-    data.checkOut = checkOut ?? data.checkOut;
-    data.checkIn = checkIn ?? data.checkIn;
-    data.inventory = inventory ?? data.inventory;
-    data.highLight = highLight ?? data.highLight;
-    data.highlightCached = highlightCacheEntity ?? data.highlightCached;
-    data.inventoryEntity = inventoryEntity ?? data.inventoryEntity;
-    await data.save();
-    print(data);
+  Future<void> cacheSetGiftSBCurrent({SetGiftEntity setGiftEntity}) async {
+    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
+    if (box.containsKey(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW)) {
+      await box.delete(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW);
+    }
+    await box.put(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW, setGiftEntity);
   }
 
   @override
   int get indexLast {
-    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(SET_GIFT_BOX);
+    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
     return setGiftBox.values.toList().last.index;
   }
 
@@ -189,11 +274,43 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     return setCurrent.index == indexLast && sum == 0 ;
 
     }
+  @override
+  bool get isSetSBOver {
+    SetGiftEntity setCurrent = fetchSetGiftSBCurrent();
+    if(fetchSetGiftSBCurrent() == null) return true;
+    final sum = setCurrent.gifts.fold(
+        0, (previousValue, element) => previousValue + element.amountCurrent);
+    return setCurrent.index == sbIndexLast && sum == 0;
+  }
 
   @override
-  List<GiftEntity> fetchSBGift() {
-    Box<GiftEntity> box = Hive.box<GiftEntity>(GIFT_BOX);
-    return box.values.toList();
+  int get sbIndexLast {
+    Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+    return setGiftBox.values.toList().last.index;
   }
+
+  @override
+  bool get isChangeSet{
+    final isChange = sharedPrefer.getBool(AuthenticationBloc.outlet.id.toString() + IS_CHANGE_SET);
+    if(isChange == null){
+      return false;
+    }
+    return isChange;
+  }
+
+
+  @override
+  void cacheChangedSet(bool value) {
+    sharedPrefer.setBool(AuthenticationBloc.outlet.id.toString() + IS_CHANGE_SET,value);
+  }
+
+
+
+
+
+
+
+
+
 
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -11,32 +12,39 @@ class FormEntity extends Equatable {
   List<ProductEntity> products;
   VoucherEntity voucher;
   bool isCheckedVoucher;
-  List<File> images;
+//  List<File> images;
 
   FormEntity(
       {this.customer,
       @required this.products,
       this.voucher,
       this.isCheckedVoucher = false,
-      this.images});
+     });
 
   Map<String, dynamic> toJson(){
     return {
-      "name": customer.name,
-      "phone": customer.phoneNumber,
-      "products": products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
-      "voucher": voucher,
+      "customer": customer.toCacheJson(),
+      "products": jsonEncode(products.map((e) => e.toJson()).toList()),
+      "voucher": voucher.toJson(),
       "isCheckedVoucher": isCheckedVoucher,
-      "images": images.map((e) => e.path).toList(),
+      //"images": images.map((e) => e.path).toList(),
     };
+  }
+  factory FormEntity.fromJson(Map<String, dynamic> json){
+    return FormEntity(
+      customer: CustomerEntity.fromJson(json['customer']),
+      products: ( jsonDecode(json['products']) as List ).map((e) => ProductEntity.fromJson(e)).toList(),
+      voucher: VoucherEntity.fromJson(json['voucher']),
+      isCheckedVoucher: json['isCheckedVoucher'],
+    );
   }
 
   @override
   List<Object> get props =>
-      [customer, products, voucher, isCheckedVoucher, images];
+      [customer, products, voucher, isCheckedVoucher,];
 
   @override
   String toString() {
-    return 'FormEntity{customer: $customer, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher, images: $images}';
+    return 'FormEntity{customer: $customer, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher,}';
   }
 }

@@ -21,13 +21,14 @@ class RivalProductEntityAdapter extends TypeAdapter<RivalProductEntity> {
       name: fields[1] as String,
       price: fields[2] as int,
       imgUrl: fields[3] as String,
+      isAvailable: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, RivalProductEntity obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class RivalProductEntityAdapter extends TypeAdapter<RivalProductEntity> {
       ..writeByte(2)
       ..write(obj.price)
       ..writeByte(3)
-      ..write(obj.imgUrl);
+      ..write(obj.imgUrl)
+      ..writeByte(4)
+      ..write(obj.isAvailable);
   }
 
   @override

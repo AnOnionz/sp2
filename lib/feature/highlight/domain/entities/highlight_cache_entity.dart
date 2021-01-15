@@ -30,7 +30,20 @@ class HighlightCacheEntity extends HiveObject{
 
   @override
   String toString() {
-    return 'HighlightCacheEntity{workContent: $workContent, rivalContent: $rivalContent, posmContent: $posmContent, giftContent: $giftContent, workImages: $workImages, rivalImages: $rivalImages, posmImages: $posmImages, giftImages: $giftImages, outletCode: $outletCode}';
+    return 'HighlightCacheEntity{workContent: $workContent, rivalContent: $rivalContent, posmContent: $posmContent, giftContent: $giftContent, workImages: $workImages, rivalImages: $rivalImages, posmImages: $posmImages, giftImages: $giftImages, outletCode: $outletCode,}';
+  }
+
+  factory HighlightCacheEntity.fromJson(Map<String, dynamic> json){
+    return json == null ? null : HighlightCacheEntity(
+      workContent: json['work_text'],
+      workImages: json['work_files'],
+      rivalContent: json['rival_text'],
+      rivalImages: json['rival_files'],
+      posmContent: json['gift_text'],
+      posmImages: json['posm_files'],
+      giftContent: json['gift_text'],
+      giftImages: json['gift_files'],
+    );
   }
 
   Map<String, dynamic> toJson(){

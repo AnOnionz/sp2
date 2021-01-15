@@ -11,10 +11,10 @@ import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datas
 import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
-  final AttendanceRemoteDataSource dataSource;
+  final AttendanceRemoteDataSource remote;
   final DashBoardLocalDataSource dashBoardLocal;
   final SyncRepository syncRepository;
-  AttendanceRepositoryImpl({this.dataSource, this.dashBoardLocal, this.syncRepository});
+  AttendanceRepositoryImpl({this.remote, this.dashBoardLocal, this.syncRepository});
 
   @override
   Future<Either<Failure, AttendanceStatus>> checkInOrOut(
@@ -33,9 +33,8 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
           return Left(InventoryNullFailure());
         }
       }
-      final response = await dataSource.checkInOrOut(
+      final response = await remote.checkInOrOut(
           type: type, position: position, image: image);
-
       if (type == 'CHECK_IN') {
         await dashBoardLocal.cacheDataToday(checkIn: true, checkOut: false);
       }
@@ -43,7 +42,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         await dashBoardLocal.cacheDataToday(checkIn: false, checkOut: true);
       }
       return Right(response);
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
     } on ResponseException catch (error) {
       return Left(ResponseFailure(message: error.message));
@@ -57,9 +56,12 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   @override
   Future<Either<Failure, AttendanceType>> checkSP() async {
     try {
-      final response = await dataSource.checkSP();
+      final response = await remote.checkSP();
+      if(response is CheckOut){
+        await dashBoardLocal.cacheDataToday(checkIn: true, checkOut: false);
+      }
       return Right(response);
-    } on UnAuthenticateException catch (error) {
+    } on UnAuthenticateException catch (_) {
       return Left(UnAuthenticateFailure());
     } on ResponseException catch (error) {
       return Left(ResponseFailure(message: error.message));

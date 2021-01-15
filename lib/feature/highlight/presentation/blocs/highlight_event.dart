@@ -2,6 +2,7 @@ part of 'highlight_bloc.dart';
 
 @immutable
 abstract class HighlightEvent {}
+class HighlightStart extends HighlightEvent {}
 class HighlightUpToServer extends HighlightEvent{
   final List<HighlightEntity> highlights;
 

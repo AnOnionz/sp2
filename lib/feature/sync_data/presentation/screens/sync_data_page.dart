@@ -2,13 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
 import 'package:sp_2021/feature/sync_data/presentation/blocs/sync_data_bloc.dart';
-import 'package:sp_2021/feature/sync_data/presentation/widgets/dialog_content.dart';
 
 import '../../../../di.dart';
 
@@ -46,15 +45,24 @@ class _SyncDataPageState extends State<SyncDataPage> {
         padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: Column(
           children: <Widget>[
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
-                child: const Text(
-                  'Đồng bộ dữ liệu',
-                  style: header,
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
+                    child: const Text(
+                      'Đồng bộ dữ liệu',
+                      style: header,
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                    top: 0,
+                    left: 0,
+                    child:
+                    Text(MyPackageInfo.packageInfo.version)),
+              ],
             ),
             Expanded(
               child: Column(
@@ -159,7 +167,7 @@ class _SyncDataPageState extends State<SyncDataPage> {
                         CupertinoActivityIndicator(radius: 20, animating: true,),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("Đang đồng bộ"),
+                          child: Text("Đang đồng bộ..."),
                         ),
                       ],
                     ),
@@ -172,11 +180,11 @@ class _SyncDataPageState extends State<SyncDataPage> {
                     sync = local.getSync();
                     print(sync);
                   });
-                  Dialogs().showMessageDialog(context: context, content: "Đồng bộ hoàn tất");
+                  Dialogs().showSuccessDialog(context: context, content: "Đồng bộ hoàn tất");
                 }
                 if(state is SyncDataFailure){
                   Navigator.pop(context);
-                  Dialogs().showMessageDialog(context: context, content: "Đồng bộ Thất bại ");
+                  Dialogs().showFailureDialog(context: context, content: "Đồng bộ Thất bại");
                 }
               },
               child: Padding(

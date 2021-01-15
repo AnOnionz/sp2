@@ -10,6 +10,19 @@ class InventoryEntity extends HiveObject{
 
   InventoryEntity({this.inInventory, this.outInventory});
 
+   factory InventoryEntity.fromJson(Map<String, dynamic> json){
+     return json == null ? null : InventoryEntity(
+       inInventory: json['inInventory'],
+       outInventory: json['outInventory']
+     );
+   }
+   Map<String, dynamic> toJson(){
+     return {
+       "inInventory": inInventory,
+       "outInventory": outInventory,
+     };
+   }
+
   @override
   String toString() {
     return 'InventoryEntity{inInventory: $inInventory, outInventory: $outInventory}';

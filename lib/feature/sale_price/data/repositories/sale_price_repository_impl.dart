@@ -26,6 +26,9 @@ class SalePriceRepositoryImpl implements SalePriceRepository {
   @override
   Future<Either<Failure, bool>> updateSalePrice(
       {List<ProductEntity> products}) async {
+    final data = products
+        .map((e) => {"sku_id": e.productId, "price": e.price})
+        .toList();
       final dataToday = dashBoardLocal.dataToday;
       if (dataToday.checkIn != true) {
         return Left(CheckInNullFailure(
@@ -33,35 +36,28 @@ class SalePriceRepositoryImpl implements SalePriceRepository {
     }
     if (await networkInfo.isConnected) {
       try {
-        await dashBoardLocal.cacheProducts(products: products);
-        final data = products
-            .map((e) => {"sku_id": e.productId, "price": e.price})
-            .toList();
-        final update = await remote.updateSalePrice(data: data);
-        if (update == false) {
-          await local.cacheSalePrice(products);
-        }
-        await dashBoardLocal.cacheDataToday(highLight: false, checkOut: false, checkIn: true, inventory: false);
-        return Right(update);
+        await remote.updateSalePrice(data: data);
+        await dashBoardLocal.cacheDataToday(salePrice: data);
+        return Right(true);
       } on UnAuthenticateException catch (_) {
-        await dashBoardLocal.cacheProducts(products: products);
         await local.cacheSalePrice(products);
+        await dashBoardLocal.cacheDataToday(salePrice: data);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {
         return Left(ResponseFailure(message: error.message));
       } on InternalException catch (_) {
-        await dashBoardLocal.cacheProducts(products: products);
         await local.cacheSalePrice(products);
+        await dashBoardLocal.cacheDataToday(salePrice: data);
         return Left(InternalFailure());
       } on InternetException catch (_) {
-        await dashBoardLocal.cacheProducts(products: products);
         await local.cacheSalePrice(products);
-        return Left(NotInternetItWillCacheLocalFailure());
+        await dashBoardLocal.cacheDataToday(salePrice: data);
+        return Left(FailureAndCachedToLocal());
       }
     } else {
-      await dashBoardLocal.cacheProducts(products: products);
       await local.cacheSalePrice(products);
-      return Left(NotInternetItWillCacheLocalFailure());
+      await dashBoardLocal.cacheDataToday(salePrice: data);
+      return Left(FailureAndCachedToLocal());
     }
   }
 
@@ -69,11 +65,8 @@ class SalePriceRepositoryImpl implements SalePriceRepository {
   Future<void> syncSalePrice() async {
     if(await hasSync()) {
       final data = local.fetchSalePrice();
-      print(data);
-      final sync = await remote.updateSalePrice(data: data);
-      if (sync == true) {
-        await local.clearSalePrice();
-      }
+      await remote.updateSalePrice(data: data);
+      await local.clearSalePrice();
     }
   }
 

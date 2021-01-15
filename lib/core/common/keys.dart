@@ -1,12 +1,14 @@
 const String OUTLET_IN_STORAGE = "Outlet";
+const String IS_CHANGE_SET = "isChangeSet";
 const String STATE_IN_STORAGE = "StateInStorage";
 const String SYNC_DATA_IN_STORAGE = "SyncData";
 const String DATA_DAY = "DataDay";
 const String CURRENT_SET_GIFT = "CurrentSetGift";
+const String CURRENT_SET_GIFT_STRONGBOW = "CurrentSetGiftStrongbow";
 const String CUSTOMER_GIFT_BOX = "CustomerGiftBox";
 const String GIFT_BOX = "GiftBox";
+const String GIFT_STRONGBOW_BOX = "GiftStrongbowBox";
 const String PRODUCT_BOX = "ProductBox";
-const String ATTENDANCE_BOX = "AttendanceBox";
 const String SALE_PRICE_BOX = "SalePriceBox";
 const String RIVAL_PRODUCT_BOX = "RivalProductBox";
 const String RIVAL_SALE_PRICE_BOX ="RivalSalePriceBox";

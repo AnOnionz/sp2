@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:sp_2021/core/util/custom_toast.dart';
+import 'package:sp_2021/core/platform/notify.dart';
+import 'package:sp_2021/core/usecases/usecase.dart';
+import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/presentation/screens/highlight_page.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
@@ -12,10 +16,12 @@ import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_p
 import 'package:sp_2021/feature/rival_sale_price/presentation/screens/rival_sale_price_page.dart';
 import 'package:sp_2021/feature/sale_price/presentation/screens/sale_price_page.dart';
 import 'package:sp_2021/feature/sync_data/presentation/screens/sync_data_page.dart';
+import 'package:sp_2021/update_ver_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'core/common/text_styles.dart';
 import 'di.dart';
+import 'feature/attendance/domain/entities/attendance_type.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
 import 'feature/dashboard/presentation/blocs/tab_bloc.dart';
 import 'feature/inventory/presentation/screens/inventory_page.dart';
@@ -25,6 +31,7 @@ import 'feature/login/presentation/screens/login_page.dart';
 import 'feature/notification/data/datasources/notification_local_data_source.dart';
 
 class MyApplication extends StatefulWidget {
+
   const MyApplication();
 
   @override
@@ -32,9 +39,7 @@ class MyApplication extends StatefulWidget {
 }
 
 class _MyApplicationState extends State<MyApplication> {
-
   String _deviceToken;
-  List<FcmEntity> messages = [];
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final globalKey = GlobalKey<NavigatorState>();
   Future<String> _getDeviceToken() async {
@@ -50,49 +55,50 @@ class _MyApplicationState extends State<MyApplication> {
   void initState() {
     super.initState();
     _getDeviceToken();
-    print(_deviceToken);
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         FcmEntity fcm = FcmEntity(
-            title: '${message['notification']['title']}',
-            body: '${message['notification']['body']}',
-            time: DateTime.now(),
-            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-            screen: message['data']['screen'],
-            isClick: false,
+          title: '${message['notification']['title']}',
+          body: '${message['notification']['body']}',
+          time: DateTime.now(),
+          tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+          screen: message['data']['screen'],
+          isClick: false,
         );
         _saveFcmToLocal(fcm);
-        Toasts.showNewMessageToast();
       },
+      onBackgroundMessage: NotifyManager.myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
         FcmEntity fcm = FcmEntity(
-            title: '${message['notification']['title']}',
-            body: '${message['notification']['body']}',
-            time: DateTime.now(),
-            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-            screen: message['data']['screen'],
-            isClick: true,
+          title: '${message['notification']['title']}',
+          body: '${message['notification']['body']}',
+          time: DateTime.now(),
+          tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+          screen: message['data']['screen'],
+          isClick: true,
         );
         _generateRouteWhenReceiveMessage(fcm);
       },
       onResume: (Map<String, dynamic> message) async {
         FcmEntity fcm = FcmEntity(
-            title: '${message['notification']['title']}',
-            body: '${message['notification']['body']}',
-            time: DateTime.now(),
-            tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-            screen: message['data']['screen'],
-            isClick: true,
+          title: '${message['notification']['title']}',
+          body: '${message['notification']['body']}',
+          time: DateTime.now(),
+          tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
+          screen: message['data']['screen'],
+          isClick: true,
         );
-        _saveFcmToLocal(fcm);
         _generateRouteWhenReceiveMessage(fcm);
       },
     );
     _firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
   }
-  _saveFcmToLocal(FcmEntity fcm){
-    sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
+  _saveFcmToLocal(FcmEntity fcm) async {
+    await sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
+    if(fcm.tab == 6){
+      sl<SaveDataToLocalUseCase>()(NoParams());
+    }
   }
   _generateRouteWhenReceiveMessage(FcmEntity fcm){
     if(fcm.screen == null){
@@ -100,14 +106,13 @@ class _MyApplicationState extends State<MyApplication> {
       return;
     }
     if(fcm.tab == null){
-     globalKey.currentState.pushNamed(fcm.screen);
+      globalKey.currentState.pushNamed(fcm.screen);
       print(2);
       return;
     }
     sl<TabBloc>().add(TabPressed(index: 4));
 
   }
-
   @override
   void dispose() {
     Hive.close();
@@ -116,7 +121,6 @@ class _MyApplicationState extends State<MyApplication> {
 
   @override
   Widget build(BuildContext context) {
-    messages.forEach((e) => print(e));
     var _routes = {
       '/receive_gift': (context) => ReceiveGiftPage(),
       '/sale_price': (context) => SalePricePage(),
@@ -124,18 +128,19 @@ class _MyApplicationState extends State<MyApplication> {
       '/inventory': (context) => InventoryPage(),
       '/highlight': (context) => HighLightPage(),
       '/sync_data': (context) => SyncDataPage(),
+      '/update': (context) => UpdateVerPage(),
     };
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         navigatorKey: globalKey,
         theme: ThemeData(
-          unselectedWidgetColor: Colors.white,
+          unselectedWidgetColor: Colors.teal,
         ),
         initialRoute: '/',
         onGenerateRoute: (settings) {
           return CupertinoPageRoute(
-            maintainState: true,
+              maintainState: true,
               builder: (context) => _routes[settings.name](context));
         },
         home: MultiBlocProvider(
@@ -146,10 +151,16 @@ class _MyApplicationState extends State<MyApplication> {
               BlocProvider<LoginBloc>(create: (_) => sl<LoginBloc>()),
               BlocProvider<MapBloc>(create: (_) => sl<MapBloc>()),
               BlocProvider<DashboardBloc>( create: (_) => sl<DashboardBloc>()),
-              BlocProvider<TabBloc>( create: (_) => sl<TabBloc>())
+              BlocProvider<TabBloc>( create: (_) => sl<TabBloc>()),
+
+//              BlocProvider<SalePriceBloc>( create: (_) => sl<SalePriceBloc>()),
+//              BlocProvider<RivalSalePriceBloc>( create: (_) => sl<RivalSalePriceBloc>()),
+//              BlocProvider<SyncDataBloc>( create: (_) => sl<SyncDataBloc>()),
+//              BlocProvider<SendRequirementBloc>( create: (_) => sl<SendRequirementBloc>()),
+//              BlocProvider<ReceiveGiftBloc>( create: (_) => sl<ReceiveGiftBloc>()),
+//              BlocProvider<InventoryBloc>( create: (_) => sl<InventoryBloc>()),
             ],
-            child: BlocListener(
-                cubit: sl<AuthenticationBloc>(),
+            child: BlocListener<AuthenticationBloc, AuthenticationState>(
                 listener: (context, state) {
                   if(state is AuthenticationDuplicated){
                     showDialog(
@@ -179,16 +190,12 @@ class _MyApplicationState extends State<MyApplication> {
                       },
                     );
                   }
-
                 },
                 child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
                   builder: (context, state) {
                     if (state is AuthenticationLoading) {
                       return Scaffold(
-                        body: const Center(
-                          child: CupertinoActivityIndicator(
-                            radius: 20,
-                          ),
+                        body: Center(child: CupertinoActivityIndicator(radius: 20, animating: true,),
                         ),
                       );
                     }
@@ -197,12 +204,26 @@ class _MyApplicationState extends State<MyApplication> {
                     }
                     if (state is AuthenticationAuthenticated) {
                       sl<CDio>().setBearerAuth(state.outlet.accessToken);
+                      if(!sl<DashBoardLocalDataSource>().dataToday.checkIn)
+                      sl<AttendanceRemoteDataSource>().checkSP().then((value)
+                      {
+                        if(value is CheckOut){
+                          sl<DashBoardLocalDataSource>().cacheDataToday(checkIn: true, checkOut: false);
+                        }
+                      });
+                      sl<TabBloc>().add(TabPressed(index: 0));
                       BlocProvider.of<DashboardBloc>(context).add(SaveServerDataToLocalData());
+                      return DashboardPage();
                     }
-                    return DashboardPage();
-;
+                    return Scaffold(
+                      body: Container(
+                        child: Center(child: CupertinoActivityIndicator(radius: 20, animating: true,)),
+                      ),
+                    );
                   },
                 ),
-            )));
+            )
+        )
+    );
   }
 }

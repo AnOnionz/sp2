@@ -13,18 +13,23 @@ class SetGiftEntity extends HiveObject{
   SetGiftEntity({this.index, this.gifts});
 
   factory SetGiftEntity.fromJson(Map<String, dynamic> json){
-    return SetGiftEntity(
-      index: json['index'],
-      gifts: (json['gifts'] as List<dynamic>).map((e) => GiftEntity.fromJson(e)),
-    );
+    SetGiftEntity setGiftEntity;
+    try{
+     setGiftEntity = SetGiftEntity(
+        index: json['index'],
+        gifts: (json['gifts'] as List<dynamic>).map((e) => GiftEntity.fromJson(e)),
+      );
+     return setGiftEntity;
+    }catch(e){
+      return null;
+    }
   }
   Map<String, dynamic> toJson(){
     return {
       'index': index,
-      'skus': gifts.map((e) => e.toJson()).toList(),
+      'skus': gifts.map((e) => e.toJsonCurrent()).toList(),
     };
   }
-
   static List<SetGiftEntity> parseSetGift(Response response){
     List<Map<String, dynamic>> data = response.data['data'];
       return data.map((e) => SetGiftEntity.fromJson(e)).toList();

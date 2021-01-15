@@ -13,10 +13,12 @@ class DashboardSaving extends DashboardState {}
 class DashboardSaved extends DashboardState {}
 class DashboardFailure extends DashboardState {
   final String message;
+  final int willPop;
 
-  DashboardFailure({this.message});
+  DashboardFailure({this.message, this.willPop});
 }
 class DashboardNoInternet extends DashboardState {}
+class DashboardNoInternetInitData extends DashboardState {}
 class DashboardRequiredCheckInOrOut extends DashboardState {
   final String message;
   final int willPop;

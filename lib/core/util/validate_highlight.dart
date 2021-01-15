@@ -27,7 +27,7 @@ class ValidateHighlight {
         return Left(ContentFailure(message: highlights[i].title +
             ' chứa kí tự không hợp lệ (@|=*${"'"}/+&-%)'));
       }
-      if (highlights[i].images.length == 0) {
+      if (highlights[i].images.length == 0 && i != 4) {
         return Left(NoImageFailure());
       }
     }

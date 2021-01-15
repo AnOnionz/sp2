@@ -30,12 +30,11 @@ class InventoryRepositoryImpl implements InventoryRepository {
       try {
         // end inventory not found
         if(inventory.outInventory.every((element) => element['qty'] == 0)){
-          await local.cacheInventory(inventory);
+          await remote.updateInventory(inventory.inInventory);
           await dashboardLocal.cacheDataToday(
-              inventory: false, inventoryEntity: inventory);
-          return Left(NotInternetItWillCacheLocalFailure());
+              inventoryEntity: inventory);
+          return Right(false);
         }
-        await syncInventory();
         await remote.updateInventory(inventory.inInventory);
         await remote.updateInventory(inventory.outInventory);
         await dashboardLocal.cacheDataToday(
@@ -44,26 +43,26 @@ class InventoryRepositoryImpl implements InventoryRepository {
       } on UnAuthenticateException catch (_) {
         await local.cacheInventory(inventory);
         await dashboardLocal.cacheDataToday(
-            inventory: true, inventoryEntity: inventory);
+            inventoryEntity: inventory);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {
         return Left(ResponseFailure(message: error.message));
       } on InternalException catch (_) {
-        await dashboardLocal.cacheDataToday(
-            inventory: true, inventoryEntity: inventory);
         await local.cacheInventory(inventory);
+        await dashboardLocal.cacheDataToday(
+             inventoryEntity: inventory);
         return Left(InternalFailure());
       } on InternetException catch (_) {
         await dashboardLocal.cacheDataToday(
-            inventory: true, inventoryEntity: inventory);
+            inventoryEntity: inventory);
         await local.cacheInventory(inventory);
-        return Left(NotInternetItWillCacheLocalFailure());
+        return Left(FailureAndCachedToLocal());
       }
     } else {
       await local.cacheInventory(inventory);
       await dashboardLocal.cacheDataToday(
-          inventory: true, inventoryEntity: inventory);
-      return Left(NotInternetItWillCacheLocalFailure());
+          inventoryEntity: inventory);
+      return Left(FailureAndCachedToLocal());
     }
   }
 
@@ -72,11 +71,16 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (await hasSync()) {
       final data = local.fetchInventory();
       print(data);
-      await remote.updateInventory(data.inInventory);
-      if(data.outInventory.any((element) => element['qty'] != 0)) {
-        await remote.updateEndInventory(data.outInventory);
+      for(InventoryEntity inv in data){
+        await remote.updateInventory(inv.inInventory);
+        if(inv.outInventory.any((element) => element['qty'] != 0)) {
+          await remote.updateEndInventory(inv.outInventory);
+          await dashboardLocal.cacheDataToday(
+              inventory: true);
+        }
+        await local.clearInventory();
       }
-      await local.clearInventory();
+      await local.clearAllInventory();
     }
   }
 

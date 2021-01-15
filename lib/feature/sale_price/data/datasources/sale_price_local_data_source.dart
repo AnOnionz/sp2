@@ -2,6 +2,7 @@
 import 'package:hive/hive.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 
 abstract class SalePriceLocalDataSource {
@@ -17,7 +18,7 @@ class SalePriceLocalDataSourceImpl implements SalePriceLocalDataSource{
   SalePriceLocalDataSourceImpl({this.syncLocalDataSource});
   @override
   Future<void> cacheSalePrice(List<ProductEntity> products) async {
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(AuthenticationBloc.outlet.id.toString() + SALE_PRICE_BOX);
     final data = products.map((e) => {"sku_id": e.productId, "price": e.price})
         .toList();
     if (box.isNotEmpty) {
@@ -32,20 +33,20 @@ class SalePriceLocalDataSourceImpl implements SalePriceLocalDataSource{
 
   @override
   Future<void> clearSalePrice() async{
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(AuthenticationBloc.outlet.id.toString() + SALE_PRICE_BOX);
     await box.clear();
     await syncLocalDataSource.removeSync(type: 1, value: 1);
   }
 
   @override
   List<dynamic> fetchSalePrice() {
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(AuthenticationBloc.outlet.id.toString() + SALE_PRICE_BOX);
     return box.values.toList().last;
   }
 
   @override
   bool isRequireSync() {
-    Box<List<dynamic>> box = Hive.box<List<dynamic>>(SALE_PRICE_BOX);
+    Box<List<dynamic>> box = Hive.box<List<dynamic>>(AuthenticationBloc.outlet.id.toString() + SALE_PRICE_BOX);
     return box.values.toList().isNotEmpty;
   }
 }

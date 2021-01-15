@@ -3,7 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
@@ -59,11 +58,12 @@ Stream<InventoryState> _eitherInventoryToState(
         dashboardBloc.add(InternalServer());
         return InventoryCloseDialog();
       }
-      if (fail is NotInternetItWillCacheLocalFailure) {
+      if (fail is FailureAndCachedToLocal) {
         return InventoryCached();
       }
 
      return InventoryFailure(message: fail.message);
-    }, (r) => InventoryUpdated());
+    }, (r) => InventoryUpdated(message: r ? "Tồn kho cập nhật thành công": '''Tồn kho cập nhật thành công
+                                                                                         (chưa bao gồm tồn cuối)'''));
 
     }

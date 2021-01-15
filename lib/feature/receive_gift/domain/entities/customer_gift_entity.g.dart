@@ -21,19 +21,17 @@ class CustomerGiftEntityAdapter extends TypeAdapter<CustomerGiftEntity> {
       customer: fields[1] as CustomerEntity,
       products: (fields[2] as List)?.cast<dynamic>(),
       gifts: (fields[3] as List)?.cast<dynamic>(),
-      productImage: (fields[4] as List)?.cast<String>(),
-      customerImage: (fields[5] as List)?.cast<String>(),
-      receiptImage: (fields[6] as List)?.cast<String>(),
-      voucherPhone: fields[8] as String,
-      voucherQty: fields[9] as int,
-      voucherReceived: fields[7] as int,
+      customerImage: (fields[4] as List)?.cast<String>(),
+      voucherPhone: fields[6] as String,
+      voucherQty: fields[7] as int,
+      voucherReceived: fields[5] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, CustomerGiftEntity obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.outletCode)
       ..writeByte(1)
@@ -43,16 +41,12 @@ class CustomerGiftEntityAdapter extends TypeAdapter<CustomerGiftEntity> {
       ..writeByte(3)
       ..write(obj.gifts)
       ..writeByte(4)
-      ..write(obj.productImage)
-      ..writeByte(5)
       ..write(obj.customerImage)
-      ..writeByte(6)
-      ..write(obj.receiptImage)
-      ..writeByte(7)
+      ..writeByte(5)
       ..write(obj.voucherReceived)
-      ..writeByte(8)
+      ..writeByte(6)
       ..write(obj.voucherPhone)
-      ..writeByte(9)
+      ..writeByte(7)
       ..write(obj.voucherQty);
   }
 

@@ -6,6 +6,32 @@ abstract class ReceiveGiftState {
   Map<String, dynamic> toJson();
 
   factory ReceiveGiftState.fromJson(Map<String, dynamic> json){
+    switch(json['name']){
+      case "now": return ReceiveGiftStateNow(
+          form: FormEntity.fromJson(json['form']),
+        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftAt: json['giftAt'],
+      );
+      case "result": return ReceiveGiftStateResult(
+
+      );
+      case "wheel": return ReceiveGiftStateNow(
+        form: FormEntity.fromJson(json['form']),
+        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftAt: json['giftAt'],
+      );
+      case "sbWheel": return ReceiveGiftStateNow(
+        form: FormEntity.fromJson(json['form']),
+        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
+        giftAt: json['giftAt'],
+      );
+    }
     return null;
   }
 }
@@ -103,23 +129,14 @@ class ReceiveGifShowTurn extends ReceiveGiftState {
   final List<Gift> gifts;
   final String message;
   final SetGiftEntity setCurrent;
+  final SetGiftEntity setSBCurrent;
   final int type;
 
-  ReceiveGifShowTurn({this.type, this.setCurrent, this.form, this.gifts, this.message});
+  ReceiveGifShowTurn({this.type, this.setCurrent, this.setSBCurrent, this.form, this.gifts, this.message});
 
   @override
   Map<String,dynamic> toJson() {
-   return {
-     "name": "ShowTurn",
-     'customer': form.customer.toJson(),
-     'setCurrent': setCurrent,
-     'products': form.products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
-     'gifts': gifts.map((e) => {"id": e.id}).toList(),
-     'productImg': form.images.map((e) =>
-        e.path).toList(),
-     "message": message,
-     'type': type
-   };
+   return {};
   }
 
   @override
@@ -141,13 +158,17 @@ class ReceiveGiftStateNow extends ReceiveGiftState {
   Map<String, dynamic> toJson() {
     return {
       "name": "Now",
-      'customer': form.customer.toJson(),
-      'products': form.products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
-      'giftReceive': giftReceive.map((e) => {"id": e.id}).toList(),
-      'productImg': form.images.map((e) => e.path).toList(),
-      "giftReceived": giftReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
-      'giftSBReceived': giftSBReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
+      'form': form.toJson(),
+      'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
+      "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
+      'giftAt': giftAt,
     };
+  }
+  factory ReceiveGiftStateNow.fromJson(Map<String, dynamic> json){
+    return ReceiveGiftStateNow(
+
+    );
   }
 
   @override
@@ -171,13 +192,11 @@ class ReceiveGiftStateWheel extends ReceiveGiftState {
   Map<String, dynamic> toJson() {
     return {
       'name': "Wheel",
-      'customer': form.customer.toJson(),
-      'products': form.products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
-      'giftReceive': giftReceive.map((e) => {"id": e.id}).toList(),
-      'productImg': form.images.map((e) => e.path).toList(),
-      'giftLucky': giftLucky.map((e)=> {"id": e.id}).toList(),
-      'giftReceived': giftReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
-      'giftSBReceived': giftSBReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
+      'form': form.toJson(),
+      'giftLucky': giftLucky.map((e)=> e.toJson()).toList(),
+      'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
+      "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
       'giftAt': giftAt,
     };
   }
@@ -200,14 +219,12 @@ class ReceiveGiftStateSBWheel extends ReceiveGiftState {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'name': "SBWheel",
-      'customer': form.customer.toJson(),
-      'products': form.products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
-      'giftReceive': giftReceive.map((e) => {"id": e.id}).toList(),
-      'productImg': form.images.map((e) => e.path).toList(),
-      'giftLucky': giftLucky.map((e)=> {"id": e.id}).toList(),
-      'giftReceived': giftReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
-      'giftSBReceived': giftSBReceived.map((e) => {"id": e.id, "qty": e.amountReceive}).toList(),
+      'name': "sbWheel",
+      'form': form.toJson(),
+      'giftLucky': giftLucky.map((e) => e.toJson()).toList(),
+      'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
+      "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
       'giftAt': giftAt,
     };
   }
@@ -235,9 +252,19 @@ class ReceiveGiftStateResult extends ReceiveGiftState {
   }
 }
 
-class ReceiveGiftNotCondition extends ReceiveGiftState{
+class ReceiveGiftNotCondition extends ReceiveGiftState {
   @override
-  Map<String,dynamic> toJson() {
+  Map<String, dynamic> toJson() {
    return {};
   }
+}
+class ReceiveGiftInLastSet extends ReceiveGiftState {
+  final String message;
+
+  ReceiveGiftInLastSet({this.message});
+  @override
+  Map<String, dynamic> toJson() {
+    throw UnimplementedError();
+  }
+
 }

@@ -19,6 +19,17 @@ class FcmEntity extends Equatable with HiveObject {
 
   FcmEntity({this.title, this.body, this.time, this.tab, this.screen, this.isClick});
 
+  FcmEntity seen(){
+    return FcmEntity(
+      title: title,
+      body: body,
+      time: time,
+      screen: screen,
+      tab: tab,
+      isClick: true,
+    );
+  }
+
   @override
   List<Object> get props => [title, body, time, tab, screen, isClick];
 

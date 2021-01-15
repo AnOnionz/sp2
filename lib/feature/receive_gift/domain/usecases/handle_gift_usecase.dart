@@ -15,7 +15,7 @@ class HandleGiftUseCase implements UseCase<HandleGiftEntity, HandleGiftParams>{
 
   @override
   Future<Either<Failure, HandleGiftEntity>> call(HandleGiftParams params) async {
-    return await repository.handleGift(products: params.products, customer: params.customer, setCurrent: params.setCurrent);
+    return await repository.handleGift(products: params.products, customer: params.customer, setCurrent: params.setCurrent, setSBCurrent: params.setSBCurrent);
 
   }
 }
@@ -23,8 +23,9 @@ class HandleGiftParams extends Params{
   final List<ProductEntity> products;
   final CustomerEntity customer;
   final SetGiftEntity setCurrent;
+  final SetGiftEntity setSBCurrent;
 
-  HandleGiftParams({this.products, this.customer, this.setCurrent});
+  HandleGiftParams({this.products, this.customer, this.setCurrent, this.setSBCurrent});
   @override
-  List<Object> get props => [products, customer, setCurrent];
+  List<Object> get props => [products, customer, setCurrent, this.setSBCurrent];
 }

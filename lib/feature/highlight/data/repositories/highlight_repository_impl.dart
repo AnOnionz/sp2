@@ -45,13 +45,13 @@ class HighlightRepositoryImpl implements HighlightRepository {
       } on InternetException catch (_) {
         await dashboardLocal.cacheDataToday(highLight: true, highlightCacheEntity: highlights);
         await local.cacheHighlight(highlights);
-        return Left(NotInternetItWillCacheLocalFailure());
+        return Left(FailureAndCachedToLocal());
       }
     }
     else {
       await local.cacheHighlight(highlights);
       await dashboardLocal.cacheDataToday(highLight: true, highlightCacheEntity: highlights);
-      return Left(NotInternetItWillCacheLocalFailure());
+      return Left(FailureAndCachedToLocal());
     }
   }
 
@@ -60,11 +60,8 @@ class HighlightRepositoryImpl implements HighlightRepository {
   Future<void> syncHighlight() async{
     if(await hasSync()) {
       final data = local.fetchHighlight();
-      print(data);
-      final sync = await remote.uploadToServer(data);
-      if (sync == true) {
-        await local.clearHighlight();
-      }
+      await remote.uploadToServer(data);
+      await local.clearHighlight();
     }
   }
 

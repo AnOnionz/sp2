@@ -18,27 +18,33 @@ class CustomerEntityAdapter extends TypeAdapter<CustomerEntity> {
     };
     return CustomerEntity(
       name: fields[0] as String,
-      phoneNumber: fields[1] as String,
-      inTurn: fields[4] as int,
+      phoneNumber: fields[2] as String,
+      inTurn: fields[5] as int,
+      inSBTurn: fields[6] as int,
     )
-      ..uuid = fields[2] as String
-      ..deviceCreatedAt = fields[3] as int;
+      ..gender = fields[1] as String
+      ..uuid = fields[3] as String
+      ..deviceCreatedAt = fields[4] as int;
   }
 
   @override
   void write(BinaryWriter writer, CustomerEntity obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.phoneNumber)
+      ..write(obj.gender)
       ..writeByte(2)
-      ..write(obj.uuid)
+      ..write(obj.phoneNumber)
       ..writeByte(3)
-      ..write(obj.deviceCreatedAt)
+      ..write(obj.uuid)
       ..writeByte(4)
-      ..write(obj.inTurn);
+      ..write(obj.deviceCreatedAt)
+      ..writeByte(5)
+      ..write(obj.inTurn)
+      ..writeByte(6)
+      ..write(obj.inSBTurn);
   }
 
   @override

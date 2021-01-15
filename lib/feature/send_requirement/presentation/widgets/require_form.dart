@@ -59,7 +59,7 @@ class _RequireFormState extends State<RequireForm> {
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text("Yêu cầu không hợp lệ"),
+                    child: Text("Yêu cầu không hợp lệ", style: Subtitle1white,),
                   ),
                   backgroundColor: Colors.red,
                 ));
@@ -124,13 +124,12 @@ class _RequireFormState extends State<RequireForm> {
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text("Yêu cầu không hợp lệ"),
+                    child: Text("Vui lòng nhập yêu cầu"),
                   ),
                   backgroundColor: Colors.red,
                 ));
                 return;
               }
-              print('a');
               BlocProvider.of<SendRequirementBloc>(context)
                   .add(SendRequirement(message: controller.text.trim()));
             },

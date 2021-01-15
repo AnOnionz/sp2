@@ -5,6 +5,7 @@ import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_blo
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_form.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_message.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_result.dart';
+import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_sb_wheel.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_wheel.dart';
 
 import '../../../../di.dart';
@@ -27,6 +28,11 @@ class ReceiveGiftPage extends StatelessWidget {
               return WillPopScope(
                   onWillPop: () async  => false,
                   child: ReceiveGiftWheelPage(form: state.form, giftLucky: state.giftLucky, giftReceive: state.giftReceive, giftReceived: state.giftReceived, giftSBReceived: state.giftSBReceived, giftAt: state.giftAt,));
+            }
+            if(state is ReceiveGiftStateSBWheel){
+              return WillPopScope(
+                  onWillPop: () async  => false,
+                  child: ReceiveGiftSBWheelPage(form: state.form, giftLucky: state.giftLucky, giftReceive: state.giftReceive, giftReceived: state.giftReceived, giftSBReceived: state.giftSBReceived, giftAt: state.giftAt,));
             }
             if(state is ReceiveGiftStateResult){
                 return WillPopScope(

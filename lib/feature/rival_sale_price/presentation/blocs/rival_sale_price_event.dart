@@ -5,6 +5,7 @@ abstract class RivalSalePriceEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+class RivalSalePriceStart extends RivalSalePriceEvent {}
 class RivalSalePriceUpdate extends RivalSalePriceEvent{
   final List<RivalProductEntity> rivals;
 

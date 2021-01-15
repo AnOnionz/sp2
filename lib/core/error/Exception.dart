@@ -20,5 +20,6 @@ class LocalException implements Exception{}
 class InternetException implements Exception{}
 class InternalException implements Exception{}
 class SetOver implements Exception{}
+class SetSBOver implements Exception{}
 class InventoryNullException implements Exception{}
 class HighlightNullException implements Exception{}

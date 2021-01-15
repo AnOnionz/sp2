@@ -37,10 +37,11 @@ class SendRequirementRepositoryImpl implements SendRequirementRepository {
     if(await hasSync()) {
       final data = local.fetchRequirement();
       print(data);
-      for (int i = 0; i < data.length; i++) {
-        await remote.sendRequirement(message: data[i]);
+      for (String require in data) {
+        await remote.sendRequirement(message: require);
         await local.clearRequirement();
       }
+      await local.clearAllRequirement();
     }
   }
 

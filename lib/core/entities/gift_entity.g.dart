@@ -21,13 +21,14 @@ class GiftEntityAdapter extends TypeAdapter<GiftEntity> {
       name: fields[1] as String,
       image: fields[2] as String,
       amountCurrent: fields[3] as int,
+      amountReceive: fields[4] as int,
     ));
   }
 
   @override
   void write(BinaryWriter writer, GiftEntity obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.giftId)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class GiftEntityAdapter extends TypeAdapter<GiftEntity> {
       ..writeByte(2)
       ..write(obj.image)
       ..writeByte(3)
-      ..write(obj.amountCurrent);
+      ..write(obj.amountCurrent)
+      ..writeByte(4)
+      ..write(obj.amountReceive);
   }
 
   @override

@@ -24,11 +24,11 @@ class CheckOutNullFailure extends Failure{
 }
 // ignore: must_be_immutable
 class HighLightNullFailure extends Failure{
-  HighLightNullFailure(): super("Bạn chưa nhập thông tin cuối ngày");
+  HighLightNullFailure(): super("Thông tin cuối ngày chưa đầy đủ");
 }
 // ignore: must_be_immutable
 class InventoryNullFailure extends Failure{
-  InventoryNullFailure(): super("Dữ liệu tồn kho còn thiếu");
+  InventoryNullFailure(): super("Thông tin tồn kho chưa đầy đủ");
 }
 
 // ignore: must_be_immutable
@@ -46,8 +46,8 @@ class ResponseFailure extends Failure{
   ResponseFailure({message}): super(message);
 }
 // ignore: must_be_immutable
-class NotInternetItWillCacheLocalFailure extends Failure{
-  NotInternetItWillCacheLocalFailure({message}): super(message);
+class FailureAndCachedToLocal extends Failure{
+  FailureAndCachedToLocal({message}): super(message);
 }
 
 // ignore: must_be_immutable
@@ -76,12 +76,12 @@ class ContentFailure extends Failure{
 }
 // ignore: must_be_immutable
 class PhoneFailure extends Failure{
-  PhoneFailure({message}) : super("Số điện thoại không chính xác");
+  PhoneFailure({message}) : super("Số điện thoại không hợp lệ");
 
 }
 // ignore: must_be_immutable
 class NameFailure extends Failure{
-  NameFailure() : super("Tên khách hàng không hợp lệ");
+  NameFailure() : super("Vui lòng nhập tên khách hàng");
 
 }
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/receive_gift_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
@@ -25,10 +26,9 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
   List<File> takeGiftImg = [];
-  List<File> approveImg = [];
 
   Future getTakeGiftImage() async {
-    if (takeGiftImg.length < 5) {
+    if (takeGiftImg.length < 3) {
       final pickedFile = await picker.getImage(
           source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
       if (pickedFile != null) {
@@ -39,17 +39,6 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
     }
   }
 
-  Future getApproveImage() async {
-    if (approveImg.length < 5) {
-      final pickedFile = await picker.getImage(
-          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
-      if (pickedFile != null) {
-        setState(() {
-          approveImg.add(File(pickedFile.path));
-        });
-      }
-    }
-  }
 
   void previewTakeGiftImage(File image, int index) async {
     showDialog(
@@ -70,25 +59,6 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
     );
   }
 
-  void previewApproveImage(File image, int index) async {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return PreviewImageDialog(
-          textButton: 'Xóa',
-          image: image,
-          onTap: () {
-            setState(() {
-              approveImg.removeAt(index);
-            });
-
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
-  }
 
   @override
   void initState() {
@@ -113,14 +83,23 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0),
-                  child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Text(
-                        "CHÚC MỪNG BẠN ĐÃ GIẢI THƯỞNG",
-                        style: TextStyle(color: Colors.white, fontSize: 30),
-                      )),
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Text(
+                            "CHÚC MỪNG BẠN ĐÃ NHẬN GIẢI THƯỞNG",
+                            style: TextStyle(color: Colors.white, fontSize: 30),
+                          )),
+                    ),
+                    Positioned(
+                        top: 0,
+                        left: 0,
+                        child:
+                        Text(MyPackageInfo.packageInfo.version)),
+                  ],
                 ),
                 Expanded(
                   child: Column(
@@ -186,10 +165,10 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                         flex: 1,
                                         child: CachedNetworkImage(
                                           imageUrl: widget.entity.gifts[index].image,
-                                          height: 100,
-                                          width: 100,
+                                          height: 55,
+                                          width: 55,
                                           placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
-                                          errorWidget: (context, url, error) => Icon(Icons.error),
+                                          errorWidget: (context, url, error) => Icon(Icons.image_outlined, color: Colors.white70, size: 60,),
                                         ),
                                       ),
                                       Expanded(
@@ -311,89 +290,6 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                                   ],
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 12.0, bottom: 12.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                        flex: 3,
-                                        child: const Text('Biên bản xác nhận:',
-                                            style: formText)),
-                                    Expanded(
-                                      flex: 7,
-                                      child: Container(
-                                        child: Row(
-                                          children: <Widget>[
-                                            Material(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(5)),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  getApproveImage();
-                                                },
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(5)),
-                                                child: Container(
-                                                  height: 60,
-                                                  width: 60,
-                                                  padding:
-                                                      const EdgeInsets.all(15),
-                                                  child: Image.asset(
-                                                      'assets/images/camera.png'),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 10),
-                                            Expanded(
-                                              child: Container(
-                                                height: 60,
-                                                child: ListView(
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  physics:
-                                                      BouncingScrollPhysics(),
-                                                  children: approveImg.map((e) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        previewApproveImage(
-                                                            e,
-                                                            approveImg
-                                                                .indexOf(e));
-                                                      },
-                                                      child: Container(
-                                                        height: 60,
-                                                        width: 60,
-                                                        margin: approveImg
-                                                                    .indexOf(e) ==
-                                                                approveImg
-                                                                        .length -
-                                                                    1
-                                                            ? const EdgeInsets
-                                                                .only(right: 0)
-                                                            : const EdgeInsets
-                                                                .only(right: 10),
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius.circular(
-                                                                      5)),
-                                                          child: Image.file(e,
-                                                              fit: BoxFit.cover),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -452,7 +348,7 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        if(takeGiftImg.length == 0 || approveImg.length == 0){
+                        if(takeGiftImg.length == 0 ){
                           _scaffoldKey.currentState
                               .removeCurrentSnackBar();
                           _scaffoldKey.currentState
@@ -461,14 +357,14 @@ class _ReceiveGiftResultState extends State<ReceiveGiftResultPage> {
                               content: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                                 child: Text(
-                                    "Yêu cầu chụp ảnh trước khi trao quà "),
+                                    "Yêu cầu chụp ảnh trước khi trao quà", style: Subtitle1white,),
                               ),
                               backgroundColor: Colors.red,
                             ),
                           );
                         return;
                         }
-                        final a = ReceiveGiftSubmit(receiveGiftEntity: ReceiveGiftEntity(customer: widget.entity.customer, products: widget.entity.products, gifts: widget.entity.gifts, productImage: widget.entity.productImage, receiptImage: approveImg, customerImage: takeGiftImg, voucher: widget.entity.voucher, outletCode: widget.entity.outletCode, voucherReceived: widget.entity.voucherReceived));
+                        final a = ReceiveGiftSubmit(receiveGiftEntity: ReceiveGiftEntity(customer: widget.entity.customer, products: widget.entity.products, gifts: widget.entity.gifts, customerImage: takeGiftImg, voucher: widget.entity.voucher, outletCode: widget.entity.outletCode, voucherReceived: widget.entity.voucherReceived));
                         BlocProvider.of<ReceiveGiftBloc>(context).add(a);
                         Navigator.pop(context);
                       },

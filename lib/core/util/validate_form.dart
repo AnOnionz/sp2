@@ -21,11 +21,10 @@ class ValidateForm {
     if(form.products.map((e) => e.buyQty).toList().fold(0, (previousValue, element) => previousValue + element) == 0){
       return Left(ValueFailure());
     }
-    if(form.images.length == 0){
-      return Left(NoImageFailure());
-    }
+//    if(form.images.length == 0){
+//      return Left(NoImageFailure());
+//    }
     return Right(form);
-
 
   }
 }

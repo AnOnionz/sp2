@@ -1,20 +1,23 @@
 import 'dart:io';
 import 'package:animate_do/animate_do.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/form_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/widgets/build_list_product.dart';
 
@@ -30,11 +33,12 @@ class ReceiveGiftFormPage extends StatefulWidget {
 }
 
 enum i18 { yes, no }
+enum gender {Nam, Nu }
 
 class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   DashBoardLocalDataSource local = sl<DashBoardLocalDataSource>();
-  final picker = ImagePicker();
+  //final picker = ImagePicker();
   TextEditingController ctrlPhoneNumber;
   TextEditingController ctrlCustomerName;
   TextEditingController ctrlVoucher;
@@ -42,55 +46,58 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   FocusNode phoneNumberFocus;
   FocusNode voucherFocus;
   i18 is18 = i18.yes;
+  gender sex = gender.Nam;
   FormEntity _form;
+  List<VoucherEntity> _vouchers;
 
-  Future getImage() async {
-    if (_form.images.length < 5) {
-      final pickedFile = await picker.getImage(
-          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
-      if (pickedFile != null) {
-        setState(() {
-          _form.images.add(File(pickedFile.path));
-        });
-      }
-    }
-  }
+//  Future getImage() async {
+//    if (_form.images.length < 5) {
+//      final pickedFile = await picker.getImage(
+//          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
+//      if (pickedFile != null) {
+//        setState(() {
+//          _form.images.add(File(pickedFile.path));
+//        });
+//      }
+//    }
+//  }
 
-  void previewImage(File image, int index) async {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return PreviewImageDialog(
-          textButton: 'Xóa',
-          image: image,
-          onTap: () {
-            _form.images.removeAt(index);
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
-  }
+//  void previewImage(File image, int index) async {
+//    showDialog(
+//      context: context,
+//      barrierDismissible: true,
+//      builder: (BuildContext context) {
+//        return PreviewImageDialog(
+//          textButton: 'Xóa',
+//          image: image,
+//          onTap: () {
+//            _form.images.removeAt(index);
+//            Navigator.pop(context);
+//          },
+//        );
+//      },
+//    );
+//  }
 
   @override
   void initState() {
     super.initState();
+    _vouchers = [];
     final List<ProductEntity> products = List.castFrom(local.fetchProduct());
     _form = FormEntity(
-      customer: CustomerEntity(name: "abs", phoneNumber: "0908783465"),
+      customer: CustomerEntity(),
       products: products,
-      images: [],
+      //images: [],
       voucher: null,
       isCheckedVoucher: false,
     );
-    ctrlPhoneNumber = kDebugMode
-        ? TextEditingController()
-        : TextEditingController(text: _form.customer.phoneNumber);
-    ctrlCustomerName = kDebugMode
-        ? TextEditingController()
-        : TextEditingController(text: _form.customer.name);
-    ctrlVoucher = TextEditingController();
+    ctrlPhoneNumber = kDebugMode ? TextEditingController(text: _form.customer.phoneNumber):
+        TextEditingController()..clear();
+
+    ctrlCustomerName = kDebugMode ? TextEditingController(text: _form.customer.name)
+        : TextEditingController()..clear();
+
+    ctrlVoucher = TextEditingController()..clear();
 
     phoneNumberFocus = FocusNode();
     customerFocus = FocusNode();
@@ -114,21 +121,59 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
               ),
             ),
             padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: _form.products.isEmpty
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
+            child: _form.products.isEmpty || local.fetchSetGiftCurrent() == null
+                ? Stack(
+                  children: [
+                    Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 200,
+                              width: 200,
+                              child: FlareActor("assets/images/no_available.flr",
+                                  alignment: Alignment.center,
+                                  fit: BoxFit.contain,
+                                  animation: "Untitled"),
+                            ),
+                            Text("Dữ liệu chưa đủ để bắt đầu", style: Subtitle1white,),
+                            SizedBox(height: 5,),
+                            RaisedButton(onPressed: (){
+                              sl<DashboardBloc>().add(SaveServerDataToLocalData());
+                              setState(() {
+                                _form.products = List.castFrom(local.fetchProduct());
+                              });
+                            }, child: Text("Tải lại",style: TextStyle(color: greenColor),), elevation: 12, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),),
+                          ],
+                        ),
+                      ),
+                    Positioned(
+                        top: 0,
+                        left: 0,
+                        child:
+                        Text(MyPackageInfo.packageInfo.version)),
+                  ],
+                )
                 : Column(
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
-                          child: const Text(
-                            'ĐỔI QUÀ',
-                            style: header,
+                      Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
+                              child: const Text(
+                                'ĐỔI QUÀ',
+                                style: header,
+                              ),
+                            ),
                           ),
-                        ),
+                          Positioned(
+                              top: 0,
+                              left: 0,
+                              child:
+                              Text(MyPackageInfo.packageInfo.version)),
+                        ],
                       ),
                       Expanded(
                         child: ListView(
@@ -137,7 +182,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                             Row(
                               children: <Widget>[
                                 Expanded(
-                                    child: const Text('Tên khách hàng',
+                                    child: const Text('Tên khách hàng (*)',
                                         style: formText)),
                                 Expanded(
                                   child: Container(
@@ -169,6 +214,63 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                               children: <Widget>[
                                 Expanded(
                                     child: const Text(
+                                        'Giới tính: ',
+                                        style: formText)),
+                                Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            child: Row(
+                                              children: [
+                                                Radio(
+                                                  value: gender.Nam,
+                                                  groupValue: sex,
+                                                  activeColor: Colors.deepOrange,
+                                                  onChanged: (gender value) {
+                                                    setState(() {
+                                                      sex = value;
+                                                    });
+                                                  },
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(left: 5),
+                                                  child: const Text("Nam",
+                                                      style: formText),
+                                                ),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            child: Row(
+                                              children: [
+                                                Radio(
+                                                  value: gender.Nu,
+                                                  groupValue: sex,
+                                                  activeColor: Colors.deepOrange,
+                                                  onChanged: (gender value) {
+                                                    setState(() {
+                                                      sex = value;
+                                                    });
+                                                  },
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(left: 5),
+                                                  child:
+                                                  const Text("Nữ", style: formText),
+                                                ),
+                                              ],
+                                            )),
+                                      ],
+                                    )),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                    child: const Text(
                                         'Khách hàng đủ 18 tuổi chưa ?',
                                         style: formText)),
                                 Expanded(
@@ -193,7 +295,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                         Padding(
                                           padding:
                                               const EdgeInsets.only(left: 5),
-                                          child: const Text("Yes",
+                                          child: const Text("Có",
                                               style: formText),
                                         ),
                                       ],
@@ -214,7 +316,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                   .showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                      'Khách hàng chưa đủ 18 tuổi'),
+                                                      'Khách hàng chưa đủ 18 tuổi', style: Subtitle1white,),
                                                   backgroundColor: Colors.red,
                                                 ),
                                               );
@@ -225,7 +327,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                           padding:
                                               const EdgeInsets.only(left: 5),
                                           child:
-                                              const Text("No", style: formText),
+                                              const Text("Không", style: formText),
                                         ),
                                       ],
                                     )),
@@ -238,7 +340,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                               child: Row(
                                 children: <Widget>[
                                   Expanded(
-                                    child: const Text('Số điện thoại',
+                                    child: const Text('Số điện thoại (*)',
                                         style: formText),
                                   ),
                                   Expanded(
@@ -285,227 +387,277 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                         style: formText),
                                   ),
                                   Expanded(
-                                    child: Row(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: Container(
-                                            height: 43,
-                                            child: InputField(
-                                              enable: is18 == i18.yes
-                                                  ? true
-                                                  : false,
-                                              thisFocus: voucherFocus,
-                                              nextFocus: null,
-                                              controller: ctrlVoucher,
-                                              textAlign: TextAlign.left,
-                                              onSubmit: (_) {
-                                                BlocProvider.of<
-                                                            ReceiveGiftBloc>(
-                                                        context)
-                                                    .add(UseVoucher(
-                                                        phone: ctrlVoucher.text
-                                                            .trim()));
-                                              },
-                                              textCapitalization:
-                                                  TextCapitalization.words,
-                                              inputType: TextInputType.number,
-                                              inputFormatter: <
-                                                  TextInputFormatter>[
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                                FilteringTextInputFormatter
-                                                    .allow(RegExp(r'[0-9]'))
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        BlocConsumer<ReceiveGiftBloc,
-                                                ReceiveGiftState>(
-                                            listener: (context, state) {
-                                          if (state is UseVoucherSuccess) {
-                                            _form.isCheckedVoucher = true;
-                                            _form.voucher = state.voucher;
-                                            Dialogs().showMessageDialog(
-                                                context: context,
-                                                content:
-                                                    "Số điện thoại này có ${state.voucher.qty} mã giảm giá");
-                                          }
-                                          if (state is UseVoucherFailure) {
-                                            _form.isCheckedVoucher = false;
-                                            _form.voucher = null;
-                                            Dialogs().showMessageDialog(
-                                                context: context,
-                                                content:
-                                                    "Số điện thoại này không có mã giảm giá");
-                                          }
-                                        }, builder: (context, state) {
-                                          if (state is UseVoucherLoading) {
-                                            return Container(
-                                              height: 43,
-                                              width: 43,
-                                              decoration: BoxDecoration(
-                                                color: greenCentColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Center(
-                                                    child:
-                                                        CupertinoActivityIndicator()),
-                                              ),
-                                            );
-                                          }
-                                          return InkWell(
-                                            onTap: is18 == i18.yes
-                                                ? () {
-                                                    if (ctrlVoucher
-                                                            .text.length ==
-                                                        0) {
-                                                      _scaffoldKey.currentState
-                                                          .removeCurrentSnackBar();
-                                                      _scaffoldKey.currentState
-                                                          .showSnackBar(
-                                                        SnackBar(
-                                                          content: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        10.0),
-                                                            child: Text(
-                                                                "Vui vòng nhập mã giảm giá"),
-                                                          ),
-                                                          backgroundColor:
-                                                              Colors.red,
-                                                        ),
-                                                      );
-                                                      return;
-                                                    }
-//                                                    if(ctrlVoucher.text.length != 10 || !RegExp(r'^0[^01]([0-9]+)').hasMatch(ctrlVoucher.text)){
-//
-//                                                    }
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                height: 43,
+                                                child: InputField(
+                                                  enable: is18 == i18.yes
+                                                      ? true
+                                                      : false,
+                                                  thisFocus: voucherFocus,
+                                                  nextFocus: null,
+                                                  controller: ctrlVoucher,
+                                                  onChanged: (value){
+                                                    setState(() {
+                                                      _form.isCheckedVoucher = _vouchers.map((e) => e.phone).contains(value);
+                                                      _form.voucher = _vouchers.firstWhere((element) => _vouchers.map((e) => e.phone).contains(value), orElse: () => null);
+                                                    });
+                                                  },
+                                                  textAlign: TextAlign.left,
+                                                  onSubmit: (_) {
                                                     BlocProvider.of<
                                                                 ReceiveGiftBloc>(
                                                             context)
                                                         .add(UseVoucher(
-                                                            phone: ctrlVoucher
-                                                                .text
+                                                            phone: ctrlVoucher.text
                                                                 .trim()));
-                                                  }
-                                                : () {},
-                                            child: Container(
-                                              height: 43,
-                                              width: 43,
-                                              decoration: BoxDecoration(
-                                                color: greenCentColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Image.asset(
-                                                  "assets/images/check_voucher.png",
-                                                  width: 30,
+                                                  },
+                                                  textCapitalization:
+                                                      TextCapitalization.words,
+                                                  inputType: TextInputType.number,
+                                                  inputFormatter: <
+                                                      TextInputFormatter>[
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly,
+                                                    FilteringTextInputFormatter
+                                                        .allow(RegExp(r'[0-9]'))
+                                                  ],
                                                 ),
                                               ),
                                             ),
-                                          );
-                                        }),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            BlocConsumer<ReceiveGiftBloc,
+                                                    ReceiveGiftState>(
+                                                listener: (context, state) {
+                                                  if(state is ReceiveGiftInLastSet){
+                                                    showDialog(
+                                                        context: context,
+                                                        barrierDismissible: true,
+                                                        builder: (context) => ZoomIn(
+                                                          duration: Duration(milliseconds: 100),
+                                                          child: CupertinoAlertDialog(
+                                                            title: Text("Sắp hết quà"),
+                                                            content: Padding(
+                                                              padding: const EdgeInsets.all(8.0),
+                                                              child: Text(
+                                                               state.message,
+                                                                style: Subtitle1black,
+                                                              ),
+                                                            ),
+                                                            actions: [
+                                                              CupertinoDialogAction(
+                                                                  isDefaultAction: true,
+                                                                  onPressed: () {
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  child: Text("Đồng ý")),
+                                                            ],
+                                                          ),
+                                                        ));
+                                                  }
+                                              if (state is UseVoucherSuccess) {
+                                                _form.isCheckedVoucher = true;
+                                                _form.voucher = state.voucher;
+                                                _vouchers.add(state.voucher);
+                                                print(_vouchers);
+                                                Dialogs().showMessageDialog(
+                                                    context: context,
+                                                    content:
+                                                        "Số điện thoại này có ${state.voucher.qty} mã giảm giá");
+                                              }
+                                              if (state is UseVoucherFailure) {
+                                                _form.isCheckedVoucher = false;
+                                                _form.voucher = null;
+                                                Dialogs().showMessageDialog(
+                                                    context: context,
+                                                    content:
+                                                        "Số điện thoại này không có mã giảm giá");
+                                              }
+                                            }, builder: (context, state) {
+                                              if (state is UseVoucherLoading) {
+                                                return Container(
+                                                  height: 43,
+                                                  width: 43,
+                                                  decoration: BoxDecoration(
+                                                    color: greenCentColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(5.0),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(8.0),
+                                                    child: Center(
+                                                        child:
+                                                            CupertinoActivityIndicator()),
+                                                  ),
+                                                );
+                                              }
+                                              return InkWell(
+                                                onTap: !_form.isCheckedVoucher && is18 == i18.yes
+                                                    ? () {
+                                                        if (ctrlVoucher
+                                                                .text.length ==
+                                                            0) {
+                                                          _scaffoldKey.currentState
+                                                              .removeCurrentSnackBar();
+                                                          _scaffoldKey.currentState
+                                                              .showSnackBar(
+                                                            SnackBar(
+                                                              content: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .symmetric(
+                                                                        horizontal:
+                                                                            10.0),
+                                                                child: Text(
+                                                                    "Vui vòng nhập mã giảm giá", style: Subtitle1white,),
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                            ),
+                                                          );
+                                                          return;
+                                                        }
+//                                                    if(ctrlVoucher.text.length != 10 || !RegExp(r'^0[^01]([0-9]+)').hasMatch(ctrlVoucher.text)){
+//
+//                                                    }
+                                                        BlocProvider.of<
+                                                                    ReceiveGiftBloc>(
+                                                                context)
+                                                            .add(UseVoucher(
+                                                                phone: ctrlVoucher
+                                                                    .text
+                                                                    .trim()));
+                                                      }
+                                                    : () {} ,
+                                                child: Container(
+                                                  height: 43,
+                                                  width: 43,
+                                                  decoration: BoxDecoration(
+                                                    color: !_form.isCheckedVoucher ? greenCentColor : Colors.grey,
+                                                    borderRadius:
+                                                        BorderRadius.circular(5.0),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(8.0),
+                                                    child: Image.asset(
+                                                      "assets/images/check_voucher.png",
+                                                      width: 30,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ],
+                                        ),
+                                        _form.voucher != null ? Padding(
+                                          padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                                          child: Text(
+                                            '${_form.voucher.qty} mã giảm giá    - ${_form.voucher.qty * 2}0.000 VNĐ', style: TextStyle(color: Colors.cyanAccent, fontStyle: FontStyle.italic, fontSize: 15),
+                                          ),
+                                        ): Padding(
+                                          padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                                          child: Text(
+                                            'Không có mã giảm giá', style: TextStyle(color: Colors.cyanAccent, fontStyle: FontStyle.italic, fontSize: 15),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 15),
-                              child: Row(
-                                children: <Widget>[
-                                  Expanded(
-                                      child: const Text(
-                                          'khách hàng và sản phẩm',
-                                          style: formText)),
-                                  Expanded(
-                                    child: Container(
-                                      child: Row(
-                                        children: <Widget>[
-                                          Material(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(5)),
-                                            child: InkWell(
-                                              onTap: is18 == i18.yes
-                                                  ? () {
-                                                      getImage();
-                                                    }
-                                                  : () {},
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(5)),
-                                              child: Container(
-                                                height: 60,
-                                                width: 60,
-                                                padding:
-                                                    const EdgeInsets.all(15),
-                                                child: Image.asset(
-                                                    'assets/images/camera.png'),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Container(
-                                              height: 60,
-                                              child: ListView(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                physics:
-                                                    BouncingScrollPhysics(),
-                                                children: _form.images.map((e) {
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      previewImage(
-                                                          e,
-                                                          _form.images
-                                                              .indexOf(e));
-                                                    },
-                                                    child: Container(
-                                                      height: 60,
-                                                      width: 60,
-                                                      margin: _form.images
-                                                                  .indexOf(e) ==
-                                                              _form.images
-                                                                      .length -
-                                                                  1
-                                                          ? const EdgeInsets
-                                                              .only(right: 0)
-                                                          : const EdgeInsets
-                                                              .only(right: 10),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    5)),
-                                                        child: Image.file(e,
-                                                            fit: BoxFit.cover),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+//                            Padding(
+//                              padding: const EdgeInsets.only(bottom: 15),
+//                              child: Row(
+//                                children: <Widget>[
+//                                  Expanded(
+//                                      child: const Text(
+//                                          'khách hàng và sản phẩm',
+//                                          style: formText)),
+//                                  Expanded(
+//                                    child: Container(
+//                                      child: Row(
+//                                        children: <Widget>[
+//                                          Material(
+//                                            borderRadius: BorderRadius.all(
+//                                                Radius.circular(5)),
+//                                            child: InkWell(
+//                                              onTap: is18 == i18.yes
+//                                                  ? () {
+//                                                      getImage();
+//                                                    }
+//                                                  : () {},
+//                                              borderRadius: BorderRadius.all(
+//                                                  Radius.circular(5)),
+//                                              child: Container(
+//                                                height: 60,
+//                                                width: 60,
+//                                                padding:
+//                                                    const EdgeInsets.all(15),
+//                                                child: Image.asset(
+//                                                    'assets/images/camera.png'),
+//                                              ),
+//                                            ),
+//                                          ),
+//                                          SizedBox(width: 10),
+//                                          Expanded(
+//                                            child: Container(
+//                                              height: 60,
+//                                              child: ListView(
+//                                                scrollDirection:
+//                                                    Axis.horizontal,
+//                                                physics:
+//                                                    BouncingScrollPhysics(),
+//                                                children: _form.images.map((e) {
+//                                                  return GestureDetector(
+//                                                    onTap: () {
+//                                                      previewImage(
+//                                                          e,
+//                                                          _form.images
+//                                                              .indexOf(e));
+//                                                    },
+//                                                    child: Container(
+//                                                      height: 60,
+//                                                      width: 60,
+//                                                      margin: _form.images
+//                                                                  .indexOf(e) ==
+//                                                              _form.images
+//                                                                      .length -
+//                                                                  1
+//                                                          ? const EdgeInsets
+//                                                              .only(right: 0)
+//                                                          : const EdgeInsets
+//                                                              .only(right: 10),
+//                                                      child: ClipRRect(
+//                                                        borderRadius:
+//                                                            BorderRadius.all(
+//                                                                Radius.circular(
+//                                                                    5)),
+//                                                        child: Image.file(e,
+//                                                            fit: BoxFit.cover),
+//                                                      ),
+//                                                    ),
+//                                                  );
+//                                                }).toList(),
+//                                              ),
+//                                            ),
+//                                          ),
+//                                        ],
+//                                      ),
+//                                    ),
+//                                  ),
+//                                ],
+//                              ),
+//                            ),
                             Container(
                               height: 1,
                               color: Colors.white,
@@ -529,48 +681,48 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                           content: Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10.0),
-                                            child: Text(state.message),
+                                            child: Text(state.message, style: Subtitle1white,),
                                           ),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
                                     }
-                                    if (state is NoImage) {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return ZoomIn(
-                                              delay:
-                                                  Duration(milliseconds: 100),
-                                              child: CupertinoAlertDialog(
-                                                title: Text("Thông báo"),
-                                                content: Text(
-                                                  "Bạn phải chụp ảnh để tiếp tục đổi quà",
-                                                  style: Subtitle1black,
-                                                ),
-                                                actions: [
-                                                  CupertinoDialogAction(
-                                                      isDefaultAction: true,
-                                                      textStyle: TextStyle(
-                                                          color: Colors.red),
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text("Hủy")),
-                                                  CupertinoDialogAction(
-                                                      isDefaultAction: true,
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        getImage();
-                                                      },
-                                                      child: Text(
-                                                        "Chụp hình",
-                                                      )),
-                                                ],
-                                              ),
-                                            );
-                                          });
-                                    }
+//                                    if (state is NoImage) {
+//                                      showDialog(
+//                                          context: context,
+//                                          builder: (BuildContext context) {
+//                                            return ZoomIn(
+//                                              delay:
+//                                                  Duration(milliseconds: 100),
+//                                              child: CupertinoAlertDialog(
+//                                                title: Text("Thông báo"),
+//                                                content: Text(
+//                                                  "Bạn phải chụp ảnh để tiếp tục đổi quà",
+//                                                  style: Subtitle1black,
+//                                                ),
+//                                                actions: [
+//                                                  CupertinoDialogAction(
+//                                                      isDefaultAction: true,
+//                                                      textStyle: TextStyle(
+//                                                          color: Colors.red),
+//                                                      onPressed: () {
+//                                                        Navigator.pop(context);
+//                                                      },
+//                                                      child: Text("Hủy")),
+//                                                  CupertinoDialogAction(
+//                                                      isDefaultAction: true,
+//                                                      onPressed: () {
+//                                                        Navigator.pop(context);
+//                                                        getImage();
+//                                                      },
+//                                                      child: Text(
+//                                                        "Chụp hình",
+//                                                      )),
+//                                                ],
+//                                              ),
+//                                            );
+//                                          });
+//                                    }
                                     if (state is ReceiveGiftHandling) {
                                       Navigator.pop(context);
                                       showDialog(
@@ -683,7 +835,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                                             style:
                                                                                 Discount),
                                                                         Text(
-                                                                          '${state.form.voucher.qty} voucher - ${state.form.voucher.qty * 2}0.000 VNĐ',
+                                                                          '${state.form.voucher.qty} mã giảm giá - ${state.form.voucher.qty * 2}0.000 VNĐ',
                                                                           style:
                                                                               Discount,
                                                                         )
@@ -853,6 +1005,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                                       .form,
                                                                   setCurrent: state
                                                                       .setCurrent,
+                                                                  setSBCurrent: state.setSBCurrent,
                                                                   giftAt: 0,
                                                                   giftReceive:
                                                                       state
@@ -1041,8 +1194,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                               _form.customer,
                                                           isCheckedVoucher: _form
                                                               .isCheckedVoucher,
-                                                          images:
-                                                              _form.images)));
+                                                         )));
                                             }
                                           : () {
                                               _scaffoldKey.currentState
@@ -1051,7 +1203,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                   .showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                      'Khách hàng chưa đủ 18 tuổi'),
+                                                      'Khách hàng chưa đủ 18 tuổi', style: Subtitle1white,),
                                                   backgroundColor: Colors.red,
                                                 ),
                                               );

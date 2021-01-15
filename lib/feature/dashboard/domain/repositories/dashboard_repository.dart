@@ -10,8 +10,11 @@ abstract class DashboardRepository {
   Future<Either<Failure, void>> saveProductFromServer();
   Future<Either<Failure, void>> saveRivalProductFromServer();
   Future<Either<Failure, void>> saveGiftFromServer();
+  Future<Either<Failure, void>> saveGiftStrongbowFromServer();
   Future<Either<Failure, void>> saveSetGiftFromServer();
+  Future<Either<Failure, void>> saveSetGiftSBFromServer();
   Future<Either<Failure, void>> saveSetGiftCurrentFromServer();
+  Future<Either<Failure, void>> saveSetGiftSBCurrentFromServer();
 
 }
 

@@ -12,7 +12,7 @@ import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart
 
 abstract class ReceiveGiftRepository {
   Future<Either<Failure, VoucherEntity>> useVoucher({@required String phone});
-  Future<Either<Failure, HandleGiftEntity>> handleGift({@required List<ProductEntity> products, @required CustomerEntity customer, @required SetGiftEntity setCurrent});
+  Future<Either<Failure, HandleGiftEntity>> handleGift({@required List<ProductEntity> products, @required CustomerEntity customer, @required SetGiftEntity setCurrent, @required SetGiftEntity setSBCurrent});
   Future<Either<Failure, HandleWheelEntity>> handleWheel({@required List<GiftEntity> giftReceived, @required SetGiftEntity setCurrent});
   Future<Either<Failure, HandleWheelEntity>> handleStrongBowWheel({@required List<GiftEntity> giftReceived, @required SetGiftEntity setCurrent});
   Future<Either<Failure, bool>> handleReceiveGift({@required ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent});

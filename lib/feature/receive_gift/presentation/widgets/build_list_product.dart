@@ -17,46 +17,47 @@ class BuildListProduct extends StatelessWidget {
       children: products.map((e) {
         int index = products.indexOf(e);
         return Padding(
-          padding: const EdgeInsets.only(bottom: 15),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Expanded(child: Text('${e.productName}', style: formText)),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 43,
-                        child: InputField(
-                          enable: is18,
-                          thisFocus: e.focus,
-                          nextFocus: index == products.length - 1
-                              ? nextFocus
-                              : products[index + 1].focus,
-                          controller: e.controller..addListener(() {
-                            e.buyQty = e.controller.text.isEmpty ? 0 : int.parse(e.controller.text) ~/1;
-                          }),
-                          textAlign: TextAlign.left,
-                          subText: "Thùng",
-                          action: TextInputAction.next,
-                          textCapitalization: TextCapitalization.words,
-                          inputType: TextInputType.number,
-                          inputFormatter: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(5),
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                          ],
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(child: Text('${e.productName}', style: e is StrongBowPack6 ? formTextSB : formText)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 43,
+                          child: InputField(
+                            isSBP6: e is StrongBowPack6,
+                            enable: is18,
+                            thisFocus: e.focus,
+                            nextFocus: index == products.length - 1
+                                ? nextFocus
+                                : products[index + 1].focus,
+                            controller: e.controller..addListener(() {
+                              e.buyQty = e.controller.text.isEmpty ? 0 : int.parse(e.controller.text) ~/1;
+                            }),
+                            textAlign: TextAlign.left,
+                            subText: e is StrongBowPack6 ? "Lốc" : "Thùng",
+                            action: TextInputAction.next,
+                            textCapitalization: TextCapitalization.words,
+                            inputType: TextInputType.number,
+                            inputFormatter: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(5),
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         );
-      }).toList(),
+      }).toList()
     );
   }
 }

@@ -1,19 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 
+
 class RequireGifts extends StatelessWidget {
   final List<GiftEntity> gifts;
+  final VoidCallback reFresh;
 
-  const RequireGifts({Key key, this.gifts}) : super(key: key);
+  const RequireGifts({Key key, this.gifts, this.reFresh}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: ListView.separated(
+        child: gifts.length > 0 ? ListView.separated(
           itemCount: gifts.length,
           physics: BouncingScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 20),
@@ -34,7 +38,7 @@ class RequireGifts extends StatelessWidget {
                     height: 80,
                     width: 80,
                     placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    errorWidget: (context, url, error) => Icon(Icons.image_outlined, color: Colors.white70, size: 60,),
                   ),
                 ),
                 Padding(
@@ -44,7 +48,23 @@ class RequireGifts extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        ): Center(child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 200,
+              width: 200,
+              child: FlareActor("assets/images/no_available.flr",
+                  alignment: Alignment.center,
+                  fit: BoxFit.contain,
+                  animation: "Untitled"),
+            ),
+            Text("Danh sách trống", style: Subtitle1white,),
+            RaisedButton(onPressed: (){
+             reFresh();
+            }, child: Text("Tải lại",style: TextStyle(color: greenColor),), elevation: 12, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),),
+          ],
+        ),),
       ),
     );
   }

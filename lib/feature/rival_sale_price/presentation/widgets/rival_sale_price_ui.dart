@@ -1,20 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
+import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/rival_product_entity.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
+
+import '../../../../di.dart';
 
 class RivalSalePriceUi extends StatelessWidget {
   final List<RivalProductEntity> rivals;
+  final VoidCallback reFresh;
 
-  const RivalSalePriceUi({Key key, this.rivals}) : super(key: key);
+  const RivalSalePriceUi({Key key, this.rivals,this.reFresh}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Expanded(
-            child: ListView.separated(
+            child: rivals.length > 0 ? ListView.separated(
               itemCount: rivals.length,
               physics: BouncingScrollPhysics(),
               padding: const EdgeInsets.only(bottom: 20),
@@ -34,10 +40,10 @@ class RivalSalePriceUi extends StatelessWidget {
                       child: CachedNetworkImage(
                         placeholderFadeInDuration: Duration(milliseconds: 300),
                         imageUrl: rivals[index].imgUrl,
-                        height: 100,
-                        width: 100,
+                        height: 90,
+                        width: 90,
                         placeholder: (context, url) => SizedBox(height: 20, width: 20, child: Center(child:CupertinoActivityIndicator())),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        errorWidget: (context, url, error) => Image.asset("assets/images/beer.png", height: 40, width: 40,),
                       ),
                     ),
                   ),
@@ -65,10 +71,14 @@ class RivalSalePriceUi extends StatelessWidget {
                               ? null
                               :  rivals[index + 1].focus);
                         },
-                        controller: rivals[index].priceController..value = TextEditingValue(text: NumberFormat.currency(symbol: '', decimalDigits: 0).format(rivals[index].price))..addListener(() {
-                          rivals[index].price = rivals[index].priceController.text.isEmpty ? 0 : int.parse(rivals[index].priceController.text.replaceAll(",", ""))~/1;
-
-                        }) ,
+                        controller: rivals[index].priceController..value = TextEditingValue(text: NumberFormat.currency(symbol: '', decimalDigits: 0).format(rivals[index].price))..selection = TextSelection.collapsed(offset: rivals[index].priceController.text.length),
+                        onChanged: (value){
+                          final text = rivals[index].priceController.text.isEmpty ? 0 : int.parse(rivals[index].priceController.text.replaceAll(",", ""))~/1;
+                          if(text != rivals[index].price){
+                            rivals[index].price = text;
+                            //onChange();
+                          }
+                        },
                         style: textInput,
                         keyboardType: TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: <TextInputFormatter>[
@@ -104,6 +114,22 @@ class RivalSalePriceUi extends StatelessWidget {
                   ),
                 ],
               ),
+            ) : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 200,
+                  width: 200,
+                  child: FlareActor("assets/images/no_available.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "Untitled"),
+                ),
+                Text("Danh sách bia đối thủ trống", style: Subtitle1white,),
+                RaisedButton(onPressed: (){
+                  reFresh();
+                }, child: Text("Tải lại",style: TextStyle(color: greenColor),), elevation: 12, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),),
+              ],
             ),
           );
   }

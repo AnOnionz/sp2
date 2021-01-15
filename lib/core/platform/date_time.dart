@@ -4,7 +4,7 @@ import 'package:sp_2021/core/error/Exception.dart';
 
 class MyDateTime{
   static String today;
-  static Future<DateTime> getNow() async {
+  static DateTime getNow() {
     return DateTime.now();
 //    try{
 //      return await NTP.now();

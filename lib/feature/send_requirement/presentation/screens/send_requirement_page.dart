@@ -6,12 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/blocs/send_requirement_bloc.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/widgets/require_form.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/widgets/require_gifts.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/widgets/require_products.dart';
+import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 
 import '../../../../di.dart';
 
@@ -33,7 +37,9 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
     initialPage: page,
     );
     products = local.fetchProduct();
-    gifts = local.fetchGift();
+    final gifthn = local.fetchGift();
+    final giftsb = local.fetchGiftStrongbow();
+    gifts = [...gifthn, ... giftsb];
     super.initState();
   }
 
@@ -70,29 +76,38 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                 }
                 if(state is SendRequirementSuccess){
                   Navigator.pop(context);
-                  Dialogs().showMessageDialog(context: context, content: "Yêu cầu đã được gửi");
+                  Dialogs().showSuccessDialog(context: context, content: "Yêu cầu của bạn đã được gửi");
                 }
                 if(state is SendRequirementCached){
                   Navigator.pop(context);
-                  Dialogs().showMessageDialog(context: context, content: "Yêu cầu chưa được gửi");
+                  Dialogs().showFailureDialog(context: context, content: "Yêu cầu của bạn chưa được gửi (cần đồng bộ sau)");
                 }
                 if(state is SendRequirementFailure){
                   Navigator.pop(context);
-                  Dialogs().showMessageDialog(context: context, content: state.message);
+                  Dialogs().showFailureDialog(context: context, content: state.message);
                 }
               },
               builder: (context, state) => Column(
                 children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.fromLTRB(0, 35, 0, 40),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            'YÊU CẦU HÀNG',
-                            style: header,
-                          ),
-                        ]),
+                  Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.fromLTRB(0, 35, 0, 40),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                'YÊU CẦU HÀNG',
+                                style: header,
+                              ),
+                            ]),
+                      ),
+                      Positioned(
+                          top: 0,
+                          left: 0,
+                          child:
+                          Text(MyPackageInfo.packageInfo.version)),
+                    ],
                   ),
                   Expanded(
                     child: Column(
@@ -153,6 +168,14 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                                 children: [
                                   RequireGifts(
                                     gifts: gifts,
+                                    reFresh: () {
+                                      sl<DashboardBloc>().add(SaveServerDataToLocalData());
+                                      setState(() {
+                                        final gifthn = local.fetchGift();
+                                        final giftsb = local.fetchGiftStrongbow();
+                                        gifts = [...gifthn, ... giftsb];
+                                      });
+                                    },
                                   ),
                                   RequireForm(
                                   ),
@@ -162,6 +185,12 @@ class _ProductRequirementPageState extends State<ProductRequirementPage> {
                                 children: [
                                   RequireProducts(
                                     products: products,
+                                    reFresh: () async {
+                                      sl<DashboardBloc>().add(SaveServerDataToLocalData());
+                                      setState(() {
+                                        products = local.fetchProduct();
+                                      });
+                                    },
                                   ),
                                   RequireForm(
                                   ),

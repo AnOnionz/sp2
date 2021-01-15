@@ -45,6 +45,10 @@ import 'colors.dart';
     fontSize: 16,
     color: Colors.white,
   );
+const TextStyle formTextSB = TextStyle(
+  fontSize: 16,
+  color: Colors.yellow,
+);
 
   const TextStyle norText = TextStyle(
     fontSize: 16,
@@ -111,6 +115,11 @@ const TextStyle Subtitle1white = TextStyle(
   fontSize: 17,
   color: Colors.white,
 );
+const TextStyle MessageTitle1white = TextStyle(
+  fontSize: 19,
+  color: Colors.white,
+);
+
 const TextStyle Headline6black = TextStyle(
   fontSize: 20,
   color: Colors.black,

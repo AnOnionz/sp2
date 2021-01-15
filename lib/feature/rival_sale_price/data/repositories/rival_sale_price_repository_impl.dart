@@ -22,6 +22,7 @@ class RivalSalePriceRepositoryImpl implements RivalSalePriceRepository {
   @override
   Future<Either<Failure, bool>> updateRivalSalePrice(
       {List<RivalProductEntity> rivals}) async {
+    final data = rivals.map((e) => {"sku_id": e.id, "price": e.price}).toList();
     final dataToday = dashBoardLocal.dataToday;
     if (dataToday.checkIn != true) {
       return Left(CheckInNullFailure(
@@ -29,28 +30,28 @@ class RivalSalePriceRepositoryImpl implements RivalSalePriceRepository {
     }
     if (await networkInfo.isConnected) {
       try {
-        dashBoardLocal.cacheRivalProducts(products: rivals);
-        final data = rivals.map((e) => {"sku_id": e.id, "price": e.price}).toList();
-        final update = await remote.updateRivalSalePrice(rivals: data);
-        if (update == false) {
-          local.cacheRivalSalePrice(rivals);
-        }
-        return Right(update);
+        await remote.updateRivalSalePrice(rivals: data);
+        await dashBoardLocal.cacheDataToday(rivalSalePrice: data);
+        return Right(true);
       } on UnAuthenticateException catch (_) {
-        local.cacheRivalSalePrice(rivals);
+        await local.cacheRivalSalePrice(rivals);
+        await dashBoardLocal.cacheDataToday(rivalSalePrice: data);
         return Left(UnAuthenticateFailure());
       } on ResponseException catch (error) {
         return Left(ResponseFailure(message: error.message));
       } on InternalException catch (_) {
-        local.cacheRivalSalePrice(rivals);
+        await local.cacheRivalSalePrice(rivals);
+        await dashBoardLocal.cacheDataToday(rivalSalePrice: data);
         return Left(InternalFailure());
       } on InternetException catch(_){
-        local.cacheRivalSalePrice(rivals);
-        return Left(NotInternetItWillCacheLocalFailure());
+        await local.cacheRivalSalePrice(rivals);
+        await dashBoardLocal.cacheDataToday(rivalSalePrice: data);
+        return Left(FailureAndCachedToLocal());
       }
     } else {
-      local.cacheRivalSalePrice(rivals);
-      return Left(NotInternetItWillCacheLocalFailure());
+      await local.cacheRivalSalePrice(rivals);
+      await dashBoardLocal.cacheDataToday(rivalSalePrice: data);
+      return Left(FailureAndCachedToLocal());
     }
   }
 
@@ -63,11 +64,9 @@ class RivalSalePriceRepositoryImpl implements RivalSalePriceRepository {
   Future<void> syncRivalSalePrice() async {
     if(await hasSync()) {
       final data = local.fetchRivalSalePrice();
-      print(data);
-      final sync = await remote.updateRivalSalePrice(rivals: data);
-      if (sync == true) {
-        await local.clearRivalSalePrice();
-      }
+      await remote.updateRivalSalePrice(rivals: data);
+      await local.clearRivalSalePrice();
+
     }
   }
 

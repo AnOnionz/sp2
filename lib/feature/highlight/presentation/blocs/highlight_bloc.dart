@@ -4,11 +4,10 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/util/validate_highlight.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_entity.dart';
-import 'package:sp_2021/feature/highlight/domain/repositories/highlight_repository.dart';
 import 'package:sp_2021/feature/highlight/domain/usecases/highlight_usecase.dart';
 import 'package:sp_2021/feature/highlight/domain/usecases/highlight_validate.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
@@ -17,21 +16,32 @@ part 'highlight_event.dart';
 part 'highlight_state.dart';
 
 class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
+  final DashBoardLocalDataSource localData;
   final HighLightUseCase uploadHighlight;
   final HighlightValidateUseCase highlightValidate;
   final DashboardBloc dashboardBloc;
   final AuthenticationBloc authenticationBloc;
   HighlightBloc(
-      {this.dashboardBloc,
+      {this.localData,
+        this.dashboardBloc,
       this.authenticationBloc,
       this.uploadHighlight,
       this.highlightValidate})
-      : super(HighlightInitial());
+      : super(HighlightInitial()){
+    add(HighlightStart());
+  }
 
   @override
   Stream<HighlightState> mapEventToState(
     HighlightEvent event,
   ) async* {
+    if(event is HighlightStart){
+      final dataToday = localData.dataToday;
+      if (dataToday.checkIn != true) {
+        dashboardBloc.add(RequiredCheckInOrCheckOut(
+            message: 'Phải chấm công trước khi nhập thông tin cuối ngày', willPop: 2));
+      }
+    }
     if (event is HighlightValidateForm) {
       final validate = await highlightValidate(event.highlights);
       yield* _eitherValidateHighlights(validate, this);
@@ -40,7 +50,7 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       yield HighlightLoading();
       final upload = await uploadHighlight(HighlightParams(
           highlights: HighlightCacheEntity(
-              outletCode: 'INIT_CODE',
+              outletCode: '4260936721',
               workContent: event.highlights[0].content,
               workImages: event.highlights[0].images.map((e) => e.path).toList(),
               rivalContent: event.highlights[1].content,
@@ -75,7 +85,7 @@ Stream<HighlightState> _eitherHighLightToState(Either<Failure, bool> either,
       dashboardBloc.add(SyncRequired(message: fail.message));
       return HighlightCloseDialog();
     }
-    if (fail is NotInternetItWillCacheLocalFailure) {
+    if (fail is FailureAndCachedToLocal) {
       return HighlightCached();
     }
     return HighlightFailure(message: fail.message);

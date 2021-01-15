@@ -17,8 +17,8 @@ import 'package:sp_2021/feature/check_voucher/presentation/blocs/check_voucher_b
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:sp_2021/feature/dashboard/data/repositories/dashboard_repository_impl.dart';
-import 'package:sp_2021/feature/dashboard/domain/entities/features.dart';
 import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/data/datasources/highlight_local_datasource.dart';
 import 'package:sp_2021/feature/highlight/data/repositories/highlight_repository_impl.dart';
@@ -54,6 +54,11 @@ import 'package:sp_2021/feature/send_requirement/data/repositories/send_requirem
 import 'package:sp_2021/feature/send_requirement/domain/repositories/send_requirement_repository.dart';
 import 'package:sp_2021/feature/send_requirement/domain/usecases/send_requirement_usecase.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/blocs/send_requirement_bloc.dart';
+import 'package:sp_2021/feature/setting/data/datasources/setting_remote_data_source.dart';
+import 'package:sp_2021/feature/setting/data/repositories/setting_repository_impl.dart';
+import 'package:sp_2021/feature/setting/domain/repositories/setting_repository.dart';
+import 'package:sp_2021/feature/setting/domain/usecases/setting_usecase.dart';
+import 'package:sp_2021/feature/setting/presentation/blocs/setting_bloc.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 import 'package:sp_2021/feature/sync_data/domain/usecases/sync_usecase.dart';
@@ -61,7 +66,7 @@ import 'package:sp_2021/feature/sync_data/presentation/blocs/sync_data_bloc.dart
 import 'core/api/myDio.dart';
 import 'core/platform/network_info.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
-import 'feature/dashboard/domain/usecases/usecase_save_to_local.dart';
+import 'feature/dashboard/domain/usecases/save_to_local_usecase.dart';
 import 'feature/dashboard/presentation/blocs/tab_bloc.dart';
 import 'feature/highlight/data/datasources/highlight_remote_datasource.dart';
 import 'feature/highlight/domain/repositories/highlight_repository.dart';
@@ -94,14 +99,13 @@ Future<void> init() async {
   sl.registerLazySingleton<DataConnectionChecker>(
       () => DataConnectionChecker());
 
-
   //! Features - Login //
   // Data sources
   sl.registerLazySingleton<LoginRemoteDataSource>(
       () => LoginRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<LoginRepository>(
-      () => LoginRepositoryImpl(remoteDataSource: sl(),networkInfo: sl(), dashBoardLocal: sl()));
+      () => LoginRepositoryImpl(remoteDataSource: sl(),networkInfo: sl(), dashBoardLocal: sl(),));
   //Use case
   sl.registerLazySingleton<UsecaseLogin>(() => UsecaseLogin(repository: sl()));
   sl.registerLazySingleton<UseCaseLogout>(
@@ -118,28 +122,18 @@ Future<void> init() async {
   sl.registerLazySingleton<DashBoardRemoteDataSource>(
       () => DashBoardRemoteDataSourceImpl(cDio: sl()));
   sl.registerLazySingleton<DashBoardLocalDataSource>(
-      () => DashBoardLocalDataSourceImpl());
+      () => DashBoardLocalDataSourceImpl(sharedPrefer: sl()));
   // Repository
   sl.registerLazySingleton<DashboardRepository>(() =>
       DashboardRepositoryImpl(remote: sl(), local: sl(), networkInfo: sl()));
   // UseCase
-  sl.registerLazySingleton<UseCaseSaveDataToLocal>(
-      () => UseCaseSaveDataToLocal(repository: sl()));
+  sl.registerLazySingleton<SaveDataToLocalUseCase>(
+      () => SaveDataToLocalUseCase(repository: sl()));
+  sl.registerLazySingleton<UpdateSetGiftUseCase>(() => UpdateSetGiftUseCase(repository: sl()));
   // Bloc
   sl.registerLazySingleton<DashboardBloc>(() => DashboardBloc(
       saveDataToLocal: sl(), local: sl(), authenticationBloc: sl()));
   sl.registerLazySingleton<TabBloc>(() => TabBloc());
-
-
-  //! Feature Sync Data
-  // Data Source
-  sl.registerLazySingleton<SyncLocalDataSource>(() => SyncLocalDataSourceImpl());
-  // Repository
-  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(networkInfo: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
-  // UseCase
-  sl.registerLazySingleton<SyncUseCase>(() => SyncUseCase(repository: sl()));
-  // Bloc
-  sl.registerFactory<SyncDataBloc>(() => SyncDataBloc(authenticationBloc: sl(), synchronous: sl(), dashboardBloc: sl<DashboardBloc>()));
 
 
   //! Feature Attendance
@@ -148,7 +142,7 @@ Future<void> init() async {
       () => AttendanceRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<AttendanceRepository>(
-      () => AttendanceRepositoryImpl(dataSource: sl(),dashBoardLocal: sl(), syncRepository: sl()));
+      () => AttendanceRepositoryImpl(remote: sl(),dashBoardLocal: sl(), syncRepository: sl()));
   // Use case
   sl.registerLazySingleton<UseCaseCheckInOrOut>(
       () => UseCaseCheckInOrOut(repository: sl()));
@@ -159,6 +153,16 @@ Future<void> init() async {
   sl.registerFactory<AttendanceBloc>(() => AttendanceBloc(useCaseCheckInOrOut: sl(), authenticationBloc: sl(), dashboardBloc: sl()));
   sl.registerFactory<CheckAttendanceBloc>(() => CheckAttendanceBloc(dashboardBloc: sl(), authenticationBloc: sl(), useCaseCheckSP: sl()));
 
+  //! Feature Sync Data
+  // Data Source
+  sl.registerLazySingleton<SyncLocalDataSource>(() => SyncLocalDataSourceImpl());
+  // Repository
+  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(local: sl(),networkInfo: sl(), updateSetGift: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
+  // UseCase
+  sl.registerLazySingleton<SyncUseCase>(() => SyncUseCase(repository: sl()));
+  // Bloc
+  sl.registerFactory<SyncDataBloc>(() => SyncDataBloc(authenticationBloc: sl(), synchronous: sl(), dashboardBloc: sl<DashboardBloc>()));
+
 
   //! Future Receive Gift
   sl.registerLazySingleton<ValidateFormUseCase>(() => ValidateFormUseCase(validateForm: sl()));
@@ -167,7 +171,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ReceiveGiftRemoteDataSource>(() => ReceiveGiftRemoteDataSourceImpl(cDio: sl()));
   // Repository
   sl.registerLazySingleton<ReceiveGiftRepository>(
-      () => ReceiveGiftRepositoryImpl(local: sl(),networkInfo: sl(),remote: sl(),dashboardLocal: sl()));
+      () => ReceiveGiftRepositoryImpl(local: sl(),networkInfo: sl(),remote: sl(),dashboardLocal: sl(), updateSetGift: sl()));
   // UseCase
   sl.registerLazySingleton<UseVoucherUseCase>(() => UseVoucherUseCase(repository: sl()));
   sl.registerLazySingleton<HandleGiftUseCase>(
@@ -241,7 +245,7 @@ Future<void> init() async {
   sl.registerLazySingleton<RivalSalePriceUseCase>(
           () => RivalSalePriceUseCase(repository: sl()));
   // Bloc
-  sl.registerFactory<RivalSalePriceBloc>(() => RivalSalePriceBloc(authenticationBloc: sl(), dashboardBloc: sl(), updateRivalSalePrice: sl()));
+  sl.registerFactory<RivalSalePriceBloc>(() => RivalSalePriceBloc(authenticationBloc: sl(), localData: sl(), dashboardBloc: sl(), updateRivalSalePrice: sl()));
 
 
   //! Feature HighLight
@@ -254,7 +258,7 @@ Future<void> init() async {
   sl.registerLazySingleton<HighLightUseCase>(() => HighLightUseCase(repository: sl()));
   sl.registerLazySingleton<HighlightValidateUseCase>(() => HighlightValidateUseCase());
   // Bloc
-  sl.registerFactory<HighlightBloc>(() => HighlightBloc(highlightValidate: sl(), authenticationBloc: sl(), dashboardBloc: sl(), uploadHighlight: sl()));
+  sl.registerFactory<HighlightBloc>(() => HighlightBloc(highlightValidate: sl(), localData: sl(), authenticationBloc: sl(), dashboardBloc: sl(), uploadHighlight: sl()));
 
 
   //! Feature Send Requirement
@@ -272,4 +276,14 @@ Future<void> init() async {
   // Data Source
   sl.registerLazySingleton<NotificationLocalDataSource>(() => NotificationLocalDataSourceImpl());
 
+  //! Feature Setting
+  // Data Source
+  sl.registerLazySingleton<SettingRemoteDataSource
+  >(() => SettingRemoteDataSourceImpl(cDio: sl()));
+  // Repository
+  sl.registerLazySingleton<SettingRepository>(() => SettingRepositoryImpl(remote: sl()));
+  // UseCase
+  sl.registerLazySingleton<SettingUseCase>(() => SettingUseCase(repository: sl()));
+  // Bloc
+  sl.registerFactory<SettingBloc>(() => SettingBloc(checkVersion: sl()));
 }

@@ -54,7 +54,7 @@ class _SBBoardViewState extends State<SBBoardView> {
   }
 
   _buildCard(GiftEntity gift) {
-    var _rotate = _rotote(widget.items.indexOf(gift));
+    var _rotate = _rotote(widget.items.map((e) => e.giftId).toList().indexOf(gift.giftId));
     var _angle = 2 * pi / widget.items.length;
     int indexOf = widget.items.indexOf(gift);
     return Transform.rotate(
@@ -87,14 +87,14 @@ class _SBBoardViewState extends State<SBBoardView> {
         child:ConstrainedBox(
           constraints: BoxConstraints.expand(height: size.height / 2.6, width: 70,),
           child: Transform.scale(
-            scale: gift.id == 1 ||  gift.id == 3 ||  gift.id == 7 ||  gift.id == 333 ?  0.55: 0.85,
+            scale: gift.id == 25 || gift.id == 28 ? 0.98: 0.85,
             child: CachedNetworkImage(
               imageUrl: gift.image,
               fit: BoxFit.scaleDown,
               height: 100,
               width: 100,
               placeholder: (context, url) => SizedBox(height: 25, width: 25, child: Center(child:CupertinoActivityIndicator())),
-              errorWidget: (context, url, error) => Icon(Icons.error),
+              errorWidget: (context, url, error) => Icon(Icons.image_outlined, color: Colors.teal, size: 60,),
             ),
           ),
         ),

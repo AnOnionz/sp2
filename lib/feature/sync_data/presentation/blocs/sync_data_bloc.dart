@@ -32,7 +32,7 @@ class SyncDataBloc extends Bloc<SyncDataEvent, SyncDataState> {
 Stream<SyncDataState> _eitherSyncToState(Either<Failure, bool> either, AuthenticationBloc authenticationBloc, DashboardBloc dashboardBloc,) async*{
   yield either.fold((fail) {
     if (fail is UnAuthenticateFailure) {
-      authenticationBloc.add(ShutDown(willPop: 1));
+      authenticationBloc.add(ShutDown(willPop: 2));
       return SyncDataCloseDialog();
     }
     if (fail is InternalFailure) {

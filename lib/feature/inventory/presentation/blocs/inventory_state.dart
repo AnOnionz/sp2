@@ -7,7 +7,11 @@ abstract class InventoryState {
 class InventoryInitial extends InventoryState {
 }
 class InventoryLoading extends InventoryState{}
-class InventoryUpdated extends InventoryState{}
+class InventoryUpdated extends InventoryState{
+  final String message;
+
+  InventoryUpdated({this.message});
+}
 class InventoryCached extends InventoryState{}
 class InventoryFailure extends InventoryState{
   final String message;

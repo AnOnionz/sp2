@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:sp_2021/core/common/keys.dart';
@@ -9,7 +8,7 @@ import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
-import 'package:sp_2021/feature/dashboard/domain/usecases/usecase_save_to_local.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 
@@ -17,7 +16,7 @@ part 'dashboard_event.dart';
 part 'dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final UseCaseSaveDataToLocal saveDataToLocal;
+  final SaveDataToLocalUseCase saveDataToLocal;
   final DashBoardLocalDataSource local;
   final AuthenticationBloc authenticationBloc;
 
@@ -27,9 +26,6 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   @override
   Stream<DashboardState> mapEventToState(DashboardEvent event) async* {
     if (event is SaveServerDataToLocalData) {
-      await MyDateTime.getToday();
-      await Hive.openBox<DataTodayEntity>(AuthenticationBloc.outlet.code + DATA_DAY);
-      await Hive.openBox<CustomerEntity>(MyDateTime.today + CUSTOMER_BOX);
       if (local.loadInitDataToLocal) {
         yield DashboardSaving();
         final result = await saveDataToLocal(NoParams());
@@ -39,9 +35,10 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
             return null;
           }
           if (failure is InternetFailure) {
-            return DashboardNoInternet();
+            return DashboardNoInternetInitData();
           }
           if (failure is InternalFailure) {
+            authenticationBloc.add(LoggedOut());
             return DashboardFailure(message: failure.message);
           }
           return DashboardFailure(message: failure.message);
@@ -59,7 +56,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           message: event.message, willPop: event.willPop ?? 0);
     }
     if(event is InternalServer){
-      yield DashboardFailure(message: "Máy chủ đang gặp sự cố, vui lòng thử lại sau");
+      yield DashboardFailure(message: "Máy chủ đang gặp sự cố, vui lòng thử lại sau", willPop: 1);
     }
   }
+
 }

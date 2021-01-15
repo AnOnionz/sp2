@@ -18,7 +18,8 @@ import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_sourc
 abstract class ReceiveGiftLocalDataSource{
   Future<CustomerEntity> getCustomer({String name, String phone});
   Future<void> cacheCustomer({CustomerEntity customer});
-  Future<HandleGiftEntity> handleGift({List<ProductEntity> products,  CustomerEntity customer,SetGiftEntity setCurrent});
+  Future<HandleGiftEntity> handleGift({List<ProductEntity> products, CustomerEntity customer, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent});
+  Future<HandleGiftEntity> handleSBGift({StrongBowPack6 strongBowPack6, CustomerEntity customer, SetGiftEntity setCurrent});
   Future<HandleWheelEntity> handleWheel({List<GiftEntity> giftReceived, SetGiftEntity setCurrent});
   Future<HandleWheelEntity> handleStrongBowWheel({List<GiftEntity> giftReceived, SetGiftEntity setCurrent});
   Future<List<CustomerGiftEntity>> fetchCustomerGift();
@@ -35,125 +36,125 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
 
   @override
   Future<HandleGiftEntity> handleGift({List<
-      ProductEntity> products, CustomerEntity customer, SetGiftEntity setCurrent}) async {
+      ProductEntity> products, CustomerEntity customer, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent}) async {
     List<Gift> resultGift = <Gift>[];
-    //check set current
     print(products);
-    setCurrent = setCurrent.gifts
-        .where((element) => element.amountCurrent > 0)
-        .toList()
-        .isEmpty ? local.fetchNewSetGift(setCurrent.index + 1) : setCurrent;
+    // check set current
+    setCurrent = getSetGift(setCurrent);
     // set current is last set and over gift
     if (setCurrent == null) {
-      throw(SetOver());
+      if(!local.isSetSBOver){
+        StrongBowPack6 sb = products.firstWhere((element) => element is StrongBowPack6,orElse: ()=> StrongBowPack6()..buyQty=0);
+        final strongbowGift = await handleSBGift(strongBowPack6: sb, customer: customer, setCurrent: setSBCurrent);
+        print("gift Strong bow will receive: ${strongbowGift.gifts}");
+        print('all gift receive:  ${[...resultGift, ...strongbowGift.gifts]}');
+        return HandleGiftEntity(gifts: [...resultGift, ...strongbowGift.gifts], setCurrent: setCurrent, setSBCurrent: strongbowGift.setSBCurrent);
+      }
     }
+    // count all gift inset
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
     print('set co $sum món');
-    // get set gift current
+    // get all gift available
     final gifts = local.fetchGift();
-    // get all Gift can receive
-    LoginEntity outlet = AuthenticationBloc.outlet; // check province
+    // get gift from bought product
+    LoginEntity outlet = AuthenticationBloc.outlet;
+    print(outlet);// check province
     resultGift = await getGift(products, outlet);
     print("gift will receive1: $resultGift");
     // change temp gift to gift
     resultGift = resultGift.map((e) =>
         gifts.lastWhere((element) => element.giftId == e.id, orElse: () => null) ?? e)
         .toList();
+    // sort gift
     resultGift.sort((a, b) {
       return a.id.compareTo(b.id);
     });
-    print("gift will receive2: $resultGift");
     // fixed length of result Gift
     int len = resultGift.length;
     resultGift = len >= customer.inTurn
         ? resultGift.sublist(0, customer.inTurn)
         : resultGift.sublist(0, len);
-    print("gift will receive3: $resultGift");
     //* UseCase (HCM&HCM) Tiger & StrongBow ||(Province) Heineken & Tiger => 2 Candle*//
     //* remove one candle*//
-    if ((resultGift.where((element) => element is Nen)
-      ..toList()).length > 1) {
-      int index = resultGift.lastIndexOf(Nen());
+    if (resultGift.whereType<Nen>().length >1 ) {
+      int index = resultGift.lastIndexOf(resultGift.firstWhere((element) => element is Nen));
       resultGift.removeAt(index);
-      resultGift.insert(index, Wheel(id: 100));
+      resultGift.insert(index, Wheel(id: 222));
     }
-    print("gift will receive4: $resultGift");
     // mapping vs current SetGift
     // if set not enough then change it to Wheel
     // else update amount
-    resultGift.forEach((gift) {
-      if (gift is Nen) {
-        if (setCurrent.gifts
-            .firstWhere((element) => element is Nen)
-            .amountCurrent == 0) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id: 50));
-        }
-      }
-      if (gift is Voucher) {
-        if (setCurrent.gifts
-            .whereType<Voucher>()
-            .first
-            .amountCurrent == 0) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id: 60));
-        }
-      }
-      if (gift is StrongBowGift) {
-        if (setCurrent.gifts
-            .whereType<StrongBowGift>()
-            .first
-            .amountCurrent == 0) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id: 70));
-        }
-
-      }
-      if (gift is Pack4) {
-        if (setCurrent.gifts
-            .whereType<Pack4>()
-            .first
-            .amountCurrent == 0) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id: 90));
-        }
-      }
-      if (gift is Pack6) {
-        if (setCurrent.gifts
-            .whereType<Pack6>()
-            .first
-            .amountCurrent == 0) {
-          int index = resultGift.indexOf(gift);
-          resultGift.remove(gift);
-          resultGift.insert(index, Wheel(id: 80));
-        }
-      }
-    });
+    resultGift = giftToWheel(resultGift, setCurrent);
     //reSort
     resultGift.sort((a, b) {
       return a.id.compareTo(b.id);
     });
-    print("gift will receive5: $resultGift");
     // check last set
-    if (setCurrent.index == local.indexLast && customer.inTurn > sum) {
+    if (setCurrent.index == local.indexLast && resultGift.length > sum) {
+      print(local.indexLast);
       resultGift = resultGift.sublist(0, sum);
     }
     print("gift will receive: $resultGift");
-
+    if(!local.isSetSBOver){
+      StrongBowPack6 sb = products.firstWhere((element) => element is StrongBowPack6,orElse: ()=> StrongBowPack6()..buyQty=0);
+      final strongbowGift = await handleSBGift(strongBowPack6: sb, customer: customer, setCurrent: setSBCurrent);
+      print("gift Strong bow will receive: ${strongbowGift.gifts}");
+      print('all gift receive:  ${[...resultGift, ...strongbowGift.gifts]}');
+      return HandleGiftEntity(gifts: [...resultGift, ...strongbowGift.gifts], setCurrent: setCurrent, setSBCurrent: strongbowGift.setSBCurrent);
+    }
     return HandleGiftEntity(gifts: resultGift, setCurrent: setCurrent);
+  }
+  @override
+  Future<HandleGiftEntity> handleSBGift({StrongBowPack6 strongBowPack6, CustomerEntity customer, SetGiftEntity setCurrent}) async {
+    List<Gift> resultGift = <Gift>[];
+    print(strongBowPack6);
+    // check set current
+    setCurrent = getSetGiftSB(setCurrent);
+    // set current is last set and over gift
+    if (setCurrent == null) {
+      throw(SetOver());
+    }
+    // count all gift inset
+    final sum = setCurrent.gifts.fold(
+        0, (previousValue, element) => previousValue + element.amountCurrent);
+    print('Set Strongbow have $sum món');
+    // get all gift available
+    final gifts = local.fetchGift();
+    // get gift from bought product// check province
+    resultGift = await strongBowPack6.getGift();
+    // change temp gift to gift
+    resultGift = resultGift.map((e) =>
+    gifts.lastWhere((element) => element.giftId == e.id, orElse: () => null) ?? e)
+        .toList();
+    // sort gift
+    resultGift.sort((a, b) {
+      return a.id.compareTo(b.id);
+    });
+    // fixed length of result Gift
+    int len = resultGift.length;
+    resultGift = len >= customer.inSBTurn
+        ? resultGift.sublist(0, customer.inSBTurn)
+        : resultGift.sublist(0, len);
+    // check last set
+    // return all gift of last set gift
+    if (setCurrent.index == local.sbIndexLast && resultGift.length > sum) {
+      resultGift = resultGift.sublist(0, sum);
+    }
+    print("Strong bow gift will receive: $resultGift");
+
+    return HandleStrongBowGiftEntity(gifts: resultGift, setSBCurrent: setCurrent);
   }
 
   Future<List<Gift>> getGift(List<ProductEntity> products,
       LoginEntity outlet) async {
     List<Gift> result = [];
     for(int i =0; i < products.length; i++){
-      final giftOfProduct = await products[i].getGift(outlet: outlet);
-      result.addAll(giftOfProduct);
+      if(products[i] is! StrongBowPack6) {
+        final giftOfProduct = await products[i].getGift(outlet: outlet);
+        print(giftOfProduct);
+        result.addAll(giftOfProduct);
+      }
     }
     return result;
   }
@@ -163,17 +164,14 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       {List<GiftEntity> giftReceived, SetGiftEntity setCurrent}) async {
     List<GiftEntity> lucky = [];
     List<GiftEntity> noLucky = [];
-    // check current set is empty
-    setCurrent = setCurrent.gifts
-        .where((element) => element.amountCurrent > 0)
-        .toList()
-        .isEmpty ? local.fetchNewSetGift(setCurrent.index + 1) : setCurrent;
+    // get set gift
+    setCurrent = getSetGift(setCurrent);
+    // set current is last set and over gift
     if (setCurrent == null) {
       throw(SetOver());
     }
     // fetch gift > 0 in set gift
-    List<GiftEntity> gifts =
-    setCurrent.gifts.where((element) => element.amountCurrent > 0).toList();
+    List<GiftEntity> gifts = setCurrent.gifts.where((element) => element.amountCurrent > 0).toList();
     // lucky
     print("received: $giftReceived");
     gifts.forEach((gift) {
@@ -190,7 +188,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         lucky = noLucky;
       }
       if (noLucky.isEmpty) {
-        int index = setCurrent.index + 1;
+        int index = setCurrent.index;
         setCurrent = local.fetchNewSetGift(index);
         if (setCurrent == null) {
           throw(SetOver());
@@ -214,13 +212,12 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     List<GiftEntity> lucky = [];
     List<GiftEntity> noLucky = [];
     // check current set is empty
-    setCurrent = setCurrent.gifts
-        .where((element) => element.amountCurrent > 0)
-        .toList()
-        .isEmpty ? local.fetchNewSBSetGift(setCurrent.index + 1) : setCurrent;
+    setCurrent = getSetGiftSB(setCurrent);
+    // set current is last set and over gift
     if (setCurrent == null) {
       throw(SetOver());
     }
+    print(setCurrent);
     // fetch gift > 0 in set gift
     List<GiftEntity> gifts =
     setCurrent.gifts.where((element) => element.amountCurrent > 0).toList();
@@ -240,8 +237,8 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         lucky = noLucky;
       }
       if (noLucky.isEmpty) {
-        int index = setCurrent.index + 1;
-        setCurrent = local.fetchNewSetGift(index);
+        int index = setCurrent.index;
+        setCurrent = local.fetchNewSBSetGift(index);
         if (setCurrent == null) {
           throw(SetOver());
         }
@@ -266,8 +263,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
 
   @override
   Future<void> cacheCustomerGift({CustomerGiftEntity customerGiftEntity}) async {
-    Box<CustomerGiftEntity> box = Hive.box(CUSTOMER_GIFT_BOX);
-    await box.clear();
+    Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     await box.add(customerGiftEntity);
     await syncLocal.addSync(type: 1, value: 1);
     await syncLocal.addSync(type: 2, value: 3);
@@ -282,7 +278,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
 
   @override
   Future<List<CustomerGiftEntity>> fetchCustomerGift() async{
-    Box<CustomerGiftEntity> box = Hive.box(CUSTOMER_GIFT_BOX);
+    Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     return box.values.toList();
   }
 
@@ -293,46 +289,100 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       CustomerEntity customerInDB = await getCustomer(
           name: customer.name, phone: customer.phoneNumber);
       customerInDB.inTurn = customer.inTurn;
+      customerInDB.inSBTurn = customer.inSBTurn;
       customerInDB.save();
     } on HiveError catch (_) {
       // new customer
-      Box<CustomerEntity> box = Hive.box(MyDateTime.today + CUSTOMER_BOX);
+      Box<CustomerEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);
       box.add(customer);
     }
   }
 
   @override
   Future<CustomerEntity> getCustomer({String name, String phone}) async {
-    Box<CustomerEntity> box = Hive.box(MyDateTime.today + CUSTOMER_BOX);
+    Box<CustomerEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);
     final outlet = AuthenticationBloc.outlet;
     List<CustomerEntity> customers = box.values.toList();
+    print(customers);
     if (customers.isEmpty) {
       return CustomerEntity(name: name,
           phoneNumber: phone,
-          inTurn: outlet.turn);
+          inTurn: outlet.turn, inSBTurn: 2);
     }
     CustomerEntity customer;
     try {
       customer = customers.firstWhere((element) => element.phoneNumber == phone);
     } catch (e) {
-      customer = CustomerEntity(name: name, phoneNumber: phone, inTurn: outlet.turn);
+      customer = CustomerEntity(name: name, phoneNumber: phone, inTurn: outlet.turn, inSBTurn: 2);
     }
     return customer;
   }
 
   @override
   Future<void> clearAllCustomerGift() async {
-    Box<CustomerGiftEntity> box = Hive.box(CUSTOMER_GIFT_BOX);
+    Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     await box.clear();
   }
 
   @override
   bool isRequireSync() {
-    Box<CustomerGiftEntity> box = Hive.box(CUSTOMER_GIFT_BOX);
+    Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     return box.values.toList().isNotEmpty;
   }
 
+  List<Gift> giftToWheel(List<Gift> resultGift, SetGiftEntity setCurrent){
+    resultGift.forEach((gift) {
+      if (gift is Nen && setCurrent.gifts
+          .firstWhere((element) => element is Nen)
+          .amountCurrent == 0) {
+        int index = resultGift.indexOf(gift);
+        resultGift.remove(gift);
+        resultGift.insert(index, Wheel(id: 333));
+      }
+      if (gift is Voucher && setCurrent.gifts
+          .firstWhere((element) => element is Voucher)
+          .amountCurrent == 0) {
+        int index = resultGift.indexOf(gift);
+        resultGift.remove(gift);
+        resultGift.insert(index, Wheel(id: 444));
 
+      }
+      if (gift is StrongBowGift && setCurrent.gifts
+          .firstWhere((element) => element is StrongBowGift)
+          .amountCurrent == 0) {
+        int index = resultGift.indexOf(gift);
+        resultGift.remove(gift);
+        resultGift.insert(index, Wheel(id: 555));
+      }
+      if (gift is Pack4 && setCurrent.gifts
+          .firstWhere((element) => element is Pack4)
+          .amountCurrent == 0) {
+        int index = resultGift.indexOf(gift);
+        resultGift.remove(gift);
+        resultGift.insert(index, Wheel(id: 666));
+      }
+      if (gift is Pack6 && setCurrent.gifts
+          .firstWhere((element) => element is Pack6)
+          .amountCurrent == 0) {
+        int index = resultGift.indexOf(gift);
+        resultGift.remove(gift);
+        resultGift.insert(index, Wheel(id: 777));
+      }
+    });
+    return resultGift;
+  }
+  SetGiftEntity getSetGift(SetGiftEntity setCurrent){
+    final setGift = setCurrent.gifts
+        .every((element) => element.amountCurrent == 0) ? local.fetchNewSetGift(setCurrent.index) : setCurrent;
+      return setGift;
+  }
+  SetGiftEntity getSetGiftSB(SetGiftEntity setSBCurrent){
+    final setGift = setSBCurrent.gifts
+        .every((element) => element.amountCurrent == 0)
+        ? local.fetchNewSBSetGift(setSBCurrent.index) : setSBCurrent;
+    // set current is last set and over gift
+      return setGift;
+  }
 
 
 }

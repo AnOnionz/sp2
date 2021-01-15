@@ -9,7 +9,7 @@ class CDio {
   CDio(){
     client = Dio(BaseOptions(
       baseUrl: '$apiBaseUrl/$apiPath/',
-      connectTimeout: 5000,
+      connectTimeout: 10000,
       receiveTimeout: 60000,
       responseType: ResponseType.json,
       validateStatus: (status) => true,

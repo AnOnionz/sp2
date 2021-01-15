@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 
 abstract class HighLightLocalDataSource {
@@ -15,7 +16,7 @@ class HighlightLocalDataSourceImpl implements HighLightLocalDataSource {
   HighlightLocalDataSourceImpl({this.syncLocal});
   @override
   Future<void> cacheHighlight(HighlightCacheEntity highlight) async{
-    Box<HighlightCacheEntity> box = Hive.box(HIGHLIGHT_BOX);
+    Box<HighlightCacheEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + HIGHLIGHT_BOX);
     if(box.isNotEmpty) {
       await box.clear();
       await box.add(highlight);
@@ -29,13 +30,13 @@ class HighlightLocalDataSourceImpl implements HighLightLocalDataSource {
 
   @override
   HighlightCacheEntity fetchHighlight() {
-    Box<HighlightCacheEntity> box = Hive.box(HIGHLIGHT_BOX);
+    Box<HighlightCacheEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + HIGHLIGHT_BOX);
     return box.values.toList()?.last;
   }
 
   @override
   Future<void> clearHighlight() async {
-    Box<HighlightCacheEntity> box = Hive.box(HIGHLIGHT_BOX);
+    Box<HighlightCacheEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + HIGHLIGHT_BOX);
     await box.clear();
     await syncLocal.removeSync(type: 1, value: 1);
     await syncLocal.removeSync(type: 2, value: 4);
@@ -43,7 +44,7 @@ class HighlightLocalDataSourceImpl implements HighLightLocalDataSource {
 
   @override
   bool isRequireSync() {
-    Box<HighlightCacheEntity> box = Hive.box(HIGHLIGHT_BOX);
+    Box<HighlightCacheEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + HIGHLIGHT_BOX);
     return box.values.toList().isNotEmpty;
   }
 }

@@ -22,25 +22,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         yield MapLoading();
         try {
           Location location = new Location();
-          bool _serviceEnabled;
-          PermissionStatus _permissionGranted;
-          _serviceEnabled = await location.serviceEnabled();
-          if (!_serviceEnabled) {
-            _serviceEnabled = await location.requestService();
-            if (!_serviceEnabled) {
-              return;
-            }
-          }
-          _permissionGranted = await location.hasPermission();
-          if (_permissionGranted == PermissionStatus.denied) {
-            _permissionGranted = await location.requestPermission();
-            if (_permissionGranted != PermissionStatus.granted) {
-              return;
-            }
-          }
-
           position = await location.getLocation();
-
           if (position != null) {
             yield MapLoaded(position: position);
           } else {

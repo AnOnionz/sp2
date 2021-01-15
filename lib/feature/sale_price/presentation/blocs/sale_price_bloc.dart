@@ -20,12 +20,21 @@ class SalePriceBloc extends Bloc<SalePriceEvent, SalePriceState> {
   final AuthenticationBloc authenticationBloc;
   final DashboardBloc dashboardBloc;
   SalePriceBloc({this.authenticationBloc, this.updateSalePrice, this.dashboardBloc, this.dashBoardLocal})
-      : super(SalePriceInitial());
+      : super(SalePriceInitial()){
+    add(SalePriceStart());
+  }
 
   @override
   Stream<SalePriceState> mapEventToState(
     SalePriceEvent event,
   ) async* {
+    if(event is SalePriceStart){
+      final dataToday = dashBoardLocal.dataToday;
+      if (dataToday.checkIn != true) {
+        dashboardBloc.add(RequiredCheckInOrCheckOut(
+            message: 'Phải chấm công trước khi nhập giá bia bán', willPop: 2));
+      }
+    }
     if (event is SalePriceUpdate) {
       yield SalePriceLoading();
       final update =
@@ -53,7 +62,7 @@ Stream<SalePriceState> _eitherSalePriceToState(
     if(fail is HasSyncFailure){
       dashboardBloc.add(SyncRequired(message: fail.message));
     }
-    if(fail is NotInternetItWillCacheLocalFailure){
+    if(fail is FailureAndCachedToLocal){
       return SalePriceCached();
     }
     return SalePriceUpdateFailure(message: fail.message);

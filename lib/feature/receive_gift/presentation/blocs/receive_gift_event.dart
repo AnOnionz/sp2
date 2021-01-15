@@ -41,12 +41,13 @@ class ShowGiftWheel extends ReceiveGiftEvent {
 class GiftNext extends ReceiveGiftEvent {
   final FormEntity form;
   final SetGiftEntity setCurrent;
+  final SetGiftEntity setSBCurrent;
   final List<Gift> giftReceive;
   final List<GiftEntity> giftReceived;
   final List<GiftEntity> giftSBReceived;
   final int giftAt;
 
-  GiftNext({this.form, this.giftReceive, this.setCurrent, this.giftReceived, this.giftSBReceived, this.giftAt,});
+  GiftNext({this.form, this.giftReceive, this.setCurrent, this.setSBCurrent, this.giftReceived, this.giftSBReceived, this.giftAt,});
 
 
 }

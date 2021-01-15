@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/features.dart';
+import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
+
+import '../../../../di.dart';
 
 class FeatureButton extends StatelessWidget {
   final Feature feature;
@@ -26,7 +29,7 @@ class FeatureButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                width: MediaQuery.of(context).size.width / 8,
+                width: MediaQuery.of(context).size.width / 9,
                 margin: EdgeInsets.only(bottom: 12),
                 child: feature.image,
               ),

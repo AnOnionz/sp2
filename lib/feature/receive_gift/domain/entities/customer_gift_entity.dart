@@ -17,20 +17,18 @@ class CustomerGiftEntity extends Equatable with HiveObject{
   final List<dynamic> products;
   @HiveField(3)
   final List<dynamic> gifts;
+//  @HiveField(4)
+//  final List<String> productImage;
   @HiveField(4)
-  final List<String> productImage;
-  @HiveField(5)
   final List<String> customerImage;
-  @HiveField(6)
-  final List<String> receiptImage;
-  @HiveField(7)
+  @HiveField(5)
   final int voucherReceived;
-  @HiveField(8)
+  @HiveField(6)
   final String voucherPhone;
-  @HiveField(9)
+  @HiveField(7)
   final int voucherQty;
 
-  CustomerGiftEntity({this.outletCode, this.customer, this.products, this.gifts, this.productImage, this.customerImage, this.receiptImage, this.voucherPhone ,this.voucherQty ,this.voucherReceived});
+  CustomerGiftEntity({this.outletCode, this.customer, this.products, this.gifts, this.customerImage, this.voucherPhone ,this.voucherQty ,this.voucherReceived});
 
   Map<String, dynamic> toJson() {
     return {
@@ -38,15 +36,11 @@ class CustomerGiftEntity extends Equatable with HiveObject{
       'customer': customer.toJson(),
       'products': products,
       'gifts': gifts ,
-      'product_images': productImage.map((e) =>
-          MultipartFile.fromFileSync(
-            e, filename: basename(e),
-          ),).toList(),
+//      'product_images': productImage.map((e) =>
+//          MultipartFile.fromFileSync(
+//            e, filename: basename(e),
+//          ),).toList(),
       'customer_images': customerImage.map((e) =>
-          MultipartFile.fromFileSync(
-            e, filename: basename(e),
-          ),).toList(),
-      'receipt_images': receiptImage.map((e) =>
           MultipartFile.fromFileSync(
             e, filename: basename(e),
           ),).toList(),
@@ -60,9 +54,9 @@ class CustomerGiftEntity extends Equatable with HiveObject{
 
   @override
   String toString() {
-    return 'CustomerGiftEntity{outletCode: $outletCode, customer: $customer, products: $products, gifts: $gifts, productImage: $productImage, customerImage: $customerImage, receiptImage: $receiptImage, voucherReceived: $voucherReceived, voucherPhone: $voucherPhone, voucherQty: $voucherQty}';
+    return 'CustomerGiftEntity{outletCode: $outletCode, customer: $customer, products: $products, gifts: $gifts, customerImage: $customerImage, voucherReceived: $voucherReceived, voucherPhone: $voucherPhone, voucherQty: $voucherQty}';
   }
 
   @override
-  List<Object> get props => [customer, products, gifts, productImage, customerImage, receiptImage, voucherQty, voucherPhone, voucherReceived];
+  List<Object> get props => [customer, products, gifts, customerImage, voucherQty, voucherPhone, voucherReceived];
 }

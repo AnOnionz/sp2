@@ -11,8 +11,8 @@ class Board extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           LineBoard(color: Colors.white,),
-          LineBoard(color: Colors.white,),
           LineBoard(color: Colors.red, num: kpi,),
+          LineBoard(color: Colors.white,),
           LineBoard(color: Colors.white,),
         ],
       ),

@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,14 +11,16 @@ import 'package:sp_2021/feature/attendance/presentation/screens/attendance_page.
 import 'package:sp_2021/feature/check_voucher/presentation/screens/check_voucher_page.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/tab_bloc.dart';
-import 'package:sp_2021/feature/notification/data/datasources/notification_local_data_source.dart';
+import 'package:sp_2021/feature/dashboard/presentation/widgets/bottom_bar.dart';
 import 'package:sp_2021/feature/notification/presentation/screens/notification_page.dart';
 import 'package:sp_2021/feature/send_requirement/presentation/screens/send_requirement_page.dart';
 import 'package:sp_2021/feature/setting/presentation/screens/setting_page.dart';
+import 'package:sp_2021/no_internet_page.dart';
 import '../../../../di.dart';
 import 'home_page.dart';
 
 class DashboardPage extends StatelessWidget {
+
   final _children = [
     HomePage(),
     AttendancePage(),
@@ -27,174 +30,6 @@ class DashboardPage extends StatelessWidget {
     SettingPage(),
   ];
 
-  FutureBuilder _bottomNavigationBar() {
-    return FutureBuilder(
-        future: sl<NotificationLocalDataSource>().numberOfNotify(),
-        builder: (context, snapshot) {
-          return BlocBuilder<TabBloc, TabState>(builder: (context, state) {
-            if (state is TabChanged) {
-              return Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/background.png"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: BottomNavigationBar(
-                    currentIndex: state.index,
-                    onTap: (index) {
-                      BlocProvider.of<TabBloc>(context)
-                          .add(TabPressed(index: index));
-                    },
-                    backgroundColor: Colors.transparent,
-                    type: BottomNavigationBarType.fixed,
-                    elevation: 0.0,
-                    selectedLabelStyle: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    selectedItemColor: Colors.white,
-                    unselectedLabelStyle: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    unselectedItemColor: Colors.white.withOpacity(0.3),
-                    items: [
-                      BottomNavigationBarItem(
-                          icon: AnimatedOpacity(
-                              duration: Duration.zero,
-                              opacity: 0.3,
-                              child: Image.asset(
-                                "assets/images/home.png",
-                                height: 30,
-                              )),
-                          activeIcon: Image.asset(
-                            "assets/images/home.png",
-                            height: 30,
-                          ),
-                          label: 'Trang chủ'),
-                      BottomNavigationBarItem(
-                          icon: AnimatedOpacity(
-                              duration: Duration.zero,
-                              opacity: 0.3,
-                              child: Image.asset(
-                                "assets/images/calendar.png",
-                                height: 30,
-                              )),
-                          activeIcon: Image.asset(
-                            "assets/images/calendar.png",
-                            height: 30,
-                          ),
-                          label: 'Chấm công'),
-                      BottomNavigationBarItem(
-                          icon: AnimatedOpacity(
-                              duration: Duration.zero,
-                              opacity: 0.3,
-                              child: Image.asset(
-                                "assets/images/box.png",
-                                height: 30,
-                              )),
-                          activeIcon: Image.asset(
-                            "assets/images/box.png",
-                            height: 30,
-                          ),
-                          label: 'Yêu cầu hàng'),
-                      BottomNavigationBarItem(
-                        icon: AnimatedOpacity(
-                            duration: Duration.zero,
-                            opacity: 0.3,
-                            child: Image.asset(
-                              "assets/images/e-voucher.png",
-                              height: 30,
-                            )),
-                        activeIcon: Image.asset(
-                          "assets/images/e-voucher.png",
-                          height: 30,
-                        ),
-                        label: 'Kiểm tra giảm giá',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Stack(
-                          children: [
-                            AnimatedOpacity(
-                                duration: Duration.zero,
-                                opacity: 0.3,
-                                child: Image.asset(
-                                  "assets/images/bell.png",
-                                  height: 30,
-                                )),
-                            Builder(builder: (context) {
-                              if (snapshot.connectionState ==
-                                      ConnectionState.waiting ||
-                                  snapshot.data == 0) {
-                                return Positioned(
-                                    right: 0,
-                                    child: new Container(
-                                      padding: EdgeInsets.all(1),
-                                      constraints: BoxConstraints(
-                                        minWidth: 13,
-                                        minHeight: 13,
-                                      ),
-                                    ));
-                              }
-                              return Positioned(
-                                right: 0,
-                                child: new Container(
-                                  padding: EdgeInsets.all(1),
-                                  decoration: new BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  constraints: BoxConstraints(
-                                    minWidth: 13,
-                                    minHeight: 13,
-                                  ),
-                                  child: Text(
-                                    snapshot.data.toString(),
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                        activeIcon: Column(
-                          children: [
-                            Image.asset(
-                              "assets/images/bell.png",
-                              height: 30,
-                            ),
-                          ],
-                        ),
-                        label: 'Thông báo',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: AnimatedOpacity(
-                            duration: Duration.zero,
-                            opacity: 0.3,
-                            child: Image.asset(
-                              "assets/images/settings.png",
-                              height: 30,
-                            )),
-                        activeIcon: Image.asset(
-                          "assets/images/settings.png",
-                          height: 30,
-                        ),
-                        label: 'Cài đặt',
-                      ),
-                    ]),
-              );
-            }
-            return Container(
-              child: Center(child: Text("Đã xảy ra lỗi")),
-            );
-          });
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,9 +74,9 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
           child: BlocBuilder<TabBloc, TabState>(
-            builder: (context, state) {
-              if (state is TabChanged) {
-                return BlocListener<DashboardBloc, DashboardState>(
+            builder: (context, tabState) {
+              if (tabState is TabChanged) {
+                return BlocConsumer<DashboardBloc, DashboardState>(
                   listener: (context, state) {
                     if (state is DashboardSaving) {
                       showDialog(
@@ -255,94 +90,40 @@ class DashboardPage extends StatelessWidget {
                                     width: 80,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0),
-                                      color: Colors.white60.withOpacity(0.2),
+                                      color: Colors.white70,
                                     ),
                                     child: CupertinoActivityIndicator(
-                                      radius: 20,
+                                      radius: 20,animating: true,
                                     ),
                                   ),
                                 ),
                               ));
+                    }
+                    if(state is DashboardNoInternetInitData){
+                      Navigator.pop(context);
+                      Dialogs().showFailureAndRetryDialog(context: context, content: '''Tải dữ liệu không thành công
+                                                                                             (yêu cầu kết nối mạng) ''', reTry: (){
+                        sl<DashboardBloc>().add(SaveServerDataToLocalData());
+                      });
                     }
                     if (state is DashboardHasSync) {
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => WillPopScope(
-                              onWillPop: () async => false,
-                              child: ZoomIn(
-                                duration: const Duration(milliseconds: 100),
-                                child: CupertinoAlertDialog(
-                                  title: Text("Yêu cầu đồng bộ"),
-                                  content: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      state.message,
-                                      style: Subtitle1black,
-                                    ),
-                                  ),
-                                  actions: [
-                                    CupertinoDialogAction(
-                                        isDefaultAction: true,
-                                        textStyle: TextStyle(color: Colors.red),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Thoát")),
-                                    CupertinoDialogAction(
-                                        isDefaultAction: true,
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.pushNamed(
-                                              context, '/sync_data');
-                                        },
-                                        child: Text("Đồng bộ")),
-                                  ],
-                                ),
-                              )));
+                      Dialogs().showRequireSyncDialog(
+                        context: context,
+                        content: state.message,
+                      );
                     }
                     if (state is DashboardRequiredCheckInOrOut) {
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (_) => WillPopScope(
-                                onWillPop: () async => false,
-                                child: ZoomIn(
-                                  duration: const Duration(milliseconds: 100),
-                                  child: CupertinoAlertDialog(
-                                    title: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("Yêu cầu chấm công"),
-                                    ),
-                                    content: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        state.message,
-                                        style: Subtitle1black,
-                                      ),
-                                    ),
-                                    actions: [
-                                      CupertinoDialogAction(
-                                          isDefaultAction: true,
-                                          onPressed: () {
-                                              Navigator.pop(context);
-                                              Navigator.pop(context);
-                                          },
-                                          child: Text("Thoát")),
-                                      CupertinoDialogAction(
-                                          isDefaultAction: true,
-                                          onPressed: () {
-                                            List.generate(state.willPop, (i) {
-                                              Navigator.pop(context);
-                                            });
-                                            BlocProvider.of<TabBloc>(context)
-                                                .add(TabPressed(index: 1));
-                                          },
-                                          child: Text("Chấm công")),
-                                    ],
-                                  ),
-                                ),
-                              ));
+                      Dialogs().showRequireAttendanceDialog(
+                        context: context,
+                        content: state.message,
+                        attendance: () {
+                          List.generate(state.willPop, (i) {
+                            Navigator.pop(context);
+                          });
+                          BlocProvider.of<TabBloc>(context)
+                              .add(TabPressed(index: 1));
+                        }
+                      );
                     }
                     if (state is DashboardNoInternet) {
                       showDialog(
@@ -353,18 +134,17 @@ class DashboardPage extends StatelessWidget {
                               child: ZoomIn(
                                 duration: Duration(milliseconds: 100),
                                 child: CupertinoAlertDialog(
-                                  title: Text("Thông báo"),
+                                  title: Text("Không có kết nối mạng"),
                                   content: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      "Không có kết nối Internet",
+                                      "Vui lòng kiểm tra kết nối mạng và thử lại",
                                       style: Subtitle1black,
                                     ),
                                   ),
                                   actions: [
                                     CupertinoDialogAction(
                                         isDefaultAction: true,
-                                        textStyle: TextStyle(color: Colors.red),
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
@@ -377,21 +157,32 @@ class DashboardPage extends StatelessWidget {
                       Navigator.pop(context);
                     }
                     if (state is DashboardFailure) {
-                      Navigator.of(context).pop(true);
-                      Dialogs().showMessageDialog(
+                      state.willPop == 0 ? Navigator.of(context).pop(true) : (){};
+                      Dialogs().showSuccessDialog(
                           context: context, content: state.message);
                     }
                   },
-                  child: _children[state.index],
+                  builder: (context, state) {
+                    if(state is DashboardNoInternetInitData){
+                      return NoInternetPage(
+                        retry: (){
+                          sl<DashboardBloc>().add(SaveServerDataToLocalData());
+                        },
+                      );
+                    }
+                    return _children[tabState.index];
+                  },
                 );
               }
-              return Center(
-                child: CircularProgressIndicator(),
+              return Scaffold(
+                body: Container(
+                  child: Center(child: CupertinoActivityIndicator(radius: 20, animating: true,)),
+                ),
               );
             },
           ),
         )),
-        bottomNavigationBar: _bottomNavigationBar(),
+        bottomNavigationBar: BottomBar(),
       ),
     );
   }
