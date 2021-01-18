@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
-
-import '../../../../di.dart';
 
 class RequireProducts extends StatelessWidget {
   final List<ProductEntity> products;

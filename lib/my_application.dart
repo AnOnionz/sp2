@@ -11,6 +11,7 @@ import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datas
 import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/presentation/screens/highlight_page.dart';
+import 'package:sp_2021/feature/new_domain_page.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_page.dart';
 import 'package:sp_2021/feature/rival_sale_price/presentation/screens/rival_sale_price_page.dart';
@@ -20,6 +21,7 @@ import 'package:sp_2021/update_ver_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'core/common/text_styles.dart';
+import 'core/platform/date_time.dart';
 import 'di.dart';
 import 'feature/attendance/domain/entities/attendance_type.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
@@ -62,30 +64,32 @@ class _MyApplicationState extends State<MyApplication> {
           body: '${message['notification']['body']}',
           time: DateTime.now(),
           tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-          screen: message['data']['screen'],
+          screen:  message['data']['screen'] != null ? message['data']['screen'] : null,
           isClick: false,
         );
         _saveFcmToLocal(fcm);
       },
       onBackgroundMessage: NotifyManager.myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
+        print(message);
         FcmEntity fcm = FcmEntity(
           title: '${message['notification']['title']}',
           body: '${message['notification']['body']}',
           time: DateTime.now(),
           tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-          screen: message['data']['screen'],
+          screen: message['data']['screen'] != null ? message['data']['screen'] : null,
           isClick: true,
         );
         _generateRouteWhenReceiveMessage(fcm);
       },
       onResume: (Map<String, dynamic> message) async {
+        print(message);
         FcmEntity fcm = FcmEntity(
           title: '${message['notification']['title']}',
           body: '${message['notification']['body']}',
           time: DateTime.now(),
           tab: message['data']['tab'] !=null ? int.parse(message['data']['tab']): null,
-          screen: message['data']['screen'],
+          screen:  message['data']['screen'] != null ? message['data']['screen'] : null,
           isClick: true,
         );
         _generateRouteWhenReceiveMessage(fcm);
@@ -96,18 +100,17 @@ class _MyApplicationState extends State<MyApplication> {
   }
   _saveFcmToLocal(FcmEntity fcm) async {
     await sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
-    if(fcm.tab == 6){
-      sl<SaveDataToLocalUseCase>()(NoParams());
-    }
   }
   _generateRouteWhenReceiveMessage(FcmEntity fcm){
-    if(fcm.screen == null){
+    if(fcm.tab != null){
       sl<TabBloc>().add(TabPressed(index: fcm.tab));
+      if(fcm.tab == 6){
+        sl<SaveDataToLocalUseCase>()(NoParams());
+      }
       return;
     }
-    if(fcm.tab == null){
+    if(fcm.screen != null){
       globalKey.currentState.pushNamed(fcm.screen);
-      print(2);
       return;
     }
     sl<TabBloc>().add(TabPressed(index: 4));
@@ -204,7 +207,7 @@ class _MyApplicationState extends State<MyApplication> {
                     }
                     if (state is AuthenticationAuthenticated) {
                       sl<CDio>().setBearerAuth(state.outlet.accessToken);
-                      if(!sl<DashBoardLocalDataSource>().dataToday.checkIn)
+                      if(! sl<DashBoardLocalDataSource>().dataToday.checkIn)
                       sl<AttendanceRemoteDataSource>().checkSP().then((value)
                       {
                         if(value is CheckOut){
@@ -220,6 +223,7 @@ class _MyApplicationState extends State<MyApplication> {
                         child: Center(child: CupertinoActivityIndicator(radius: 20, animating: true,)),
                       ),
                     );
+                  //return NewDomainPage();
                   },
                 ),
             )

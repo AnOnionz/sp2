@@ -1,8 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:get_it/get_it.dart';
 import 'package:sp_2021/core/api/myDio.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/core/error/Exception.dart';
 
 abstract class InventoryRemoteDataSource {
   Future<bool> updateInventory(List<dynamic> beginInventory);

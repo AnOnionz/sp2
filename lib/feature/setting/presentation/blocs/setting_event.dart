@@ -6,3 +6,4 @@ class SettingStart extends SettingEvent {}
 class CheckVersion extends SettingEvent {
 }
 class UpdateApp extends SettingEvent {}
+

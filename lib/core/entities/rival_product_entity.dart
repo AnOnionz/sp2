@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 
 part 'rival_product_entity.g.dart';
 @HiveType(typeId: 9)

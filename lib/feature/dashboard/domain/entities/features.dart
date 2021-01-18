@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
-import 'package:sp_2021/core/entities/rival_product_entity.dart';
 
 class Feature {
 

@@ -268,3 +268,17 @@ class ReceiveGiftInLastSet extends ReceiveGiftState {
   }
 
 }
+class ReceiveGiftOutRange extends ReceiveGiftState {
+  final String message;
+
+  ReceiveGiftOutRange({this.message});
+
+  @override
+  Map<String, dynamic > toJson() {
+    // TODO: implement toJson
+    throw UnimplementedError();
+  }
+
+
+
+}

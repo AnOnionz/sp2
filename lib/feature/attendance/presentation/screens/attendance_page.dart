@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
@@ -175,6 +176,38 @@ class _AttendancePageState extends State<AttendancePage>
                             child: BlocListener<CheckAttendanceBloc,
                                     CheckAttendanceState>(
                                 listener: (context, checkState) {
+                                  if(checkState is EarlyTime){
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return WillPopScope(
+                                                onWillPop: () async => false,
+                                                child: ZoomIn(
+                                                  duration: const Duration(milliseconds: 100),
+                                                  child: CupertinoAlertDialog(
+                                                    title: Text("Thông báo"),
+                                                    content: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Text(
+                                                        '''Chưa hết thời gian làm việc
+                                                      bạn có chắc muốn chấm công ra ?''',
+                                                        style: Subtitle1black,
+                                                      ),
+                                                    ),
+                                                    actions: [
+                                                      CupertinoDialogAction(
+                                                        child: Text("Đồng ý"),
+                                                        onPressed:() {
+                                                          FocusScope.of(context).requestFocus(FocusNode());
+                                                          Navigator.pop(context);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            });
+                                  }
                               if (checkState is CheckAttendanceFailure) {
                                 Dialogs().showFailureAndRetryDialog(
                                     context: context,
@@ -375,6 +408,7 @@ class _AttendancePageState extends State<AttendancePage>
                                               context: context,
                                               content: state.error,
                                               reTry: () {
+                                                Navigator.pop(context);
                                                 BlocProvider.of<
                                                     AttendanceBloc>(
                                                     context)

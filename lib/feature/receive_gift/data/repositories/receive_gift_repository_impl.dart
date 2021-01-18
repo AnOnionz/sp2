@@ -7,7 +7,6 @@ import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
-import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_local_datasource.dart';
@@ -24,7 +23,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
   final ReceiveGiftLocalDataSource local;
   final ReceiveGiftRemoteDataSource remote;
   final DashBoardLocalDataSource dashboardLocal;
-  final UpdateSetGiftUseCase updateSetGift;
+  final UpdateDataUseCase updateSetGift;
   final NetworkInfo networkInfo;
 
   ReceiveGiftRepositoryImpl(
@@ -90,7 +89,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
 
   @override
   Future<Either<Failure, bool>> handleReceiveGift(
-      {ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent}) async {
+      {ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent}) async {
     final time = DateTime.now();
     receiveGiftEntity.outletCode = AuthenticationBloc.outlet.code; //AuthenticationBloc.outlet.code;
     receiveGiftEntity.customer.deviceCreatedAt =
@@ -104,9 +103,13 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
         final updateSetCurrent = setCurrent != null
             ? await remote.updateSetGiftCurrentToServer(setCurrent)
             : true;
+        final updateSetSBCurrent = setSBCurrent != null
+            ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
+            : true;
         await updateSetGift(NoParams());
         dashboardLocal.cacheChangedSet(false);
-        return Right(updateSetCurrent && updateCustomerGift);
+        dashboardLocal.updateKpi(receiveGiftEntity.toCustomerGift().products.fold(0, (previousValue, element) => previousValue + element['qty']));
+        return Right(updateSetCurrent && updateSetSBCurrent && updateCustomerGift);
       } on InternetException catch (_) {
         await local.cacheCustomerGift(
             customerGiftEntity: receiveGiftEntity.toCustomerGift());
@@ -141,14 +144,17 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
     if (await hasSync()) {
       final data = await local.fetchCustomerGift();
       final setCurrent = dashboardLocal.fetchSetGiftCurrent();
-      print(data);
+      final setSBCurrent = dashboardLocal.fetchSetGiftSBCurrent();
       for (CustomerGiftEntity cf in data){
         await remote.updateCustomerGiftToServer(cf);
         await remote.updateSetGiftCurrentToServer(setCurrent);
+        await remote.updateSetGiftSBCurrentToServer(setSBCurrent);
         await local.clearCustomerGift();
         dashboardLocal.cacheChangedSet(false);
+        dashboardLocal.updateKpi(cf.products.fold(0, (previousValue, element) => previousValue + element['qty']));
       }
       await local.clearAllCustomerGift();
+      await updateSetGift(NoParams());
     }
   }
 

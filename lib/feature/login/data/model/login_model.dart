@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 
 class LoginModel extends LoginEntity {
@@ -8,30 +7,34 @@ class LoginModel extends LoginEntity {
     String code,
     String accessToken,
   String address,
-    String srCode,
-  String srName,
-  String srSDT,
+  String spName,
+  String spSDT,
     int turn,
-  String time,
-  String province}): super(id: id, name: name, code: code, accessToken: accessToken, address: address, spCode: srCode, spName: srName, spSDT: srSDT, turn : turn, time: time , province: province);
+  String begin,
+    String end,
+  String province,
+  int startPromotion,
+    int endPromotion,
+  }): super(id: id, name: name, code: code, accessToken: accessToken, address: address, spName: spName, spSDT: spSDT, turn : turn,begin: begin, end: end, province: province, startPromotion: startPromotion, endPromotion: endPromotion);
 
   factory LoginModel.fromJson(Map<String, dynamic> json) {
     return LoginModel(
-      id: json['id'] as int ?? 12345,
-      name: json['outlet_name'] ?? "Cửa hàng Bình Lợi",
-//      code: json['code'],
-      code: '4260936721',
-      accessToken: json['access_token'] ?? "",
-      address: "Bình thạnh, Hồ Chí Minh", //json['address']
-      srCode: json['sr_code'] ?? "1357",
-      srName: json['sr_name'] ??"Nguyễn Văn Thị",
-      srSDT: json['sr_sdt'] ??"0933123321",
+      id: json['id'] as int,
+      name: json['outlet_name'],
+      code: json['code'],
+      accessToken: json['access_token'],
+      address: json['address'],
+      spName: json['sr_name'],
+      spSDT: json['sr_phone'],
       turn: json['turn'] as int ?? 5,
-      time: json['time'] ?? "6h-11h",
-      province: json['province'] ?? "HCM"
+      begin: json['begin_working'],
+      end: json['end_working'],
+      province: json['province'] ?? "HCM",
+      startPromotion: json['start'] ?? 1610902795,
+      endPromotion: json['end'] ?? 1611161995,
     );
   }
 
   @override
-  List<Object> get props => [id, name, code, accessToken, address, spCode, spName, spSDT, turn, time, province];
+  List<Object> get props => [id, name, code, accessToken, address, spName, spSDT, turn, begin, end, province, startPromotion, endPromotion];
 }

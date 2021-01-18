@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sp_2021/feature/receive_gift/presentation/blocs/receive_gift_bloc.dart';
 class NextButton extends StatelessWidget {
   final VoidCallback onPress;
 

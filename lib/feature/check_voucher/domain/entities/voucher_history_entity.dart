@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 
 class VoucherHistoryEntity extends Equatable {
   final DateTime time;

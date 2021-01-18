@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
@@ -17,12 +19,14 @@ import 'package:sp_2021/feature/dashboard/domain/entities/kpi_entity.dart';
 
 
 abstract class DashBoardLocalDataSource {
+  Stream<KpiEntity> get kpiStream;
   bool get loadInitDataToLocal;
   int get indexLast;
   bool get isSetOver;
   int get sbIndexLast;
   bool get isSetSBOver;
   bool get isChangeSet;
+  //KpiEntity get kpi;
   void cacheChangedSet(bool value);
   DataTodayEntity get dataToday;
   List<ProductEntity> fetchProduct();
@@ -36,6 +40,8 @@ abstract class DashBoardLocalDataSource {
   SetGiftEntity fetchSetGiftSBCurrent();
   SetGiftEntity fetchNewSetGift(int index);
   SetGiftEntity fetchNewSBSetGift(int index);
+  KpiEntity fetchKpi();
+  Future<void> updateKpi(int sell);
   Future<void> cacheDataToday(
       {bool highLight, bool checkIn, bool checkOut, bool inventory,List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity});
   Future<void> cacheProducts({List<ProductEntity> products});
@@ -46,10 +52,14 @@ abstract class DashBoardLocalDataSource {
   Future<void> cacheSetGiftCurrent({SetGiftEntity setGiftEntity});
   Future<void> cacheSBSetGifts({List<SetGiftEntity> setGifts});
   Future<void> cacheSetGiftSBCurrent({SetGiftEntity setGiftEntity});
+  Future<void> cacheKpi({KpiEntity kpi});
 }
 
 class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   final SharedPreferences sharedPrefer;
+  final StreamController<KpiEntity> _streamController = StreamController.broadcast();
+  final today = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(MyDateTime.ntpTime));
+
 
   DashBoardLocalDataSourceImpl({this.sharedPrefer});
   @override
@@ -81,7 +91,9 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     //sharedPrefer.setString(MyDateTime.today, jsonEncode(data.toJson()));
     print(data);
   }
-  
+  @override
+  Stream<KpiEntity> get kpiStream => _streamController.stream;
+
   @override
   bool get loadInitDataToLocal {
     Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
@@ -152,25 +164,44 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   SetGiftEntity fetchSetGiftCurrent() {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
-    final setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT);
-    return setCurrent != null ? SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts) : setCurrent;
+    SetGiftEntity setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT);
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+    if (setCurrent != null) {
+      setCurrent = SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
+      if(today == lastDay){
+        setCurrent =  SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts.map((e) => e is Voucher ? e.setOver(): e).toList());
+      }
+    }else{
+      setCurrent = fetchNewSetGift(0);
+    }
+    return setCurrent;
   }
 
   @override
   SetGiftEntity fetchSetGiftSBCurrent() {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
-    final setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW, defaultValue: null);
-    return setCurrent != null ? SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts) :  setCurrent;
+    SetGiftEntity setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT_STRONGBOW, defaultValue: null);
+    if (setCurrent != null) {
+      setCurrent = SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
+    }else{
+      setCurrent = fetchNewSetGift(0);
+    }
+    return setCurrent;
+
   }
 
   @override
   SetGiftEntity fetchNewSetGift(int index) {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
     SetGiftEntity set = box.get(index, defaultValue: null);
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
     print("new set:$set");
     if(set != null) {
       set = SetGiftEntity(index: set.index, gifts: set.gifts);
       cacheChangedSet(true);
+      if(today == lastDay){
+        set =  SetGiftEntity(index: set.index, gifts: set.gifts.map((e) => e is Voucher ? e.setOver(): e).toList());
+      }
     }
     return set;
   }
@@ -277,7 +308,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   bool get isSetSBOver {
     SetGiftEntity setCurrent = fetchSetGiftSBCurrent();
-    if(fetchSetGiftSBCurrent() == null) return true;
+    if(setCurrent == null || fetchSBSetGift().isEmpty) return true;
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
     return setCurrent.index == sbIndexLast && sum == 0;
@@ -304,13 +335,31 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     sharedPrefer.setBool(AuthenticationBloc.outlet.id.toString() + IS_CHANGE_SET,value);
   }
 
+  @override
+  Future<void> cacheKpi({KpiEntity kpi}) {
+    sharedPrefer.setString(AuthenticationBloc.outlet.id.toString() + KPI,jsonEncode(kpi.toJson()));
+    _streamController.sink.add(kpi);
+  }
 
+  @override
+  Future<void> updateKpi(int sell) {
+    final kpiStr = sharedPrefer.getString(AuthenticationBloc.outlet.id.toString() + KPI);
+    if(kpiStr != null){
+      final kpi = KpiEntity.fromJson(jsonDecode(kpiStr));
+      final newKpi = KpiEntity(dayOf: kpi.dayOf, sell: kpi.sell + sell);
+      cacheKpi(kpi: newKpi);
+      _streamController.sink.add(newKpi);
+    }
+  }
 
-
-
-
-
-
+  @override
+  KpiEntity fetchKpi() {
+    final kpiStr = sharedPrefer.getString(AuthenticationBloc.outlet.id.toString() + KPI);
+    if(kpiStr != null){
+      return KpiEntity.fromJson(jsonDecode(kpiStr));
+    }
+    return KpiEntity(dayOf: 0, sell: 0);
+  }
 
 
 }

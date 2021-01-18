@@ -44,7 +44,6 @@ class _ReceiveGiftSBWheelState extends State<ReceiveGiftSBWheelPage>
     List<GiftEntity> gifts = local.fetchGiftStrongbow().toList();
     _items = [...gifts, ...gifts.map((e) => e.clone()).toList()];
     _lucky = widget.giftLucky.map<int>((e) => e.id - 23).toList();
-    print(_lucky);
     var _duration = Duration(milliseconds: 2500);
     _ctrl = AnimationController(duration: _duration, vsync: this)
       ..addListener(() async{

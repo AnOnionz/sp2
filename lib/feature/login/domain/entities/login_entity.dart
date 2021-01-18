@@ -6,34 +6,38 @@ class LoginEntity extends Equatable {
   final String code;
   final String accessToken;
   final String address;
-  final String spCode;
   final String spName;
   final String spSDT;
-  final String time;
+  final String begin;
+  final String end;
   final int turn;
   final String province;
+  final int startPromotion;
+  final int endPromotion;
 
-  LoginEntity({this.code, this.turn, this.id, this.name, this.accessToken, this.address,this.spCode, this.spName, this.spSDT, this.time, this.province});
+  LoginEntity({this.code, this.turn, this.id, this.name, this.accessToken, this.address, this.spName, this.spSDT, this.begin, this.end, this.province,this.startPromotion,this.endPromotion});
 
   Map<String, dynamic> toJson() => {
     'id' : id ,
-    'name': name ,
+    'outlet_name': name ,
     'code': code ,
     'access_token' : accessToken ,
     'address' : address ,
-    'sr_code': spCode,
     'sr_name' : spName ,
-    'sr_sdt' : spSDT ,
+    'sr_phone' : spSDT ,
     'turn': turn ,
-    'time' : time ,
+    'begin_working' : begin,
+    'end_working': end,
     'province' : province ,
+    'start_promotion':startPromotion,
+    'end_promotion':endPromotion,
   };
 
   @override
-  List<Object> get props => [id, name, code, accessToken, address, spCode, spName, spSDT, turn, time, province];
+  List<Object> get props => [id, name, code, accessToken, address, spName, spSDT, turn, begin, end, province, startPromotion, endPromotion];
 
   @override
   String toString() {
-    return 'LoginEntity{id: $id, name: $name, code: $code, accessToken: $accessToken, address: $address, spCode: $spCode, spName: $spName, spSDT: $spSDT, time: $time, turn: $turn, province: $province}';
+    return 'LoginEntity{id: $id, name: $name, code: $code, accessToken: $accessToken, address: $address, spName: $spName, spSDT: $spSDT, begin: $begin, end: $end, turn: $turn, province: $province, startPromotion: $startPromotion, endPromotion: $endPromotion}';
   }
 }

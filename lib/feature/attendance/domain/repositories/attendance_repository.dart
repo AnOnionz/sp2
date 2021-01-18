@@ -5,7 +5,6 @@ import 'package:location/location.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
-import 'package:sp_2021/feature/attendance/presentation/blocs/attendance_bloc.dart';
 
 abstract class AttendanceRepository {
 

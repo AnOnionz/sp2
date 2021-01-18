@@ -112,6 +112,7 @@ class _InventoryPageState extends State<InventoryPage> {
                           if (state is InventoryFailure) {
                             Navigator.pop(context);
                             Dialogs().showFailureAndRetryDialog(context: context, content: state.message, reTry: (){
+                              Navigator.pop(context);
                               FocusScope.of(context)
                                   .requestFocus(FocusNode());
                               if (inProducts.every(

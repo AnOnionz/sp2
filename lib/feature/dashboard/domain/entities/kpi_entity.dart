@@ -6,9 +6,15 @@ class KpiEntity {
 
   factory KpiEntity.fromJson(Map<String, dynamic> json){
         return KpiEntity(
-          dayOf: json['day'],
-          sell: json['sell'],
+          dayOf: json['days'],
+          sell: json['kpi'],
         );
+  }
+  Map<String, dynamic> toJson(){
+    return {
+      'days': dayOf,
+      'kpi': sell,
+    };
   }
 
 }

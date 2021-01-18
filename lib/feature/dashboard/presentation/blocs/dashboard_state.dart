@@ -11,6 +11,7 @@ class DashboardHasSync extends DashboardState {
 class DashboardInitial extends DashboardState {}
 class DashboardSaving extends DashboardState {}
 class DashboardSaved extends DashboardState {}
+class DashboardRefresh extends DashboardState {}
 class DashboardFailure extends DashboardState {
   final String message;
   final int willPop;

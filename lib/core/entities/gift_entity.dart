@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 
 part 'gift_entity.g.dart';
 
@@ -133,7 +132,7 @@ class GiftEntity extends Gift with HiveObject {
           image: giftEntity.image,
           amountCurrent: giftEntity.amountCurrent ?? 0,
           amountReceive: giftEntity.amountReceive ?? 1,
-          assetGift: giftEntity.assetGift ??  "hn_alu",
+          assetGift: giftEntity.assetGift ?? "hn_alu",
         );
       case 7:
         return Magnum(
@@ -142,7 +141,7 @@ class GiftEntity extends Gift with HiveObject {
           image: giftEntity.image,
           amountCurrent: giftEntity.amountCurrent ?? 0,
           amountReceive: giftEntity.amountReceive ?? 1,
-          assetGift: giftEntity.assetGift ??  "hn_magnum",
+          assetGift: giftEntity.assetGift ?? "hn_magnum",
         );
       case 23:
         return Glass(
@@ -151,7 +150,7 @@ class GiftEntity extends Gift with HiveObject {
           image: giftEntity.image,
           amountCurrent: giftEntity.amountCurrent ?? 0,
           amountReceive: giftEntity.amountReceive ?? 1,
-          assetGift: giftEntity.assetGift ??  "st_ly",
+          assetGift: giftEntity.assetGift ?? "st_ly",
         );
       case 24:
         return CanvasBag(
@@ -160,7 +159,7 @@ class GiftEntity extends Gift with HiveObject {
           image: giftEntity.image,
           amountCurrent: giftEntity.amountCurrent ?? 0,
           amountReceive: giftEntity.amountReceive ?? 1,
-          assetGift: giftEntity.assetGift ??  "st_canvas",
+          assetGift: giftEntity.assetGift ?? "st_canvas",
         );
       case 25:
         return TravelBags(
@@ -169,7 +168,7 @@ class GiftEntity extends Gift with HiveObject {
           image: giftEntity.image,
           amountCurrent: giftEntity.amountCurrent ?? 0,
           amountReceive: giftEntity.amountReceive ?? 1,
-          assetGift: giftEntity.assetGift ??  "st_dulich",
+          assetGift: giftEntity.assetGift ?? "st_dulich",
         );
     }
     return giftEntity;
@@ -220,13 +219,15 @@ class GiftEntity extends Gift with HiveObject {
 //  }
 
   GiftEntity upReceive() {
-    this.amountReceive += 1;
-    return this;
+    GiftEntity g = GiftEntity.create(this);
+    g.amountReceive +=1;
+    return g;
   }
 
   GiftEntity downCurrent() {
-    this.amountCurrent -= 1;
-    return this;
+    GiftEntity g = GiftEntity.create(this);
+    g.amountCurrent -=1;
+    return g;
   }
 
   GiftEntity(
@@ -250,7 +251,6 @@ class GiftEntity extends Gift with HiveObject {
   }
 
 
-
   factory GiftEntity.fromJson(Map<String, dynamic> json) {
     switch (json['id']) {
       case 1:
@@ -258,8 +258,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_nen",
         );
       case 2:
@@ -267,8 +267,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_magiamgia",
         );
       case 3:
@@ -276,8 +276,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_strongbow",
         );
       case 4:
@@ -285,8 +285,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_4lon",
         );
       case 5:
@@ -294,8 +294,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_pack6",
         );
       case 6:
@@ -303,8 +303,8 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_alu",
         );
       case 7:
@@ -312,38 +312,44 @@ class GiftEntity extends Gift with HiveObject {
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
+          assetGift: "hn_magnum",
         );
       case 23:
         return Glass(
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
+          assetGift: "st_ly",
         );
       case 24:
         return CanvasBag(
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
+          assetGift: "st_canvas",
         );
       case 25:
         return TravelBags(
           giftId: json['id'] as int,
           name: json['name'] as String,
           image: json["img_url"] as String,
-          amountCurrent: json[''] as int ?? 0,
-          amountReceive: json[''] as int ?? 1,
+          amountCurrent: json['qty'] as int ?? 0,
+          amountReceive: json['receive'] as int ?? 1,
+          assetGift: "st_dulich",
         );
     }
     return GiftEntity(
       giftId: json['id'] as int,
       name: json['name'] as String,
       image: json["img_url"] as String,
-      amountCurrent: json[''] as int ?? 0,
-      amountReceive: json[''] as int ?? 1,
+      amountCurrent: json['qty'] as int ?? 0,
+      amountReceive: json['receive'] as int ?? 1,
     );
   }
   Map<String, dynamic> toJson(){
@@ -442,6 +448,14 @@ class Voucher extends GiftEntity with NormalGift {
      name: this.name,
      assetGift: this.assetGift,
      image: this.image,);
+  }
+  Voucher setOver(){
+    return Voucher(giftId: this.giftId,
+      amountCurrent: 0,
+      amountReceive: this.amountReceive,
+      name: this.name,
+      assetGift: this.assetGift,
+      image: this.image,);
   }
 }
 

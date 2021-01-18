@@ -6,6 +6,7 @@ import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart
 
 abstract class ReceiveGiftRemoteDataSource{
   Future<bool> updateSetGiftCurrentToServer(SetGiftEntity setGiftEntity);
+  Future<bool> updateSetGiftSBCurrentToServer(SetGiftEntity setGiftEntity);
   Future<bool> updateCustomerGiftToServer(CustomerGiftEntity customerGiftEntity);
   Future<VoucherEntity> useVoucher(String phone);
 }
@@ -35,6 +36,13 @@ class ReceiveGiftRemoteDataSourceImpl implements ReceiveGiftRemoteDataSource{
     Response _resp = await cDio.getResponse(path: 'home/check-voucher', data: {'phone': phone});
 
     return VoucherEntity(qty: _resp.data['data']['current'], phone: phone);
+  }
+
+  @override
+  Future<bool> updateSetGiftSBCurrentToServer(SetGiftEntity setGiftEntity) async {
+    Response _resp = await cDio.postResponse(path: 'home/outlet-set-gift-strongbow-current', data: setGiftEntity.toJson());
+
+    return _resp.data['success'];
   }
 
 }

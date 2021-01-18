@@ -39,7 +39,6 @@ class ReceiveGiftPage extends StatelessWidget {
                     onWillPop: () async  => false,
                     child:  ReceiveGiftResultPage(entity: state.receiveGiftEntity,));
             }
-
             return ReceiveGiftFormPage();
 
           },

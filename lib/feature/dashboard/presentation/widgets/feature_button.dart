@@ -6,6 +6,7 @@ import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_sourc
 
 import '../../../../di.dart';
 
+
 class FeatureButton extends StatelessWidget {
   final Feature feature;
 
@@ -28,10 +29,57 @@ class FeatureButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.width / 9,
-                margin: EdgeInsets.only(bottom: 12),
-                child: feature.image,
+              Stack(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width / 9,
+                    margin: EdgeInsets.only(bottom: 12),
+                    child: feature.image,
+                  ),
+                  feature is SyncData ? StreamBuilder(
+                      initialData:sl<SyncLocalDataSource>().getSync().nonSynchronized + sl<SyncLocalDataSource>().getSync().imageNonSynchronized ,
+                      stream: sl<SyncLocalDataSource>().syncStream,
+                      builder: (context, snapshot) => snapshot.data > 0
+                          ? Positioned(
+                        right: 0,
+                        child: new Container(
+                          padding: EdgeInsets.all(3),
+                          decoration: new BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 25,
+                            minHeight: 15,
+                          ),
+                          child: Text(
+                            snapshot.data.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                          : Positioned(
+                          right: 0,
+                          child: new Container(
+                            padding: EdgeInsets.all(1),
+                            constraints: BoxConstraints(
+                              minWidth: 13,
+                              minHeight: 13,
+                            ),
+                          ))) : Positioned(
+                      right: 0,
+                      child: new Container(
+                        padding: EdgeInsets.all(1),
+                        constraints: BoxConstraints(
+                          minWidth: 13,
+                          minHeight: 13,
+                        ),
+                      )),
+                ],
               ),
               FittedBox(
                 fit: BoxFit.fill,

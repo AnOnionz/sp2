@@ -40,5 +40,7 @@ class AttendanceInventoryNullFailure extends AttendanceState{
 
   AttendanceInventoryNullFailure({this.message});
 }
+class EarlyTime extends CheckAttendanceState{
 
+}
 

@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
@@ -9,7 +8,6 @@ import 'package:sp_2021/core/entities/rival_product_entity.dart';
 import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
-import 'package:sp_2021/feature/highlight/domain/entities/highlight_entity.dart';
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
@@ -49,5 +47,7 @@ import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
     await Hive.openBox<String>(AuthenticationBloc.outlet.id.toString() + SEND_REQUIREMENT);
     await Hive.openBox<SyncEntity>(AuthenticationBloc.outlet.id.toString() + SYNC_BOX);
     await Hive.openBox<DataTodayEntity>(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
+    print(MyDateTime.today);
     await Hive.openBox<CustomerEntity>(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);
+
   }

@@ -18,6 +18,7 @@ class NotifyManager{
           screen: data['data']['screen'],
           isClick: true,
         );
+        await sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
         // Or do other work.
       }
     }

@@ -2,7 +2,6 @@
 import 'package:dio/dio.dart';
 import 'package:sp_2021/core/api/myDio.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
-import 'package:sp_2021/feature/highlight/domain/entities/highlight_entity.dart';
 
 abstract class HighlightRemoteDataSource{
   Future<bool> uploadToServer(HighlightCacheEntity highlights);

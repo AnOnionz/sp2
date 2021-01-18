@@ -167,7 +167,7 @@ class _SyncDataPageState extends State<SyncDataPage> {
                         CupertinoActivityIndicator(radius: 20, animating: true,),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("Đang đồng bộ..."),
+                          child: Text("Đang đồng bộ...",style: Subtitle1black,),
                         ),
                       ],
                     ),

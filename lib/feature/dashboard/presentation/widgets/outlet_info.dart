@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 
-import '../../../../di.dart';
 
 class OutletInfo extends StatelessWidget {
 
@@ -42,7 +40,7 @@ class OutletInfo extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Thời gian thực hiện : ${outlet.time}",
+              child: Text("Thời gian thực hiện : ${outlet.begin} - ${outlet.end}",
                   style: infoOutletSubtext),
             ),
           ],

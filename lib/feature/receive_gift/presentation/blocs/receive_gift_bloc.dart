@@ -11,6 +11,7 @@ import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/entities/set_gift_entity.dart';
 import 'package:sp_2021/core/error/failure.dart';
+import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
@@ -68,27 +69,34 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       print(setCurrent);
       print(setSBCurrent);
       final dataToday = localData.dataToday;
+      final outlet = AuthenticationBloc.outlet;
+      final today = MyDateTime.ntpTime;
+      print(today);
+      print(AuthenticationBloc.outlet.endPromotion*1000);
       if (dataToday.checkIn != true) {
         dashboardBloc.add(RequiredCheckInOrCheckOut(
             message: 'Phải chấm công trước khi đổi quà', willPop: 2));
-      }else{
-        if(localData.isChangeSet && local.isRequireSync()){
-          dashboardBloc.add(SyncRequired(message: "Yêu cầu đồng bộ dữ liệu trước khi quay quà"));
-        }else{
-          if((!localData.isSetOver && !localData.isSetSBOver) && (localData.indexLast == setCurrent.index || localData.sbIndexLast == setSBCurrent.index)){
-            final sum = setCurrent.gifts.fold(
-                0, (previousValue, element) => previousValue + element.amountCurrent);
-            final sbSum = setSBCurrent.gifts.fold(
-                0, (previousValue, element) => previousValue + element.amountCurrent);
-            yield ReceiveGiftInLastSet(
-                message: '''${localData.indexLast == setCurrent.index ? "Set quà chính : đang ở set quà cuối cùng, hiện còn $sum quà trong set":""}
-                             ${localData.sbIndexLast == setSBCurrent.index ? "Set quà Strongbow : đang ở set quà cuối cùng, hiện còn $sbSum quà trong set":""}
-                         '''
-            );
-          }
-        }
+        return ;
       }
-
+      if(today > outlet.endPromotion*1000){
+        yield ReceiveGiftOutRange(message: "Ngoài thời gian áp dụng chương trình");
+        return ;
+      }
+      if(localData.isChangeSet && local.isRequireSync()){
+        dashboardBloc.add(SyncRequired(message: "Yêu cầu đồng bộ dữ liệu trước khi quay quà"));
+        return;
+      }
+      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null)){
+        final sum = setCurrent.gifts.fold(
+            0, (previousValue, element) => previousValue + element.amountCurrent);
+        final sbSum =setSBCurrent != null ? setSBCurrent.gifts.fold(
+            0, (previousValue, element) => previousValue + element.amountCurrent) : 0;
+        yield ReceiveGiftInLastSet(
+            message: '''${!localData.isSetOver && localData.indexLast == setCurrent.index ? "Set quà chính : đang ở set quà cuối cùng, hiện còn $sum quà trong set":""}
+                             ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null ?  "Set quà Strongbow : đang ở set quà cuối cùng, hiện còn $sbSum quà trong set":""}
+                         '''
+        );
+      }
 
     }
     if (event is UseVoucher) {
@@ -107,8 +115,9 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       yield ReceiveGiftHandling(form: event.form);
       print(localData.isSetOver);
       print(localData.isSetSBOver);
-      if (localData.isSetOver && localData.isSetSBOver) {
+      if ((localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().length == 0 || MyDateTime.ntpTime < AuthenticationBloc.outlet.startPromotion*1000) {
         yield ReceiveGiftNotCondition();
+        add(ReceiveGiftOnlyBuyProducts(form: event.form));
       } else {
         CustomerEntity customer = await local.getCustomer(
             name: event.form.customer.name,
@@ -116,6 +125,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
         print(customer);
         event.form.customer = customer;
         if (customer.inTurn == 0 && customer.inSBTurn == 0) {
+          add(ReceiveGiftOnlyBuyProducts(form: event.form));
             yield ReceiveGifShowTurn(
                 form: event.form,
                 gifts: [],
@@ -130,10 +140,12 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
               setSBCurrent: setSBCurrent));
           yield gifts.fold((l) {
             if (l is SetOverFailure) {
+              add(ReceiveGiftOnlyBuyProducts(form: event.form));
               return ReceiveGiftNotCondition();
             }
             return ReceiveGiftFailure();
           }, (result) {
+            //if(result.gifts.length == 0 ){add(ReceiveGiftOnlyBuyProducts(form: event.form));}
             return result.gifts.length > 0 ? ReceiveGifShowTurn(
                 form: event.form,
                 gifts: result.gifts,
@@ -142,11 +154,17 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
                 message:
                     "Hôm nay bạn có ${result.gifts.length < customer.inTurn + customer.inSBTurn ? result.gifts.length : customer.inTurn + customer.inSBTurn} lượt nhận quà",
                 type: 1):
-               ReceiveGifShowTurn(
+            !localData.isSetOver || !localData.isSetSBOver ? (){
+              print(2);
+              add(ReceiveGiftOnlyBuyProducts(form: event.form));
+              return ReceiveGifShowTurn(
                 form: event.form,
                 gifts: [],
                 message: "Hôm nay bạn đã hết lượt nhận quà",
-                type: 2);
+                type: 2);}: (){
+              print(1);
+                    add(ReceiveGiftOnlyBuyProducts(form: event.form));
+                    return ReceiveGiftNotCondition();};
           });
         }
       }
@@ -331,7 +349,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
       localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       final finish = await handleReceiveGift(HandleReceiveGiftParams(
-          receiveGiftEntity: event.receiveGiftEntity, setCurrent: setCurrent));
+          receiveGiftEntity: event.receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
       yield finish.fold((fail) {
         if (fail is UnAuthenticateFailure) {
           authenticationBloc.add(ShutDown(willPop: 1));

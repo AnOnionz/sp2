@@ -15,7 +15,7 @@ abstract class ReceiveGiftRepository {
   Future<Either<Failure, HandleGiftEntity>> handleGift({@required List<ProductEntity> products, @required CustomerEntity customer, @required SetGiftEntity setCurrent, @required SetGiftEntity setSBCurrent});
   Future<Either<Failure, HandleWheelEntity>> handleWheel({@required List<GiftEntity> giftReceived, @required SetGiftEntity setCurrent});
   Future<Either<Failure, HandleWheelEntity>> handleStrongBowWheel({@required List<GiftEntity> giftReceived, @required SetGiftEntity setCurrent});
-  Future<Either<Failure, bool>> handleReceiveGift({@required ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent});
+  Future<Either<Failure, bool>> handleReceiveGift({@required ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent});
   Future<void> syncReceiveGift();
   Future<bool> hasSync();
 

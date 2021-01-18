@@ -727,6 +727,7 @@ class NormalBeer extends ProductEntity {
   Future<List<Gift>> getGift({LoginEntity outlet}) async {
     List<Gift> giftResult = [];
     if (buyQty >= 1) {
+
       giftResult.add(Voucher(giftId: 2));
     }
     if (buyQty >= 2) {

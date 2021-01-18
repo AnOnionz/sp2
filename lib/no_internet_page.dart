@@ -9,35 +9,29 @@ class NoInternetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/background.png"),
-          fit: BoxFit.cover,
-        ),
-      ),
-      height: MediaQuery.of(context).size.height,
+      width: double.infinity,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            height: 200,
-            width: 200,
-            child: FlareActor("assets/images/no_internet.flr",
-                alignment: Alignment.center,
-                fit: BoxFit.contain,
-                animation: "init"),
-          ),
-          Text("Không có kết nối mạng", style: TextStyle(color: Colors.white, fontSize: 20,),),
-          Text("Vui lòng kiểm tra kết nối mạng của bạn và thử lại", style: TextStyle(color: Colors.white70, fontSize: 15),),
-          retry != null ? FlatButton(
-            padding: const EdgeInsets.all(8.0),
-            onPressed: retry,
-            color: Colors.lightBlueAccent,
-            child: Text("Thử lại", style: Subtitle1white,),
-          ): Container(),
-        ],
-      ),
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              height: 200,
+              width: 200,
+              child: FlareActor("assets/images/no_internet.flr",
+                  alignment: Alignment.center,
+                  fit: BoxFit.contain,
+                  animation: "init"),
+            ),
+            Text("Không có kết nối mạng", style: TextStyle(color: Colors.white, fontSize: 20,),),
+            Text("Vui lòng kiểm tra kết nối mạng của bạn và thử lại", style: TextStyle(color: Colors.white70, fontSize: 15),),
+            retry != null ? FlatButton(
+              padding: const EdgeInsets.all(8.0),
+              onPressed: retry,
+              color: Colors.lightBlueAccent,
+              child: Text("Thử lại", style: Subtitle1white,),
+            ): Container(),
+          ],
+        ),
     );
   }
 }

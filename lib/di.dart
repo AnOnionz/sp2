@@ -18,6 +18,8 @@ import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datas
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:sp_2021/feature/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/data_today_usecase.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/refresh_data_usecase.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/data/datasources/highlight_local_datasource.dart';
@@ -129,10 +131,12 @@ Future<void> init() async {
   // UseCase
   sl.registerLazySingleton<SaveDataToLocalUseCase>(
       () => SaveDataToLocalUseCase(repository: sl()));
-  sl.registerLazySingleton<UpdateSetGiftUseCase>(() => UpdateSetGiftUseCase(repository: sl()));
+  sl.registerLazySingleton<UpdateDataUseCase>(() => UpdateDataUseCase(repository: sl()));
+  sl.registerLazySingleton<DataTodayUseCase>(() => DataTodayUseCase(repository: sl()));
+  sl.registerLazySingleton<RefreshDataUseCase>(() => RefreshDataUseCase(repository: sl()));
   // Bloc
   sl.registerLazySingleton<DashboardBloc>(() => DashboardBloc(
-      saveDataToLocal: sl(), local: sl(), authenticationBloc: sl()));
+      saveDataToLocal: sl(), dataToday: sl(),refreshData: sl(), local: sl(), authenticationBloc: sl()));
   sl.registerLazySingleton<TabBloc>(() => TabBloc());
 
 
@@ -157,7 +161,7 @@ Future<void> init() async {
   // Data Source
   sl.registerLazySingleton<SyncLocalDataSource>(() => SyncLocalDataSourceImpl());
   // Repository
-  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(local: sl(),networkInfo: sl(), updateSetGift: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
+  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(local: sl(),networkInfo: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
   // UseCase
   sl.registerLazySingleton<SyncUseCase>(() => SyncUseCase(repository: sl()));
   // Bloc

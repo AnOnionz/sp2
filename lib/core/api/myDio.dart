@@ -2,7 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 // custom dio
 class CDio {
-  static const String apiBaseUrl = 'https://sptt21.imark.vn';
+
+  //static String apiBaseUrl;
+   static const String apiBaseUrl = 'https://sptt21.imark.vn';
+  //static const String apiBaseUrl = 'http://e5728b74c888.ngrok.io';
+
   static const String apiPath = 'apiv2';
   Dio client;
 

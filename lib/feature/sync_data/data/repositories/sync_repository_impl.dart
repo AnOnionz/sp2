@@ -2,10 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
-import 'package:sp_2021/core/usecases/usecase.dart';
-import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
-import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
-import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/highlight/domain/repositories/highlight_repository.dart';
 import 'package:sp_2021/feature/inventory/domain/repositories/inventory_repository.dart';
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
@@ -24,7 +20,6 @@ class SyncRepositoryImpl implements SyncRepository {
   final InventoryRepository inventoryRepository;
   final NetworkInfo networkInfo;
   final SyncLocalDataSource local;
-  final UpdateSetGiftUseCase updateSetGift;
 
   SyncRepositoryImpl(
       {this.networkInfo,
@@ -34,7 +29,6 @@ class SyncRepositoryImpl implements SyncRepository {
       this.sendRequirementRepository,
       this.rivalSalePriceRepository,
       this.receiveGiftRepository,
-        this.updateSetGift,
       this.local}
   );
 
@@ -49,7 +43,6 @@ class SyncRepositoryImpl implements SyncRepository {
         await inventoryRepository.syncInventory();
         await highlightRepository.syncHighlight();
         //local.setSync();
-        updateSetGift(NoParams());
         return Right(true);
       } on UnAuthenticateException catch (_) {
         return Left(UnAuthenticateFailure());

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ota_update/ota_update.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'package:package_info/package_info.dart';
@@ -72,6 +73,12 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButton:FloatingActionButton(
+          onPressed: (){
+            sl<DashboardBloc>().add(RefreshApp());
+          },
+          child: Icon(Icons.autorenew_outlined, size: 30, color: Colors.cyanAccent,),
+        ),
         body: SafeArea(
             child: Container(
                 decoration: BoxDecoration(
@@ -169,8 +176,8 @@ class _SettingPageState extends State<SettingPage> {
                                       BlocBuilder<SettingBloc, SettingState>(
                                         builder: (context, state) {
                                           if (state is RequireUpdateApp &&
-                                              packageInfo.version !=
-                                                  state.updateEntity.version) {
+                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) <
+                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 18.0, bottom: 18.0),
@@ -244,7 +251,9 @@ class _SettingPageState extends State<SettingPage> {
                                               ),
                                             );
                                           }
-                                          if(state is NoRequireUpdateApp){
+                                          if (state is RequireUpdateApp &&
+                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) ==
+                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 18.0, bottom: 18.0),

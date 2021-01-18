@@ -1,49 +1,66 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
-import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
-import 'package:sp_2021/feature/dashboard/domain/entities/today_data_entity.dart';
+import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/data_today_usecase.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/refresh_data_usecase.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
+import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
-import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+
+import '../../../../di.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final SaveDataToLocalUseCase saveDataToLocal;
+  final DataTodayUseCase dataToday;
+  final RefreshDataUseCase refreshData;
   final DashBoardLocalDataSource local;
   final AuthenticationBloc authenticationBloc;
 
-  DashboardBloc({this.saveDataToLocal, this.local, this.authenticationBloc})
+  DashboardBloc({this.saveDataToLocal, this.dataToday, this.refreshData, this.local, this.authenticationBloc})
       : super(DashboardInitial());
 
   @override
   Stream<DashboardState> mapEventToState(DashboardEvent event) async* {
     if (event is SaveServerDataToLocalData) {
-      if (local.loadInitDataToLocal) {
-        yield DashboardSaving();
-        final result = await saveDataToLocal(NoParams());
-        yield result.fold((failure) {
-          if (failure is UnAuthenticateFailure) {
-            authenticationBloc.add(ShutDown(willPop: 1));
-            return null;
-          }
-          if (failure is InternetFailure) {
-            return DashboardNoInternetInitData();
-          }
-          if (failure is InternalFailure) {
-            authenticationBloc.add(LoggedOut());
-            return DashboardFailure(message: failure.message);
-          }
+      yield DashboardSaving();
+      final result = local.loadInitDataToLocal ? await saveDataToLocal(NoParams()) : await dataToday(NoParams());
+      yield result.fold((failure) {
+        if (failure is UnAuthenticateFailure) {
+          authenticationBloc.add(ShutDown(willPop: 2));
+          return null;
+        }
+        if (failure is InternetFailure) {
+          return DashboardNoInternetInitData();
+        }
+        if (failure is InternalFailure) {
           return DashboardFailure(message: failure.message);
-        }, (r) => DashboardSaved());
-      }
+        }
+        return DashboardFailure(message: failure.message);
+      }, (r) => DashboardSaved());
+    }
+    if(event is RefreshApp){
+      yield DashboardSaving();
+      final result = await refreshData(NoParams());
+      yield result.fold((failure) {
+        if (failure is UnAuthenticateFailure) {
+          authenticationBloc.add(ShutDown(willPop: 2));
+          return null;
+        }
+        if (failure is InternetFailure) {
+          return DashboardNoInternetInitData();
+        }
+        if (failure is InternalFailure) {
+          return DashboardFailure(message: failure.message);
+        }
+        return DashboardFailure(message: failure.message);
+      }, (r) => DashboardRefresh());
     }
     if (event is SyncRequired) {
       yield DashboardHasSync(message: event.message);
@@ -59,5 +76,6 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       yield DashboardFailure(message: "Máy chủ đang gặp sự cố, vui lòng thử lại sau", willPop: 1);
     }
   }
+
 
 }

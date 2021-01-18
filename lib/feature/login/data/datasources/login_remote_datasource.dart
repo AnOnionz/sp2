@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sp_2021/core/api/myDio.dart';
-import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/feature/login/data/model/login_model.dart';
 
 abstract class LoginRemoteDataSource {

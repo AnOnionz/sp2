@@ -213,6 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                               context: context,
                               content: state.message,
                               reTry: () async {
+                                Navigator.pop(context);
                                 await Future.delayed(
                                     const Duration(milliseconds: 500), () => 42);
                                 BlocProvider.of<LoginBloc>(context).add(

@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/set_gift_entity.dart';
@@ -38,7 +39,10 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   Future<HandleGiftEntity> handleGift({List<
       ProductEntity> products, CustomerEntity customer, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent}) async {
     List<Gift> resultGift = <Gift>[];
-    print(products);
+    final today = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(MyDateTime.ntpTime));
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+    print(today);
+    print(lastDay);
     // check set current
     setCurrent = getSetGift(setCurrent);
     // set current is last set and over gift
@@ -52,9 +56,11 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       }
     }
     // count all gift inset
+
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
     print('set co $sum món');
+
     // get all gift available
     final gifts = local.fetchGift();
     // get gift from bought product
@@ -67,6 +73,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         gifts.lastWhere((element) => element.giftId == e.id, orElse: () => null) ?? e)
         .toList();
     // sort gift
+    print(resultGift);
     resultGift.sort((a, b) {
       return a.id.compareTo(b.id);
     });
@@ -75,6 +82,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     resultGift = len >= customer.inTurn
         ? resultGift.sublist(0, customer.inTurn)
         : resultGift.sublist(0, len);
+    print(resultGift);
     //* UseCase (HCM&HCM) Tiger & StrongBow ||(Province) Heineken & Tiger => 2 Candle*//
     //* remove one candle*//
     if (resultGift.whereType<Nen>().length >1 ) {
@@ -82,6 +90,8 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       resultGift.removeAt(index);
       resultGift.insert(index, Wheel(id: 222));
     }
+    //* remove E-voucher at the last day
+    if(today == lastDay){ resultGift.removeWhere((element) => element is Voucher);}
     // mapping vs current SetGift
     // if set not enough then change it to Wheel
     // else update amount
@@ -183,6 +193,11 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         noLucky.add(gift);
       }
     });
+    print(noLucky);
+    final today = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(MyDateTime.ntpTime));
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+    if(today == lastDay){lucky.removeWhere((element) => element is Voucher);}
+    print(lucky);
     if (lucky.isEmpty) {
       if (noLucky.isNotEmpty) {
         lucky = noLucky;
@@ -204,6 +219,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         });
       }
     }
+    //* remove E-voucher at the last day
     print("lucky gift: $lucky");
     return HandleWheelEntity(setCurrent: setCurrent, lucky: lucky);
   }
@@ -266,14 +282,14 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     await box.add(customerGiftEntity);
     await syncLocal.addSync(type: 1, value: 1);
-    await syncLocal.addSync(type: 2, value: 3);
+    await syncLocal.addSync(type: 2, value: 1);
     print("customer gift: ${box.values.toList()}");
   }
 
   @override
   Future<void> clearCustomerGift() async{
     await syncLocal.removeSync(type: 1, value: 1);
-    await syncLocal.removeSync(type: 2, value: 3);
+    await syncLocal.removeSync(type: 2, value: 1);
   }
 
   @override
@@ -303,7 +319,6 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     Box<CustomerEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);
     final outlet = AuthenticationBloc.outlet;
     List<CustomerEntity> customers = box.values.toList();
-    print(customers);
     if (customers.isEmpty) {
       return CustomerEntity(name: name,
           phoneNumber: phone,

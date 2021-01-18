@@ -103,6 +103,7 @@ class DashboardPage extends StatelessWidget {
                       Navigator.pop(context);
                       Dialogs().showFailureAndRetryDialog(context: context, content: '''Tải dữ liệu không thành công
                                                                                              (yêu cầu kết nối mạng) ''', reTry: (){
+                        Navigator.pop(context);
                         sl<DashboardBloc>().add(SaveServerDataToLocalData());
                       });
                     }
@@ -156,6 +157,10 @@ class DashboardPage extends StatelessWidget {
                     if (state is DashboardSaved) {
                       Navigator.pop(context);
                     }
+                    if(state is DashboardRefresh){
+                      Navigator.pop(context);
+                      Dialogs().showSuccessDialog(context: context, content: "Dữ liệu đã được làm mới");
+                    }
                     if (state is DashboardFailure) {
                       state.willPop == 0 ? Navigator.of(context).pop(true) : (){};
                       Dialogs().showSuccessDialog(
@@ -163,13 +168,6 @@ class DashboardPage extends StatelessWidget {
                     }
                   },
                   builder: (context, state) {
-                    if(state is DashboardNoInternetInitData){
-                      return NoInternetPage(
-                        retry: (){
-                          sl<DashboardBloc>().add(SaveServerDataToLocalData());
-                        },
-                      );
-                    }
                     return _children[tabState.index];
                   },
                 );

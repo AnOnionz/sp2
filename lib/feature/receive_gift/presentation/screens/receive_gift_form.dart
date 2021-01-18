@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +12,6 @@ import 'package:sp_2021/core/common/textfield.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
-import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
@@ -83,7 +82,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   void initState() {
     super.initState();
     _vouchers = [];
-    final List<ProductEntity> products = List.castFrom(local.fetchProduct());
+    List<ProductEntity> products = List.castFrom(local.fetchProduct());
     _form = FormEntity(
       customer: CustomerEntity(),
       products: products,
@@ -1167,6 +1166,10 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                     if (state is ReceiveGiftNotCondition) {
                                       Navigator.pop(context);
                                       Navigator.pop(context);
+                                    }
+                                    if(state is ReceiveGiftOutRange){
+                                      Navigator.pop(context);
+                                      Dialogs().showMessageDialog(context: context, content: state.message);
                                     }
                                   },
                                   child: Material(

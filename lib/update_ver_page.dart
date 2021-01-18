@@ -168,8 +168,8 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
                                       BlocBuilder<SettingBloc, SettingState>(
                                         builder: (context, state) {
                                           if (state is RequireUpdateApp &&
-                                              packageInfo.version !=
-                                                  state.updateEntity.version) {
+                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) <
+                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 18.0, bottom: 18.0),
@@ -258,7 +258,9 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
                                               ),
                                             );
                                           }
-                                          if (state is NoRequireUpdateApp) {
+                                          if (state is RequireUpdateApp &&
+                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) ==
+                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 18.0, bottom: 18.0),

@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';

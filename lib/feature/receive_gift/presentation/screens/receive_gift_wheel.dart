@@ -52,15 +52,14 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
   void initState() {
     super.initState();
     _items =
-        local.fetchGift().toList();
+        List.castFrom(local.fetchGift());
     if(_items.length == 5){
       final nen = _items.firstWhere((element) => element is Nen).clone();
       _items.insert(3, nen);
     }
     _lucky = widget.giftLucky.map<int>((e) {
-      return _items.indexOf(_items.firstWhere((element) => element.giftId == e.giftId),);
+      return _items.indexOf(_items.firstWhere((element) => element.giftId == e.giftId, orElse: ()=> null),);
     }).toList();
-    print(_lucky);
     var _duration = Duration(milliseconds: 2500);
     _ctrl = AnimationController(duration: _duration, vsync: this)
       ..addListener(() async {

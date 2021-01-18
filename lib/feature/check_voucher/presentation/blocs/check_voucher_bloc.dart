@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sp_2021/core/error/failure.dart';
-import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/check_voucher/domain/entities/voucher_history_entity.dart';
 import 'package:sp_2021/feature/check_voucher/domain/usecases/check_voucher_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';

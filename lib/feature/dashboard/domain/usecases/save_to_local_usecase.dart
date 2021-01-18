@@ -16,7 +16,8 @@ class SaveDataToLocalUseCase implements UseCase<bool, NoParams>{
       await repository.saveSetGiftCurrentFromServer();
       await repository.saveSetGiftFromServer() ;
       await repository.saveSetGiftSBFromServer() ;
-      await repository.saveSetGiftSBCurrentFromServer() ;
+      await repository.saveSetGiftSBCurrentFromServer();
+      await repository.saveKpiFromServer();
       return Right(true);
 
   }

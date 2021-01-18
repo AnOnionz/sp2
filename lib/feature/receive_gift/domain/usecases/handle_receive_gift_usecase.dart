@@ -11,14 +11,15 @@ class HandleReceiveGiftUseCase extends UseCase<bool, HandleReceiveGiftParams>{
   HandleReceiveGiftUseCase({this.repository});
   @override
   Future<Either<Failure, bool>> call(HandleReceiveGiftParams params) async {
-    return await repository.handleReceiveGift(receiveGiftEntity: params.receiveGiftEntity, setCurrent: params.setCurrent);
+    return await repository.handleReceiveGift(receiveGiftEntity: params.receiveGiftEntity, setCurrent: params.setCurrent, setSBCurrent: params.setSBCurrent);
   }
 
 }
 class HandleReceiveGiftParams extends Params{
   final ReceiveGiftEntity receiveGiftEntity;
   final SetGiftEntity setCurrent;
+  final SetGiftEntity setSBCurrent;
 
-  HandleReceiveGiftParams({this.receiveGiftEntity, this.setCurrent});
+  HandleReceiveGiftParams({this.receiveGiftEntity, this.setCurrent, this.setSBCurrent});
 
 }

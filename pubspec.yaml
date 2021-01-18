@@ -3,7 +3,7 @@ description: SP TOFT
 
 publish_to: 'none'
 
-version: 1.0.2+3
+version: 1.1.0+4
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -34,6 +34,7 @@ dependencies:
   equatable: ^1.2.0
   dio: ^3.0.9
   firebase_messaging: ^7.0.3
+  firebase_core: ^0.5.0+1
 
   fluttertoast: ^7.1.6
   pattern_formatter: ^1.0.2

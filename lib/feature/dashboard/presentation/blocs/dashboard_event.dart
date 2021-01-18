@@ -3,7 +3,7 @@ part of 'dashboard_bloc.dart';
 abstract class DashboardEvent {
   const DashboardEvent();
 }
-
+class RefreshApp extends DashboardEvent {}
 class SaveServerDataToLocalData extends DashboardEvent {}
 class SyncRequired extends DashboardEvent {
   final String message;

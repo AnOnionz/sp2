@@ -108,7 +108,7 @@ class _BottomBarState extends State<BottomBar> {
                       StreamBuilder(
                           initialData: 0,
                           stream: sl<NotificationLocalDataSource>().notify,
-                          builder: (context, snapshot) => snapshot.data > 0
+                          builder: (context, snapshot) => snapshot.data > 0 && snapshot.connectionState == ConnectionState.done
                               ? Positioned(
                                   right: 0,
                                   child: new Container(
