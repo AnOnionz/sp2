@@ -12,7 +12,7 @@
 
     <application
         android:name=".Application"
-        android:label="SP TOFT"
+        android:label="SP TOFT 2021"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher">

@@ -4,14 +4,12 @@ import 'package:meta/meta.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
-import 'package:sp_2021/feature/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/data_today_usecase.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/refresh_data_usecase.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
-import 'package:sp_2021/feature/dashboard/domain/usecases/update_set_gift_usecase.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 
-import '../../../../di.dart';
+
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
@@ -40,9 +38,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           return DashboardNoInternetInitData();
         }
         if (failure is InternalFailure) {
-          return DashboardFailure(message: failure.message);
+          return DashboardFailure(message: failure.message, willPop: 1);
         }
-        return DashboardFailure(message: failure.message);
+        return DashboardFailure(message: failure.message, willPop: 1);
       }, (r) => DashboardSaved());
     }
     if(event is RefreshApp){
@@ -57,9 +55,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           return DashboardNoInternetInitData();
         }
         if (failure is InternalFailure) {
-          return DashboardFailure(message: failure.message);
+          return DashboardFailure(message: failure.message, willPop: 1);
         }
-        return DashboardFailure(message: failure.message);
+        return DashboardFailure(message: failure.message, willPop: 1);
       }, (r) => DashboardRefresh());
     }
     if (event is SyncRequired) {
@@ -73,8 +71,12 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           message: event.message, willPop: event.willPop ?? 0);
     }
     if(event is InternalServer){
-      yield DashboardFailure(message: "Máy chủ đang gặp sự cố, vui lòng thử lại sau", willPop: 1);
+      yield DashboardFailure(message: "Máy chủ đang gặp sự cố, vui lòng thử lại sau", willPop: event.willPop ?? 1);
     }
+    if(event is RequireUpdateNewVersion){
+      yield DashboardRequiredUpdate();
+    }
+
   }
 
 

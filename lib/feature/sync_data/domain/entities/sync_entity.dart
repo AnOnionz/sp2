@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 part 'sync_entity.g.dart';
 
 @HiveType(typeId: 6)
+// ignore: must_be_immutable
 class SyncEntity extends Equatable with HiveObject {
   @HiveField(0)
   int nonSynchronized;

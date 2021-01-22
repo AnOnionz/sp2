@@ -29,7 +29,6 @@ class RivalProductEntity extends HiveObject {
       isAvailable: json['img_url'] != "https://sptt21.imark.vn/" ? true : false,
     );
   }
-  @override
   RivalProductEntity copyWith({int price}) {
     return RivalProductEntity(
         name: this.name,

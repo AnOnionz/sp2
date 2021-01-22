@@ -60,7 +60,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                         child: Container(
                           padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
                           child: const Text(
-                            'KIỂM TRA MÃ GIẢM GIÁ',
+                            'LỊCH SỬ SỬ DỤNG MÃ GIẢM GIÁ',
                             style: header,
                           ),
                         ),
@@ -93,7 +93,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                             height: 43,
                                             child: InputField(
                                               hint:
-                                                  "Nhập SĐT cần kiểm tra giảm giá",
+                                                  "Nhập SĐT cần kiểm tra lịch sử",
                                               controller: _controller,
                                               onSubmit: (_) {
                                                 if (_controller.text.length != 10 ||
@@ -115,9 +115,10 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                               textCapitalization:
                                                   TextCapitalization.characters,
                                               action: TextInputAction.done,
+                                              inputFormatter: <TextInputFormatter>[LengthLimitingTextInputFormatter(10),FilteringTextInputFormatter.digitsOnly,FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                               inputType:
                                                   TextInputType.numberWithOptions(
-                                                      decimal: true),
+                                                      decimal: false),
                                               textAlign: TextAlign.left,
                                             ),
                                           ),
@@ -218,7 +219,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                       padding:
                                                           const EdgeInsets.all(8.0),
                                                       child: Text(
-                                                        DateFormat('hh:mm dd-MM-yyyy').format(state.history[index].time)
+                                                        DateFormat('hh:mm a dd-MM-yyyy').format(state.history[index].time)
                                                             .toString(),
                                                         style: TextStyle(
                                                             fontSize: 20,

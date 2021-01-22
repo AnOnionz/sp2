@@ -22,6 +22,10 @@ class RequiredCheckInOrCheckOut extends DashboardEvent {
 
   RequiredCheckInOrCheckOut({this.message, this.willPop});
 }
+class RequireUpdateNewVersion extends DashboardEvent{
+
+}
+
 
 
 

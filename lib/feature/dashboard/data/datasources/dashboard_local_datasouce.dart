@@ -26,7 +26,6 @@ abstract class DashBoardLocalDataSource {
   int get sbIndexLast;
   bool get isSetSBOver;
   bool get isChangeSet;
-  //KpiEntity get kpi;
   void cacheChangedSet(bool value);
   DataTodayEntity get dataToday;
   List<ProductEntity> fetchProduct();
@@ -57,11 +56,13 @@ abstract class DashBoardLocalDataSource {
 
 class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   final SharedPreferences sharedPrefer;
+  // ignore: close_sinks
   final StreamController<KpiEntity> _streamController = StreamController.broadcast();
-  final today = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(MyDateTime.ntpTime));
-
+  String todayStr = DateFormat.yMd().format(MyDateTime.day);
 
   DashBoardLocalDataSourceImpl({this.sharedPrefer});
+
+
   @override
   DataTodayEntity get dataToday {
     Box<DataTodayEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
@@ -97,12 +98,12 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   bool get loadInitDataToLocal {
     Box<SetGiftEntity> setGiftBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
-    Box<SetGiftEntity> setGiftSBBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+   // Box<SetGiftEntity> setGiftSBBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
     Box<SetGiftEntity> currentBox = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
     Box<RivalProductEntity> rivalBox = Hive.box<RivalProductEntity>(AuthenticationBloc.outlet.id.toString() + RIVAL_PRODUCT_BOX);
     Box<ProductEntity> productBox = Hive.box<ProductEntity>(AuthenticationBloc.outlet.id.toString() + PRODUCT_BOX);
     Box<GiftEntity> giftBox = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_BOX);
-    Box<GiftEntity> giftStrongBowBox = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_STRONGBOW_BOX);
+    //Box<GiftEntity> giftStrongBowBox = Hive.box<GiftEntity>(AuthenticationBloc.outlet.id.toString() + GIFT_STRONGBOW_BOX);
     return setGiftBox.isEmpty ||
         giftBox.isEmpty ||
         currentBox.isEmpty ||
@@ -165,10 +166,10 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   SetGiftEntity fetchSetGiftCurrent() {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_CURRENT_BOX);
     SetGiftEntity setCurrent = box.get(AuthenticationBloc.outlet.id.toString() + CURRENT_SET_GIFT);
-    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000)).toString();
     if (setCurrent != null) {
       setCurrent = SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
-      if(today == lastDay){
+      if(todayStr == lastDay){
         setCurrent =  SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts.map((e) => e is Voucher ? e.setOver(): e).toList());
       }
     }else{
@@ -184,7 +185,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     if (setCurrent != null) {
       setCurrent = SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
     }else{
-      setCurrent = fetchNewSetGift(0);
+      setCurrent = AuthenticationBloc.outlet.province =='HN_HCM' ? fetchNewSBSetGift(0) : null;
     }
     return setCurrent;
 
@@ -194,12 +195,12 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   SetGiftEntity fetchNewSetGift(int index) {
     Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
     SetGiftEntity set = box.get(index, defaultValue: null);
-    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+    final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000)).toString();
     print("new set:$set");
     if(set != null) {
       set = SetGiftEntity(index: set.index, gifts: set.gifts);
       cacheChangedSet(true);
-      if(today == lastDay){
+      if(todayStr == lastDay){
         set =  SetGiftEntity(index: set.index, gifts: set.gifts.map((e) => e is Voucher ? e.setOver(): e).toList());
       }
     }
@@ -336,7 +337,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   }
 
   @override
-  Future<void> cacheKpi({KpiEntity kpi}) {
+  Future<void> cacheKpi({KpiEntity kpi}) async {
     sharedPrefer.setString(AuthenticationBloc.outlet.id.toString() + KPI,jsonEncode(kpi.toJson()));
     _streamController.sink.add(kpi);
   }

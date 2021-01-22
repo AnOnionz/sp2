@@ -130,10 +130,10 @@ Future<void> init() async {
       DashboardRepositoryImpl(remote: sl(), local: sl(), networkInfo: sl()));
   // UseCase
   sl.registerLazySingleton<SaveDataToLocalUseCase>(
-      () => SaveDataToLocalUseCase(repository: sl()));
-  sl.registerLazySingleton<UpdateDataUseCase>(() => UpdateDataUseCase(repository: sl()));
-  sl.registerLazySingleton<DataTodayUseCase>(() => DataTodayUseCase(repository: sl()));
-  sl.registerLazySingleton<RefreshDataUseCase>(() => RefreshDataUseCase(repository: sl()));
+      () => SaveDataToLocalUseCase(repository: sl(), networkInfo: sl()));
+  sl.registerLazySingleton<UpdateDataUseCase>(() => UpdateDataUseCase(repository: sl(), networkInfo: sl()));
+  sl.registerLazySingleton<DataTodayUseCase>(() => DataTodayUseCase(repository: sl(), networkInfo: sl()));
+  sl.registerLazySingleton<RefreshDataUseCase>(() => RefreshDataUseCase(repository: sl(), networkInfo: sl()));
   // Bloc
   sl.registerLazySingleton<DashboardBloc>(() => DashboardBloc(
       saveDataToLocal: sl(), dataToday: sl(),refreshData: sl(), local: sl(), authenticationBloc: sl()));
@@ -187,7 +187,7 @@ Future<void> init() async {
           () => HandleReceiveGiftUseCase(repository: sl()));
   //Bloc
   sl.registerFactory<ReceiveGiftBloc>(
-      () => ReceiveGiftBloc(local: sl(), handleGift: sl(), useVoucher: sl(), handleWheel: sl(), authenticationBloc: sl(), dashboardBloc: sl(),handleStrongBowWheel: sl(), localData: sl(), handleReceiveGift: sl(), validateForm: sl()));
+      () => ReceiveGiftBloc(local: sl(), handleGift: sl(), useVoucher: sl(), sharedPrefer: sl(), handleWheel: sl(), authenticationBloc: sl(), dashboardBloc: sl(),handleStrongBowWheel: sl(), localData: sl(), handleReceiveGift: sl(), validateForm: sl()));
 
 
   //! Feature Check Voucher

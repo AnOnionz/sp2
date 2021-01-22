@@ -26,4 +26,5 @@ class DashboardRequiredCheckInOrOut extends DashboardState {
 
   DashboardRequiredCheckInOrOut({this.message, this.willPop });
 }
+class DashboardRequiredUpdate extends DashboardState {}
 

@@ -24,8 +24,8 @@ class CDio {
   Future<Response> getResponse({String path, Map<String, dynamic> data}) async {
     try {
       final response = await client.get(path, queryParameters: data);
-      print('$path: $response');
-      if (response.statusCode == 200) {
+      print('GET $path: ${response.data}');
+      if (response.statusCode == 200 && response.data['success'] == true) {
         return response;
       }
       if (response.statusCode == 401) {
@@ -35,9 +35,12 @@ class CDio {
         throw(InternalException());
       }
       if (response.data["success"] == false) {
+        print(1);
         throw(ResponseException(message: response.data["message"]));
       }
-      return response;
+      else{
+        throw(ResponseException(message: "Đã có lỗi xảy ra (${response.statusCode}) "));
+      }
     } on DioError catch (e) {
       if (e.type == DioErrorType.CONNECT_TIMEOUT ||
           e.type == DioErrorType.RECEIVE_TIMEOUT) {
@@ -48,8 +51,8 @@ class CDio {
   Future<Response> postResponse({String path, dynamic data}) async{
       try {
         final response = await client.post(path, data: data);
-        print('$path: $response');
-        if (response.statusCode == 200) {
+        print('POST $path: ${response.data}');
+        if (response.statusCode == 200 && response.data['success'] == true) {
           return response;
         }
         if (response.statusCode == 401) {
@@ -61,7 +64,10 @@ class CDio {
         if (response.data["success"] == false) {
           throw(ResponseException(message: response.data["message"]));
         }
-        return response;
+        else{
+          throw(ResponseException(message: "Đã có lỗi xảy ra (Code: ${response.statusCode})"));
+        }
+
       } on DioError catch (e) {
         if (e.type == DioErrorType.CONNECT_TIMEOUT ||
             e.type == DioErrorType.RECEIVE_TIMEOUT ) {
@@ -81,6 +87,10 @@ class CDio {
 
   void setValidateStatus(ValidateStatus validateStatus) {
     client.options.validateStatus = validateStatus;
+  }
+  void setHeader(int version){
+    client.options.headers.addAll({
+      'VersionCodeSp': '$version'});
   }
 
 }

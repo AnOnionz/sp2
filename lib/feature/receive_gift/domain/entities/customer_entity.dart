@@ -23,7 +23,7 @@ class CustomerEntity extends Equatable with HiveObject {
   @HiveField(6)
   int inSBTurn;
 
-  CustomerEntity({this.name, this.phoneNumber, this.inTurn, this.inSBTurn}) {
+  CustomerEntity({this.name, this.gender, this.phoneNumber, this.inTurn, this.inSBTurn}) {
     var uUid = Uuid();
     uuid = uUid.v1(options: {
       'node': [0x22, 0x17, 0x09, 0x19, 0x98, 0xab],
@@ -31,12 +31,13 @@ class CustomerEntity extends Equatable with HiveObject {
       'mSecs': DateTime.now().millisecondsSinceEpoch ~/1000,
       'nSecs': Random().nextInt(9999)
     });
+    gender = gender ?? '1';
   }
 
   Map<String, dynamic> toCacheJson(){
     return {
       'name': name,
-//      'gender': gender,
+      'gender': gender,
       'phone': phoneNumber,
       'inTurn': inTurn,
       'inSBTurn': inSBTurn,
@@ -47,6 +48,7 @@ class CustomerEntity extends Equatable with HiveObject {
       'name': name,
       'phone': phoneNumber,
       'device_created_at': deviceCreatedAt,
+      'gender': gender,
       'uuid': uuid,
     };
   }
@@ -54,6 +56,7 @@ class CustomerEntity extends Equatable with HiveObject {
     return CustomerEntity(
       name: json['name'],
       phoneNumber: json['phone'],
+      gender: json['gender'],
       inTurn: json['inTurn'],
       inSBTurn: json['inSBTurn']
     );

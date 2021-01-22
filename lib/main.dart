@@ -33,7 +33,7 @@ Future<void> main() async {
   });
   cacheFlare();
   await di.init();
-  await MyDateTime.timeStart();
+  await MyDateTime.ntpTime;
   await hive.init();
   MyPackageInfo().getPackageInfo();
   SystemChrome.setPreferredOrientations(

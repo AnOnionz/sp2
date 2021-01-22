@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart';
 
+// ignore: must_be_immutable
 class FormEntity extends Equatable {
   CustomerEntity customer;
   List<ProductEntity> products;

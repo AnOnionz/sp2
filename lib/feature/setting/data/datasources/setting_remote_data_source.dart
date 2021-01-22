@@ -14,10 +14,11 @@ class SettingRemoteDataSourceImpl implements SettingRemoteDataSource {
     Response _resp;
     try {
      _resp = await cDio.getResponse(path: 'auth/version');
+     return UpdateEntity.formJson(_resp.data['data']);
     }catch(e){
       return null;
     }
-    return UpdateEntity.formJson(_resp.data['data']);
+
   }
 
 }

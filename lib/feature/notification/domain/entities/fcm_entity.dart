@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 part 'fcm_entity.g.dart';
 
 @HiveType(typeId: 3)
+// ignore: must_be_immutable
 class FcmEntity extends Equatable with HiveObject {
   @HiveField(0)
   final String title;

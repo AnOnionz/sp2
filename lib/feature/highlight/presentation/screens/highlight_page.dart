@@ -343,7 +343,7 @@ class _HighLightPageState extends State<HighLightPage> {
                                                                           index]
                                                                       .images
                                                                       .length <
-                                                                  5) {
+                                                                  3) {
                                                                 final pickedFile =
                                                                     await picker.getImage(
                                                                         source: ImageSource

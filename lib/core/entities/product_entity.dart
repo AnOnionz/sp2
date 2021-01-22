@@ -32,7 +32,7 @@ class ProductEntity extends Equatable with HiveObject {
       this.price,
       this.imgUrl,
       this.buyQty}) {
-    buyQty = 0;
+    buyQty = buyQty ?? 0;
     count = count ?? 0;
     price = price ?? 0;
     countController.text = count.toString();
@@ -318,7 +318,7 @@ class ProductEntity extends Equatable with HiveObject {
     return [];
   }
 
-  ProductEntity copyWith({int count, int price}) {
+  ProductEntity copyWith({int count, int price, int buy}) {
     return null;
   }
 
@@ -375,15 +375,13 @@ class Heineken extends ProductEntity {
       List.generate(buyQty - 2 < 3 ? buyQty - 2 : 3,
           (index) => giftResult.add(Wheel(id: index + 10)));
     }
-    if (outlet.province == "HN" || outlet.province == "HCM") {
+    if (outlet.province == 'HN_HCM') {
       if (buyQty >= 1) {
-        print('hcm');
         giftResult.add(StrongBowGift(giftId: 3));
       }
     }
-    if (outlet.province != "HN" && outlet.province != "HCM") {
+    if (outlet.province != 'HN_HCM') {
       if (buyQty >= 1) {
-        print("not hcm");
         giftResult.add(Nen(giftId: 1));
       }
     }
@@ -392,11 +390,12 @@ class Heineken extends ProductEntity {
   }
 
   @override
-  ProductEntity copyWith({int count, int price}) {
+  Heineken copyWith({int count, int price, int buy}) {
     return Heineken(
       productName: this.productName,
       productId: this.productId,
       imgUrl: this.imgUrl,
+      buyQty: buy ?? this.buyQty,
       count: count ?? this.count,
       price: price ?? this.price,
     );
@@ -427,11 +426,12 @@ class HeinekenOriginal extends Heineken {
   }
 
   @override
-  HeinekenOriginal copyWith({int count, int price}) {
+  HeinekenOriginal copyWith({int count, int price, int buy}) {
     return HeinekenOriginal(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -461,11 +461,12 @@ class Heineken0 extends Heineken {
   }
 
   @override
-  Heineken0 copyWith({int count, int price}) {
+  Heineken0 copyWith({int count, int price, int buy}) {
     return Heineken0(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -495,11 +496,12 @@ class HeinekenSilver extends Heineken {
   }
 
   @override
-  ProductEntity copyWith({int count, int price}) {
+  HeinekenSilver copyWith({int count, int price, int buy}) {
     return HeinekenSilver(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -528,11 +530,12 @@ class Tiger extends ProductEntity {
   }
 
   @override
-  Tiger copyWith({int count, int price}) {
+  Tiger copyWith({int count, int price, int buy}) {
     return Tiger(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -582,11 +585,12 @@ class TigerRegular extends Tiger {
   }
 
   @override
-  TigerRegular copyWith({int count, int price}) {
+  TigerRegular copyWith({int count, int price, int buy}) {
     return TigerRegular(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -616,11 +620,12 @@ class TigerCrystal extends Tiger {
   }
 
   @override
-  TigerCrystal copyWith({int count, int price}) {
+  TigerCrystal copyWith({int count, int price, int buy}) {
     return TigerCrystal(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -648,11 +653,12 @@ class StrongBow extends ProductEntity {
     this.buyQty = count;
   }
   @override
-  ProductEntity copyWith({int count, int price}) {
+  ProductEntity copyWith({int count, int price, int buy}) {
     return StrongBow(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -664,15 +670,12 @@ class StrongBow extends ProductEntity {
 
   @override
   Future<List<Gift>> getGift({LoginEntity outlet}) async {
-    print(1);
     List<Gift> giftResult = [];
-    if (outlet.province == "HN" || outlet.province == "HCM") {
+    if (outlet.province == 'HN_HCM') {
       if (buyQty >= 1) {
-        print(1);
         giftResult.add(Nen(giftId: 1));
       }
       if (buyQty >= 2) {
-        print(2);
         List.generate(buyQty - 1 < 4 ? buyQty - 1 : 4,
             (index) => giftResult.add(Wheel(id: index + 200)));
       }
@@ -709,11 +712,12 @@ class NormalBeer extends ProductEntity {
   }
 
   @override
-  ProductEntity copyWith({int count, int price}) {
+  ProductEntity copyWith({int count, int price, int buy}) {
     return NormalBeer(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -762,11 +766,12 @@ class BiaViet extends NormalBeer {
   }
 
   @override
-  ProductEntity copyWith({int count, int price}) {
+  BiaViet copyWith({int count, int price, int buy}) {
     return BiaViet(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }
@@ -794,6 +799,17 @@ class Larue extends NormalBeer {
   String toString() {
     return 'Larue{buy: $buyQty, qty: $count, price: $price }';
   }
+  @override
+  Larue copyWith({int count, int price, int buy}) {
+    return Larue(
+        productName: this.productName,
+        productId: this.productId,
+        imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
+        count: count ?? this.count,
+        price: price ?? this.price);
+  }
+
 }
 
 // ignore: must_be_immutable
@@ -818,6 +834,17 @@ class LarueSpecial extends NormalBeer {
   String toString() {
     return 'LarueSpecial{buy: $buyQty, qty: $count, price: $price }';
   }
+  @override
+  LarueSpecial copyWith({int count, int price, int buy}) {
+    return LarueSpecial(
+        productName: this.productName,
+        productId: this.productId,
+        imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
+        count: count ?? this.count,
+        price: price ?? this.price);
+  }
+
 }
 
 // ignore: must_be_immutable
@@ -842,6 +869,16 @@ class Bivina extends NormalBeer {
   String toString() {
     return 'Bivina{buy: $buyQty, qty: $count, price: $price }';
   }
+  @override
+  Bivina copyWith({int count, int price, int buy}) {
+    return Bivina(
+        productName: this.productName,
+        productId: this.productId,
+        imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
+        count: count ?? this.count,
+        price: price ?? this.price);
+  }
 }
 
 class BivinaExport extends NormalBeer {
@@ -864,6 +901,16 @@ class BivinaExport extends NormalBeer {
   @override
   String toString() {
     return 'BivinaExport{buy: $buyQty, qty: $count, price: $price }';
+  }
+  @override
+  BivinaExport copyWith({int count, int price, int buy}) {
+    return BivinaExport(
+        productName: this.productName,
+        productId: this.productId,
+        imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
+        count: count ?? this.count,
+        price: price ?? this.price);
   }
 }
 
@@ -890,11 +937,12 @@ class StrongBowPack6 extends ProductEntity {
   }
 
   @override
-  ProductEntity copyWith({int count, int price}) {
+  StrongBowPack6 copyWith({int count, int price, int buy}) {
     return StrongBowPack6(
         productName: this.productName,
         productId: this.productId,
         imgUrl: this.imgUrl,
+        buyQty: buy ?? this.buyQty,
         count: count ?? this.count,
         price: price ?? this.price);
   }

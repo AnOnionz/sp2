@@ -26,7 +26,7 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource{
       ),
     });
 
-    Response _resp = await cDio.postResponse(path: 'home/attendance', data: _formData);
+     await cDio.postResponse(path: 'home/attendance', data: _formData);
 
     return  AttendanceStatus.SUCCESS;
 

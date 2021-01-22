@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ota_update/ota_update.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
@@ -29,6 +30,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
+    packageInfo = MyPackageInfo.packageInfo;
   }
 
   Future<void> tryOtaUpdate(UpdateEntity updateEntity) async {
@@ -77,7 +79,9 @@ class _SettingPageState extends State<SettingPage> {
           onPressed: (){
             sl<DashboardBloc>().add(RefreshApp());
           },
-          child: Icon(Icons.autorenew_outlined, size: 30, color: Colors.cyanAccent,),
+          backgroundColor: Colors.teal,
+          hoverColor: Colors.blueAccent,
+          child: Icon(Icons.autorenew_outlined, size: 35, color: Colors.cyanAccent,),
         ),
         body: SafeArea(
             child: Container(
@@ -90,17 +94,7 @@ class _SettingPageState extends State<SettingPage> {
                 padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: BlocProvider<SettingBloc>(
                   create: (_) => sl<SettingBloc>(),
-                  child: BlocListener<SettingBloc, SettingState>(
-                    listener: (context, state) {
-                      if (state is SettingLoaded) {
-                        setState(() {
-                          packageInfo = state.packageInfo;
-                        });
-                      }
-                    },
-                    child: Builder(
-                      builder: (_) => packageInfo != null
-                          ? Column(
+                  child: Column(
                               children: <Widget>[
                                 Align(
                                   alignment: Alignment.center,
@@ -173,103 +167,104 @@ class _SettingPageState extends State<SettingPage> {
                                         color: Colors.white,
                                         height: 1,
                                       ),
-                                      BlocBuilder<SettingBloc, SettingState>(
-                                        builder: (context, state) {
-                                          if (state is RequireUpdateApp &&
-                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) <
-                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 18.0, bottom: 18.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    "Bản cập nhật ${state.updateEntity.version}",
-                                                    style: Subtitle1white,
-                                                  ),
-                                                  !_enable && currentEvent !=null &&
-                                                          currentEvent.status ==
-                                                              OtaStatus
-                                                                  .DOWNLOADING
-                                                      ? Container(
-                                                          height: 45,
-                                                          width: 45,
-                                                          child: Stack(
-                                                            children: [
-                                                              Align(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                child: Center(
-                                                                  child:
-                                                                      Container(
-                                                                    height: 15,
-                                                                    width: 15,
-                                                                    decoration: BoxDecoration(
-                                                                        color: Colors
-                                                                            .blue,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(5.0)),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Align(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                child:
-                                                                    CircularProgressIndicator(
-                                                                  valueColor: AlwaysStoppedAnimation<
-                                                                          Color>(
-                                                                      Colors
-                                                                          .blue),
-                                                                  value:
-                                                                      percent,
-                                                                  strokeWidth:
-                                                                      3,
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        )
-                                                      : IconButton(
-                                                          icon: Icon(
-                                                            Icons
-                                                                .download_sharp,
-                                                            color: Colors
-                                                                .lightBlueAccent,
-                                                            size: 25,
-                                                          ),
-                                                          onPressed: _enable ? () {
-                                                            tryOtaUpdate(state
-                                                                .updateEntity);
-                                                          } : (){})
-                                                ],
-                                              ),
-                                            );
-                                          }
-                                          if (state is RequireUpdateApp &&
-                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) ==
-                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
-                                            return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 18.0, bottom: 18.0),
-                                                child: Row(
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Đây là phiên bản mới nhất",
-                                                        style: Subtitle1white,
-                                                      ),]));
-                                          }
-                                          return Container();
-                                        },
-                                      ),
+//                                      BlocBuilder<SettingBloc, SettingState>(
+//                                        builder: (context, state) {
+//                                          if (state is RequireUpdateApp && state.updateEntity !=null &&
+//                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) <
+//                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
+//                                            return Padding(
+//                                              padding: const EdgeInsets.only(
+//                                                  top: 18.0, bottom: 18.0),
+//                                              child: Row(
+//                                                mainAxisAlignment:
+//                                                    MainAxisAlignment
+//                                                        .spaceBetween,
+//                                                children: [
+//                                                  Text(
+//                                                    "Bản cập nhật ${state.updateEntity.version}",
+//                                                    style: Subtitle1white,
+//                                                  ),
+//                                                  !_enable && currentEvent !=null &&
+//                                                          currentEvent.status ==
+//                                                              OtaStatus
+//                                                                  .DOWNLOADING
+//                                                      ? Container(
+//                                                          height: 45,
+//                                                          width: 45,
+//                                                          child: Stack(
+//                                                            children: [
+//                                                              Align(
+//                                                                alignment:
+//                                                                    Alignment
+//                                                                        .center,
+//                                                                child: Center(
+//                                                                  child:
+//                                                                      Container(
+//                                                                    height: 15,
+//                                                                    width: 15,
+//                                                                    decoration: BoxDecoration(
+//                                                                        color: Colors
+//                                                                            .blue,
+//                                                                        borderRadius:
+//                                                                            BorderRadius.circular(5.0)),
+//                                                                  ),
+//                                                                ),
+//                                                              ),
+//                                                              Align(
+//                                                                alignment:
+//                                                                    Alignment
+//                                                                        .center,
+//                                                                child:
+//                                                                    CircularProgressIndicator(
+//                                                                  valueColor: AlwaysStoppedAnimation<
+//                                                                          Color>(
+//                                                                      Colors
+//                                                                          .blue),
+//                                                                  value:
+//                                                                      percent,
+//                                                                  strokeWidth:
+//                                                                      3,
+//                                                                ),
+//                                                              )
+//                                                            ],
+//                                                          ),
+//                                                        )
+//                                                      : IconButton(
+//                                                          icon: Icon(
+//                                                            Icons
+//                                                                .download_sharp,
+//                                                            color: Colors
+//                                                                .lightBlueAccent,
+//                                                            size: 25,
+//                                                          ),
+//                                                          onPressed: _enable ? ()  {
+//                                                           // await sl<LoginRemoteDataSource>().logout();
+//                                                            tryOtaUpdate(state
+//                                                                .updateEntity);
+//                                                          } : (){})
+//                                                ],
+//                                              ),
+//                                            );
+//                                          }
+//                                          if (state is RequireUpdateApp && state.updateEntity != null &&
+//                                              (int.parse(packageInfo.version.toString().replaceAll(".", ""))) ==
+//                                                  int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
+//                                            return Padding(
+//                                                padding: const EdgeInsets.only(
+//                                                    top: 18.0, bottom: 18.0),
+//                                                child: Row(
+//                                                    mainAxisAlignment:
+//                                                    MainAxisAlignment
+//                                                        .spaceBetween,
+//                                                    children: [
+//                                                      Text(
+//                                                        "Đây là phiên bản mới nhất",
+//                                                        style: Subtitle1white,
+//                                                      ),]));
+//                                          }
+//                                          return Container();
+//                                        },
+//                                      ),
                                       BlocConsumer<LoginBloc, LoginState>(
                                         builder: (context, state) => InkWell(
                                           onTap: () {
@@ -384,10 +379,10 @@ class _SettingPageState extends State<SettingPage> {
                                       ),
                                     ])),
                               ],
-                            )
-                          : Container(),
+                            ),
+
                     ),
                   ),
-                ))));
+                ));
   }
 }

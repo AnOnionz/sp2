@@ -28,6 +28,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
   @override
   Widget build(BuildContext context) {
+    print(sl<NotificationLocalDataSource>().numberOfNotify());
     return Scaffold(
         body: SafeArea(
       child: Container(
@@ -112,7 +113,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                           fontSize: 28),
                                     ),
                                     Text(
-                                      DateFormat('hh:mm dd-MM-yyyy')
+                                      DateFormat('hh:mm a dd-MM-yyyy')
                                           .format(fcm.time),
                                       style: TextStyle(
                                           fontStyle: FontStyle.italic),

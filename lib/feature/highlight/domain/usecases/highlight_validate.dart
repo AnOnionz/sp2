@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
-import 'package:sp_2021/core/util/validate_form.dart';
 import 'package:sp_2021/core/util/validate_highlight.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_entity.dart';
 

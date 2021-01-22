@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_2021/core/common/keys.dart';
@@ -66,19 +68,15 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
     if (event is ReceiveGiftStart) {
       setCurrent = localData.fetchSetGiftCurrent();
       setSBCurrent = localData.fetchSetGiftSBCurrent();
-      print(setCurrent);
-      print(setSBCurrent);
       final dataToday = localData.dataToday;
       final outlet = AuthenticationBloc.outlet;
-      final today = MyDateTime.ntpTime;
-      print(today);
-      print(AuthenticationBloc.outlet.endPromotion*1000);
+      final now = await MyDateTime.ntpTime;
       if (dataToday.checkIn != true) {
         dashboardBloc.add(RequiredCheckInOrCheckOut(
             message: 'Phải chấm công trước khi đổi quà', willPop: 2));
         return ;
       }
-      if(today > outlet.endPromotion*1000){
+      if(now > outlet.endPromotion*1000){
         yield ReceiveGiftOutRange(message: "Ngoài thời gian áp dụng chương trình");
         return ;
       }
@@ -86,7 +84,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
         dashboardBloc.add(SyncRequired(message: "Yêu cầu đồng bộ dữ liệu trước khi quay quà"));
         return;
       }
-      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null)){
+      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (setSBCurrent != null &&!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index)){
         final sum = setCurrent.gifts.fold(
             0, (previousValue, element) => previousValue + element.amountCurrent);
         final sbSum =setSBCurrent != null ? setSBCurrent.gifts.fold(
@@ -97,7 +95,11 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
                          '''
         );
       }
-
+      ReceiveGiftState stateCached = getState();
+      print(stateCached.toString());
+      if(stateCached != null){
+        yield stateCached;
+      }
     }
     if (event is UseVoucher) {
       yield UseVoucherLoading();
@@ -112,18 +114,18 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       yield* _eitherValidateToState(validator);
     }
     if (event is ReceiveGiftConfirm) {
+      final now = await MyDateTime.ntpTime;
       yield ReceiveGiftHandling(form: event.form);
-      print(localData.isSetOver);
-      print(localData.isSetSBOver);
-      if ((localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().length == 0 || MyDateTime.ntpTime < AuthenticationBloc.outlet.startPromotion*1000) {
+      CustomerEntity customer = await local.getCustomer(
+        gender: event.form.customer.gender,
+          name: event.form.customer.name,
+          phone: event.form.customer.phoneNumber);
+      print(customer);
+      event.form.customer = customer;
+      if ((localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().length == 0 || now < AuthenticationBloc.outlet.startPromotion*1000) {
         yield ReceiveGiftNotCondition();
         add(ReceiveGiftOnlyBuyProducts(form: event.form));
       } else {
-        CustomerEntity customer = await local.getCustomer(
-            name: event.form.customer.name,
-            phone: event.form.customer.phoneNumber);
-        print(customer);
-        event.form.customer = customer;
         if (customer.inTurn == 0 && customer.inSBTurn == 0) {
           add(ReceiveGiftOnlyBuyProducts(form: event.form));
             yield ReceiveGifShowTurn(
@@ -145,7 +147,9 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
             }
             return ReceiveGiftFailure();
           }, (result) {
-            //if(result.gifts.length == 0 ){add(ReceiveGiftOnlyBuyProducts(form: event.form));}
+            final today =  DateFormat.yMd().format(MyDateTime.day);
+            final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
+            if(result.gifts.length == 0 ){add(ReceiveGiftOnlyBuyProducts(form: event.form));}
             return result.gifts.length > 0 ? ReceiveGifShowTurn(
                 form: event.form,
                 gifts: result.gifts,
@@ -153,18 +157,11 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
                 setSBCurrent: result.setSBCurrent,
                 message:
                     "Hôm nay bạn có ${result.gifts.length < customer.inTurn + customer.inSBTurn ? result.gifts.length : customer.inTurn + customer.inSBTurn} lượt nhận quà",
-                type: 1):
-            !localData.isSetOver || !localData.isSetSBOver ? (){
-              print(2);
-              add(ReceiveGiftOnlyBuyProducts(form: event.form));
-              return ReceiveGifShowTurn(
+                type: 1): today == lastDay ? ReceiveGiftNotCondition() :ReceiveGifShowTurn(
                 form: event.form,
                 gifts: [],
                 message: "Hôm nay bạn đã hết lượt nhận quà",
-                type: 2);}: (){
-              print(1);
-                    add(ReceiveGiftOnlyBuyProducts(form: event.form));
-                    return ReceiveGiftNotCondition();};
+                type: 2);
           });
         }
       }
@@ -180,7 +177,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
         customerImage: [],
       );
       await handleReceiveGift(HandleReceiveGiftParams(
-          receiveGiftEntity: receiveGiftEntity, setCurrent: setCurrent));
+          receiveGiftEntity: receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
     }
     if (event is GiftNext) {
       setCurrent = event.setCurrent ?? setCurrent;
@@ -230,7 +227,6 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
             }
             return ReceiveGiftFailure();
           }, (result) {
-            print('setCurrent after wheel: ${result.setCurrent}');
             setCurrent = result.setCurrent;
             return ReceiveGiftStateWheel(
                 form: event.form,
@@ -242,7 +238,6 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           });
         }
         if (event.giftReceive.elementAt(event.giftAt) is StrongBowWheel) {
-          print(setSBCurrent);
           final lucky = await handleStrongBowWheel(HandleStrongBowWheelParams(
               giftReceived: event.giftSBReceived, setCurrent: setSBCurrent));
           yield lucky.fold((l) {
@@ -261,7 +256,6 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
             }
             return ReceiveGiftFailure();
           }, (result) {
-            print('setCurrent after wheel: ${result.setCurrent}');
             setSBCurrent = result.setCurrent;
             return ReceiveGiftStateSBWheel(
                 form: event.form,
@@ -316,6 +310,8 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           giftAt: event.giftAt);
     }
     if (event is ReceiveGiftResult) {
+      localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
+      localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       List<GiftEntity> gifts = [];
       List<GiftEntity> giftReceived = event.receiveGiftEntity.gifts;
       // gift had in list
@@ -334,7 +330,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       });
       print("setCurrent final: $setCurrent");
       print("setSBCurrent final: $setSBCurrent");
-      yield ReceiveGiftStateResult(
+      ReceiveGiftState result = ReceiveGiftStateResult(
           receiveGiftEntity: ReceiveGiftEntity(
             customer: event.receiveGiftEntity.customer,
             voucher: event.receiveGiftEntity.voucher,
@@ -343,9 +339,12 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
             voucherReceived: gifts.firstWhere((element) => element is Voucher, orElse: () => Voucher(amountReceive: 0)).amountReceive,
             //productImage: event.receiveGiftEntity.productImage,
             customerImage: event.receiveGiftEntity.customerImage,
-      ));
+          ));
+      _cacheState(result);
+      yield result;
     }
     if (event is ReceiveGiftSubmit) {
+      _removeState();
       localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
       localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       final finish = await handleReceiveGift(HandleReceiveGiftParams(
@@ -359,9 +358,8 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           dashboardBloc.add(InternalServer());
           return null;
         }
-        return null;
+        return ReceiveGiftFailure(message: fail.message);
       }, (r) {
-        print(r);
         return null;
       });
     }
@@ -397,8 +395,7 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
   ReceiveGiftState getState(){
     final stateString = sharedPrefer.getString(AuthenticationBloc.outlet.id.toString() + STATE_IN_STORAGE);
     if(stateString != null){
-     _removeState();
-      return ReceiveGiftState.fromJson(jsonDecode(stateString));
+      return ReceiveGiftState.fromJson(jsonDecode(stateString) as Map<String ,dynamic>);
     }
     return null;
   }

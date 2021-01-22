@@ -38,7 +38,7 @@ Stream<CheckVoucherState> _eitherHistoryToState(
     AuthenticationBloc authenticationBloc) async* {
   yield either.fold((fail) {
     if (fail is InternalFailure) {
-      dashboardBloc.add(InternalServer());
+      dashboardBloc.add(InternalServer(willPop: 0));
       return null;
     }if (fail is ResponseFailure) {
       return CheckVoucherFailure(message: fail.message);

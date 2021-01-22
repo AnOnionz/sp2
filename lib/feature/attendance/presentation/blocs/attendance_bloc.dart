@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 import 'package:sp_2021/core/common/keys.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/date_time.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_status.dart';
 import 'package:sp_2021/feature/attendance/domain/entities/attendance_type.dart';
@@ -17,6 +18,8 @@ import 'package:sp_2021/feature/attendance/domain/usecases/usecase_check_sp.dart
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_entity.dart';
+
+
 
 part 'attendance_event.dart';
 part 'attendance_state.dart';
@@ -32,9 +35,6 @@ class CheckAttendanceBloc extends Bloc<AttendanceEvent, CheckAttendanceState> {
   @override
   Stream<CheckAttendanceState> mapEventToState(AttendanceEvent event) async* {
     if (event is CheckAttendance) {
-      if(await MyDateTime.earlyTime){
-        yield EarlyTime();
-      }
       final checkSPResponse = await useCaseCheckSP(NoParams());
       yield* _eitherCheckAttendanceState(
           checkSPResponse, dashboardBloc, authenticationBloc);
@@ -88,7 +88,7 @@ Stream<CheckAttendanceState> _eitherCheckAttendanceState(
       return null;
     }
     if (failure is InternalFailure) {
-      dashboardBloc.add(InternalServer());
+      dashboardBloc.add(InternalServer(willPop: 0));
       return null;
     }
     if (failure is ResponseFailure) {
@@ -99,7 +99,7 @@ Stream<CheckAttendanceState> _eitherCheckAttendanceState(
     }
     return CheckAttendanceFailure(error: failure.message);
   }, (type) {
-    MyDateTime.timeStart().then((value) {
+    MyDateTime.ntpTime.then((value) {
       if(!Hive.isBoxOpen(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX)){
         Hive.openBox<CustomerEntity>(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);}
     }
@@ -118,7 +118,7 @@ Stream<AttendanceState> _eitherAttendanceState(
       return null;
     }
     if (failure is InternalFailure) {
-      dashboardBloc.add(InternalServer());
+      dashboardBloc.add(InternalServer(willPop: 0));
       return null;
     }
     if (failure is ResponseFailure) {

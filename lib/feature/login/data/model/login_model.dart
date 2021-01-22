@@ -24,14 +24,14 @@ class LoginModel extends LoginEntity {
       code: json['code'],
       accessToken: json['access_token'],
       address: json['address'],
-      spName: json['sr_name'],
-      spSDT: json['sr_phone'],
-      turn: json['turn'] as int ?? 5,
+      spName: json['sp_name'],
+      spSDT: json['sp_phone'],
+      turn: json['turns'] ,
       begin: json['begin_working'],
       end: json['end_working'],
-      province: json['province'] ?? "HCM",
-      startPromotion: json['start'] ?? 1610902795,
-      endPromotion: json['end'] ?? 1611161995,
+      province: json['province_name'],
+      startPromotion: json['start_promotion_day'],
+      endPromotion: 1612803599
     );
   }
 

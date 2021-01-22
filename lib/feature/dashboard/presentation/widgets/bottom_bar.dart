@@ -93,7 +93,7 @@ class _BottomBarState extends State<BottomBar> {
                     "assets/images/e-voucher.png",
                     height: 30,
                   ),
-                  label: 'Kiểm tra giảm giá',
+                  label: 'Lịch sử sử dụng mã giảm giá',
                 ),
                 BottomNavigationBarItem(
                   icon: Stack(
@@ -106,9 +106,9 @@ class _BottomBarState extends State<BottomBar> {
                             height: 30,
                           )),
                       StreamBuilder(
-                          initialData: 0,
+                          initialData: sl<NotificationLocalDataSource>().numberOfNotify(),
                           stream: sl<NotificationLocalDataSource>().notify,
-                          builder: (context, snapshot) => snapshot.data > 0 && snapshot.connectionState == ConnectionState.done
+                          builder: (context, snapshot) => snapshot.data > 0
                               ? Positioned(
                                   right: 0,
                                   child: new Container(

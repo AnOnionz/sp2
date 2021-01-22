@@ -184,13 +184,14 @@ class _SyncDataPageState extends State<SyncDataPage> {
                 }
                 if(state is SyncDataFailure){
                   Navigator.pop(context);
-                  Dialogs().showFailureDialog(context: context, content: "Đồng bộ Thất bại");
+                  Dialogs().showFailureDialog(context: context, content: '''Đồng bộ Thất bại
+                                                                            ${state.message} ''');
                 }
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
                 child: Material(
-                  color: const Color(0xffFF2B00),
+                  color: sync.nonSynchronized > 0 || sync.imageNonSynchronized > 0 ? const Color(0xffFF2B00) : Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(3)),
                   child: InkWell(
                     onTap: () {
@@ -207,7 +208,7 @@ class _SyncDataPageState extends State<SyncDataPage> {
                         'Đồng bộ',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
+                          color: sync.nonSynchronized > 0 || sync.imageNonSynchronized > 0 ? Colors.white : Colors.black,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

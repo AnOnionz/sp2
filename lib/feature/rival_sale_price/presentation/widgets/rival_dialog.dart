@@ -48,23 +48,23 @@ class _RivalDialogState extends State<RivalDialog> {
           });
   }
 
-  void _search() {
-    if (_controller.text.isNotEmpty) {
-      final result = fuzzy.search(_controller.text);
-      print(result.map((e) => e.item).toList());
-      List<RivalProductEntity> resultList = [];
-      setState(() {
-        final list = local
-            .fetchRivalProduct()
-            .where((element) => element.imgUrl == "https://sptt21.imark.vn/")
-            .toList();
-        for (final r in result) {
-          resultList.add(list.firstWhere((element) => element.name == r.item));
-        }
-        rivalsOther = resultList;
-      });
-    }
-  }
+//  void _search() {
+//    if (_controller.text.isNotEmpty) {
+//      final result = fuzzy.search(_controller.text);
+//      print(result.map((e) => e.item).toList());
+//      List<RivalProductEntity> resultList = [];
+//      setState(() {
+//        final list = local
+//            .fetchRivalProduct()
+//            .where((element) => element.imgUrl == "https://sptt21.imark.vn/")
+//            .toList();
+//        for (final r in result) {
+//          resultList.add(list.firstWhere((element) => element.name == r.item));
+//        }
+//        rivalsOther = resultList;
+//      });
+//    }
+//  }
 
   @override
   Widget build(BuildContext context) {

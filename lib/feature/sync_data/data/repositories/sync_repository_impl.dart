@@ -37,12 +37,14 @@ class SyncRepositoryImpl implements SyncRepository {
     if (await networkInfo.isConnected) {
       try {
         await sendRequirementRepository.syncRequirement();
-        await receiveGiftRepository.syncReceiveGift();
         await rivalSalePriceRepository.syncRivalSalePrice();
         await salePriceRepository.syncSalePrice();
         await inventoryRepository.syncInventory();
         await highlightRepository.syncHighlight();
-        //local.setSync();
+        await receiveGiftRepository.syncReceiveGift();
+        if(! await hasDataNonSync){
+          local.setSync();
+        }
         return Right(true);
       } on UnAuthenticateException catch (_) {
         return Left(UnAuthenticateFailure());

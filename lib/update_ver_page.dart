@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ota_update/ota_update.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
+import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sp_2021/feature/setting/domain/entities/update_entity.dart';
 import 'package:sp_2021/feature/setting/presentation/blocs/setting_bloc.dart';
 import 'package:ext_storage/ext_storage.dart';
 
 import 'di.dart';
+
 
 class UpdateVerPage extends StatefulWidget {
   @override
@@ -25,6 +28,7 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
   @override
   void initState() {
     super.initState();
+    packageInfo = MyPackageInfo.packageInfo;
   }
 
   Future<void> tryOtaUpdate(UpdateEntity updateEntity) async {
@@ -36,9 +40,7 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
       var path = await ExtStorage.getExternalStoragePublicDirectory(
           ExtStorage.DIRECTORY_DOWNLOADS);
       File oldVersion = File('$path/$fileName');
-      if (oldVersion.existsSync()) {
-        await oldVersion.delete();
-      }
+      if (oldVersion.existsSync()) {await oldVersion.delete();}
       //LINK CONTAINS APK OF FLUTTER HELLO WORLD FROM FLUTTER SDK EXAMPLES
       OtaUpdate()
           .execute(
@@ -46,14 +48,14 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
         destinationFilename: fileName,
       )
           .listen(
-        (OtaEvent event) {
+            (OtaEvent event) {
           setState(() => currentEvent = event);
           if (event.status == OtaStatus.DOWNLOADING) {
             setState(() {
               percent = double.parse(
                   (int.parse(event.value) / 100).toStringAsFixed(1));
             });
-          } else {
+          }else{
             setState(() {
               _enable = true;
             });
@@ -72,102 +74,92 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-            child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: const AssetImage("assets/images/background.png"),
-                    fit: BoxFit.cover,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: const AssetImage("assets/images/background.png"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: BlocProvider<SettingBloc>(
+              create: (_) => sl<SettingBloc>(),
+              child: Column(
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
+                      child: const Text(
+                        'CÀI ĐẶT',
+                        style: header,
+                      ),
+                    ),
                   ),
-                ),
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                child: BlocProvider<SettingBloc>(
-                  create: (_) => sl<SettingBloc>(),
-                  child: BlocListener<SettingBloc, SettingState>(
-                    listener: (context, state) {
-                      if (state is SettingLoaded) {
-                        setState(() {
-                          packageInfo = state.packageInfo;
-                        });
-                      }
-                    },
-                    child: Builder(
-                      builder: (_) => packageInfo != null
-                          ? Column(
-                              children: <Widget>[
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    padding: EdgeInsets.fromLTRB(0, 35, 0, 20),
-                                    child: const Text(
-                                      'CÀI ĐẶT',
-                                      style: header,
-                                    ),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 18.0, bottom: 18.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Ứng dụng",
+                                    style: Subtitle1white,
                                   ),
-                                ),
-                                Expanded(
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 18.0, bottom: 18.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Ứng dụng",
-                                              style: Subtitle1white,
-                                            ),
-                                            Text(
-                                              packageInfo.appName,
-                                              style: Subtitle1white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        color: Colors.white,
-                                        height: 1,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 18.0, bottom: 18.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Phiên bản",
-                                              style: Subtitle1white,
-                                            ),
-                                            Text(
-                                              packageInfo.version,
-                                              style: Subtitle1white,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        color: Colors.white,
-                                        height: 1,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 18.0, bottom: 25.0),
-                                        child: Text(
-                                          "Ứng dụng được phát triển bởi IMARK",
-                                          style: Subtitle1white,
-                                        ),
-                                      ),
-                                      Container(
-                                        color: Colors.white,
-                                        height: 1,
-                                      ),
+                                  Text(
+                                    packageInfo.appName,
+                                    style: Subtitle1white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.white,
+                              height: 1,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 18.0, bottom: 18.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Phiên bản",
+                                    style: Subtitle1white,
+                                  ),
+                                  Text(
+                                    packageInfo.version,
+                                    style: Subtitle1white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              color: Colors.white,
+                              height: 1,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 18.0, bottom: 25.0),
+                              child: Text(
+                                "Ứng dụng được phát triển bởi IMARK",
+                                style: Subtitle1white,
+                              ),
+                            ),
+                            Container(
+                              color: Colors.white,
+                              height: 1,
+                            ),
                                       BlocBuilder<SettingBloc, SettingState>(
                                         builder: (context, state) {
-                                          if (state is RequireUpdateApp &&
+                                          if (state is RequireUpdateApp && state.updateEntity !=null &&
                                               (int.parse(packageInfo.version.toString().replaceAll(".", ""))) <
                                                   int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
@@ -182,9 +174,7 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
                                                     "Bản cập nhật ${state.updateEntity.version}",
                                                     style: Subtitle1white,
                                                   ),
-                                                  !_enable &&
-                                                          currentEvent !=
-                                                              null &&
+                                                  !_enable && currentEvent !=null &&
                                                           currentEvent.status ==
                                                               OtaStatus
                                                                   .DOWNLOADING
@@ -229,36 +219,24 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
                                                             ],
                                                           ),
                                                         )
-                                                      : !_enable &&
-                                                              currentEvent !=
-                                                                  null
-                                                          ? Text(
-                                                              "Đang chờ...",
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .blue,
-                                                                  fontSize: 17),
-                                                            )
-                                                          : IconButton(
-                                                              icon: Icon(
-                                                                Icons
-                                                                    .download_sharp,
-                                                                color: Colors
-                                                                    .lightBlueAccent,
-                                                                size: 25,
-                                                              ),
-                                                              onPressed: _enable
-                                                                  ? () {
-                                                                      tryOtaUpdate(
-                                                                          state
-                                                                              .updateEntity);
-                                                                    }
-                                                                  : () {})
+                                                      : IconButton(
+                                                          icon: Icon(
+                                                            Icons
+                                                                .download_sharp,
+                                                            color: Colors
+                                                                .lightBlueAccent,
+                                                            size: 25,
+                                                          ),
+                                                          onPressed: _enable ? ()  {
+                                                           // await sl<LoginRemoteDataSource>().logout();
+                                                            tryOtaUpdate(state
+                                                                .updateEntity);
+                                                          } : (){})
                                                 ],
                                               ),
                                             );
                                           }
-                                          if (state is RequireUpdateApp &&
+                                          if (state is RequireUpdateApp && state.updateEntity != null &&
                                               (int.parse(packageInfo.version.toString().replaceAll(".", ""))) ==
                                                   int.parse(state.updateEntity.version.toString().replaceAll(".", ""))) {
                                             return Padding(
@@ -266,24 +244,23 @@ class _UpdateVerPageState extends State<UpdateVerPage> {
                                                     top: 18.0, bottom: 18.0),
                                                 child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                     children: [
                                                       Text(
                                                         "Đây là phiên bản mới nhất",
                                                         style: Subtitle1white,
-                                                      ),
-                                                    ]));
+                                                      ),]));
                                           }
                                           return Container();
                                         },
                                       ),
-                                    ])),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ),
-                ))));
+                          ])),
+                ],
+              ),
+
+            ),
+          ),
+        ));
   }
 }

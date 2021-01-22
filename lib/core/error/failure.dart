@@ -33,7 +33,7 @@ class InventoryNullFailure extends Failure{
 
 // ignore: must_be_immutable
 class InternalFailure extends Failure{
-  InternalFailure(): super("Máy chủ đang gặp sự cố ");
+  InternalFailure(): super("Đã xảy ra lỗi ngoài ý muốn");
 
 }
 // ignore: must_be_immutable
@@ -56,7 +56,7 @@ class HasSyncFailure extends Failure{
 }
 // ignore: must_be_immutable
 class InternetFailure extends Failure{
-  InternetFailure() : super("Vui lòng kiểm tra kết nối mạng");
+  InternetFailure() : super("Kết nối mạng không ổn định, vui lòng kiểm tra lại");
 }
 // ignore: must_be_immutable
 class SetOverFailure extends Failure{

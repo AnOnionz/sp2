@@ -39,7 +39,6 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final gift =
         [...widget.giftReceived, ...widget.giftSBReceived][widget.giftAt];
     return Scaffold(

@@ -23,7 +23,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  TextEditingController ctlUserName = !kDebugMode ? TextEditingController() : TextEditingController(text: 'sp');
+  TextEditingController ctlUserName = !kDebugMode ? TextEditingController() : TextEditingController(text: 'IMARK_SP_4002');
   TextEditingController passWordController = !kDebugMode ? TextEditingController() : TextEditingController(text: '123456');
   bool _obscureText = true;
   final focus = FocusNode();
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                       Container(
                         padding: EdgeInsets.fromLTRB(70, 50, 70, 50),
                         child: const Text(
-                          'SP 2021',
+                          'SP TOFT 2021',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,

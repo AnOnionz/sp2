@@ -22,7 +22,7 @@ class OutletInfo extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Outlet code : ${outlet.id}", style: infoOutletSubtext,),
+                "Mã cửa hàng : ${outlet.code}", style: infoOutletSubtext,),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -32,11 +32,11 @@ class OutletInfo extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                  "Tên SP : ${outlet.spName}", style: infoOutletSubtext),
+                  "Tên nhân viên : ${outlet.spName}", style: infoOutletSubtext),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("SĐT SP : ${outlet.spSDT}", style: infoOutletSubtext),
+              child: Text("SĐT nhân viên : ${outlet.spSDT}", style: infoOutletSubtext),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

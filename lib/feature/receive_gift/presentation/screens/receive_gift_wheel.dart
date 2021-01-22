@@ -67,7 +67,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
           setState(() {
             doAnimation = false;
           });
-          await Future.delayed(Duration(milliseconds: 1111));
+          await Future.delayed(Duration(milliseconds: 1000));
           setState(() {
             _indexGift = _calIndex(_ani.value * _angle + _current);
             print('index at $_indexGift');

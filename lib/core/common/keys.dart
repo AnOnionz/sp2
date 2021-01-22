@@ -2,6 +2,7 @@ const String OUTLET_IN_STORAGE = "Outlet";
 const String IS_CHANGE_SET = "isChangeSet";
 const String KPI = "Kpi";
 const String TODAY = "Today";
+const String VERSION = "Version";
 const String STATE_IN_STORAGE = "StateInStorage";
 const String SYNC_DATA_IN_STORAGE = "SyncData";
 const String DATA_DAY = "DataDay";

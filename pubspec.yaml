@@ -1,9 +1,9 @@
 name: sp_2021
-description: SP TOFT
+description: SP TOFT 2021
 
 publish_to: 'none'
 
-version: 1.1.0+4
+version: 2.0.2+12
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

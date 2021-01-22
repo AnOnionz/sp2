@@ -23,14 +23,14 @@ class LoginEntity extends Equatable {
     'code': code ,
     'access_token' : accessToken ,
     'address' : address ,
-    'sr_name' : spName ,
-    'sr_phone' : spSDT ,
-    'turn': turn ,
+    'sp_name' : spName ,
+    'sp_phone' : spSDT ,
+    'turns': turn ,
     'begin_working' : begin,
     'end_working': end,
-    'province' : province ,
-    'start_promotion':startPromotion,
-    'end_promotion':endPromotion,
+    'province_name' : province ,
+    'start_promotion_day':startPromotion,
+    'end_promotion_day':endPromotion,
   };
 
   @override

@@ -1,17 +1,20 @@
+import 'dart:io';
 import 'package:animate_do/animate_do.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:ota_update/ota_update.dart';
 import 'package:sp_2021/core/platform/notify.dart';
+import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
 import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/domain/usecases/save_to_local_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/highlight/presentation/screens/highlight_page.dart';
-import 'package:sp_2021/feature/new_domain_page.dart';
 import 'package:sp_2021/feature/notification/domain/entities/fcm_entity.dart';
 import 'package:sp_2021/feature/receive_gift/presentation/screens/receive_gift_page.dart';
 import 'package:sp_2021/feature/rival_sale_price/presentation/screens/rival_sale_price_page.dart';
@@ -21,7 +24,6 @@ import 'package:sp_2021/update_ver_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'core/common/text_styles.dart';
-import 'core/platform/date_time.dart';
 import 'di.dart';
 import 'feature/attendance/domain/entities/attendance_type.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
@@ -31,6 +33,8 @@ import 'feature/login/presentation/blocs/authentication_bloc.dart';
 import 'feature/dashboard/presentation/screens/dashboard.dart';
 import 'feature/login/presentation/screens/login_page.dart';
 import 'feature/notification/data/datasources/notification_local_data_source.dart';
+import 'feature/setting/domain/entities/update_entity.dart';
+import 'feature/setting/domain/usecases/setting_usecase.dart';
 
 class MyApplication extends StatefulWidget {
 
@@ -42,6 +46,7 @@ class MyApplication extends StatefulWidget {
 
 class _MyApplicationState extends State<MyApplication> {
   String _deviceToken;
+  SettingUseCase checkVersion;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final globalKey = GlobalKey<NavigatorState>();
   Future<String> _getDeviceToken() async {
@@ -56,9 +61,11 @@ class _MyApplicationState extends State<MyApplication> {
   @override
   void initState() {
     super.initState();
+    sl<CDio>().setHeader(int.parse(MyPackageInfo.packageInfo.version.toString().replaceAll('.', '')));
     _getDeviceToken();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
+        print(message);
         FcmEntity fcm = FcmEntity(
           title: '${message['notification']['title']}',
           body: '${message['notification']['body']}',
@@ -97,17 +104,23 @@ class _MyApplicationState extends State<MyApplication> {
     );
     _firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
+    checkVersion = sl<SettingUseCase>();
   }
   _saveFcmToLocal(FcmEntity fcm) async {
     await sl<NotificationLocalDataSource>().cacheNotification(fcm: fcm);
   }
-  _generateRouteWhenReceiveMessage(FcmEntity fcm){
+  _generateRouteWhenReceiveMessage(FcmEntity fcm) async {
     if(fcm.tab != null){
-      sl<TabBloc>().add(TabPressed(index: fcm.tab));
       if(fcm.tab == 6){
         sl<SaveDataToLocalUseCase>()(NoParams());
+        return;
       }
-      return;
+      if(fcm.tab == 7){
+        final version = await checkVersion(NoParams());
+        version.fold((l) => null, (r) => int.parse(r.version.toString().replaceAll(".", "")) > int.parse(MyPackageInfo.packageInfo.version.toString().replaceAll(".", "")) ? tryOtaUpdate(r) : null);
+        return;
+      }
+      sl<TabBloc>().add(TabPressed(index: fcm.tab));
     }
     if(fcm.screen != null){
       globalKey.currentState.pushNamed(fcm.screen);
@@ -115,6 +128,26 @@ class _MyApplicationState extends State<MyApplication> {
     }
     sl<TabBloc>().add(TabPressed(index: 4));
 
+  }
+
+  Future<void> tryOtaUpdate(UpdateEntity updateEntity) async {
+    final fileName = 'SpTOft2021_V1.apk';
+    try {
+      var path = await ExtStorage.getExternalStoragePublicDirectory(
+          ExtStorage.DIRECTORY_DOWNLOADS);
+      File oldVersion = File('$path/$fileName');
+      if (oldVersion.existsSync()) {
+        await oldVersion.delete();
+      }
+      //LINK CONTAINS APK OF FLUTTER HELLO WORLD FROM FLUTTER SDK EXAMPLES
+      OtaUpdate()
+          .execute(
+        updateEntity.url,
+        destinationFilename: fileName,
+      );
+    } catch (e) {
+      print('Failed to make OTA update. Details: $e');
+    }
   }
   @override
   void dispose() {
@@ -155,13 +188,6 @@ class _MyApplicationState extends State<MyApplication> {
               BlocProvider<MapBloc>(create: (_) => sl<MapBloc>()),
               BlocProvider<DashboardBloc>( create: (_) => sl<DashboardBloc>()),
               BlocProvider<TabBloc>( create: (_) => sl<TabBloc>()),
-
-//              BlocProvider<SalePriceBloc>( create: (_) => sl<SalePriceBloc>()),
-//              BlocProvider<RivalSalePriceBloc>( create: (_) => sl<RivalSalePriceBloc>()),
-//              BlocProvider<SyncDataBloc>( create: (_) => sl<SyncDataBloc>()),
-//              BlocProvider<SendRequirementBloc>( create: (_) => sl<SendRequirementBloc>()),
-//              BlocProvider<ReceiveGiftBloc>( create: (_) => sl<ReceiveGiftBloc>()),
-//              BlocProvider<InventoryBloc>( create: (_) => sl<InventoryBloc>()),
             ],
             child: BlocListener<AuthenticationBloc, AuthenticationState>(
                 listener: (context, state) {
@@ -170,24 +196,27 @@ class _MyApplicationState extends State<MyApplication> {
                       context: context,
                       barrierDismissible: false,
                       builder: (BuildContext context) {
-                        return ZoomIn(
-                          duration: Duration(milliseconds: 100),
-                          child: CupertinoAlertDialog(
-                            title: Text('Thông báo'),
-                            content: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text("Phiên đăng nhập đã hết hạn", style: Subtitle1black,),
-                            ),
-                            actions: <Widget>[
-                              CupertinoDialogAction(
-                                isDefaultAction: true,
-                                child: Text('Đăng nhập'),
-                                onPressed: () {
-                                  List.generate(state.willPop, (index) => Navigator.pop(context));
-                                  sl<AuthenticationBloc>().add(LoggedOut());
-                                },
+                        return WillPopScope(
+                          onWillPop: () async => false,
+                          child: ZoomIn(
+                            duration: Duration(milliseconds: 100),
+                            child: CupertinoAlertDialog(
+                              title: Text('Thông báo'),
+                              content: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text("Phiên đăng nhập đã hết hạn", style: Subtitle1black,),
                               ),
-                            ],
+                              actions: <Widget>[
+                                CupertinoDialogAction(
+                                  isDefaultAction: true,
+                                  child: Text('Đăng nhập'),
+                                  onPressed: () {
+                                    List.generate(state.willPop, (index) => Navigator.pop(context));
+                                    sl<AuthenticationBloc>().add(LoggedOut());
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -207,7 +236,7 @@ class _MyApplicationState extends State<MyApplication> {
                     }
                     if (state is AuthenticationAuthenticated) {
                       sl<CDio>().setBearerAuth(state.outlet.accessToken);
-                      if(! sl<DashBoardLocalDataSource>().dataToday.checkIn)
+                      if(!sl<DashBoardLocalDataSource>().dataToday.checkIn)
                       sl<AttendanceRemoteDataSource>().checkSP().then((value)
                       {
                         if(value is CheckOut){

@@ -12,7 +12,7 @@ class CustomerGiftEntity extends Equatable with HiveObject{
   @HiveField(0)
   final String outletCode;
   @HiveField(1)
-  final CustomerEntity customer;
+  CustomerEntity customer;
   @HiveField(2)
   final List<dynamic> products;
   @HiveField(3)

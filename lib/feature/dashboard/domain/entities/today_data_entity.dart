@@ -5,6 +5,7 @@ import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart'
 part 'today_data_entity.g.dart';
 
 @HiveType(typeId: 15)
+// ignore: must_be_immutable
 class DataTodayEntity extends Equatable with HiveObject {
   @HiveField(0)
   bool checkIn;

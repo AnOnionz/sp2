@@ -5,43 +5,32 @@ abstract class ReceiveGiftState {
   ReceiveGiftState();
   Map<String, dynamic> toJson();
 
-  factory ReceiveGiftState.fromJson(Map<String, dynamic> json){
-    switch(json['name']){
-      case "now": return ReceiveGiftStateNow(
-          form: FormEntity.fromJson(json['form']),
-        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftAt: json['giftAt'],
-      );
-      case "result": return ReceiveGiftStateResult(
-
-      );
-      case "wheel": return ReceiveGiftStateNow(
-        form: FormEntity.fromJson(json['form']),
-        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftAt: json['giftAt'],
-      );
-      case "sbWheel": return ReceiveGiftStateNow(
-        form: FormEntity.fromJson(json['form']),
-        giftReceive:(jsonDecode(json['giftReceive']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftReceived:(jsonDecode(json['giftReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftSBReceived:(jsonDecode(json['giftSBReceived']) as List).map((e) => Gift.fromJson(e)).toList(),
-        giftAt: json['giftAt'],
-      );
+  factory ReceiveGiftState.fromJson(Map<String, dynamic> json) {
+    print(json['products']);
+        return ReceiveGiftStateResult(
+            receiveGiftEntity: ReceiveGiftEntity(
+          customer: CustomerEntity.fromJson(json['customer'] as Map<String, dynamic>),
+          voucher: json['voucher'] != null ? VoucherEntity.fromJson(json['voucher'] as Map<String, dynamic>) : null,
+          products: (json['products'] as List<dynamic>)
+              .map((e) => ProductEntity.fromJson(e as Map<String, dynamic>))
+              .toList(),
+          gifts: (json['gifts'] as List<dynamic>)
+              .map((e) => GiftEntity.fromJson(e as Map<String, dynamic>))
+              .toList(),
+          customerImage: (json['customerImage'] as List<dynamic>).map((e) => File(e)).toList() ?? [],
+          voucherReceived: json['voucherReceived'],
+        ));
     }
-    return null;
-  }
 }
+
 // useVoucher
-class UseVoucherLoading extends ReceiveGiftState{
+class UseVoucherLoading extends ReceiveGiftState {
   @override
   Map<String, dynamic> toJson() {
     return {};
   }
 }
+
 class UseVoucherSuccess extends ReceiveGiftState {
   final VoucherEntity voucher;
 
@@ -50,37 +39,36 @@ class UseVoucherSuccess extends ReceiveGiftState {
   Map<String, dynamic> toJson() {
     return {};
   }
-
 }
+
 class UseVoucherFailure extends ReceiveGiftState {
   @override
   Map<String, dynamic> toJson() {
     return {};
   }
-
 }
+
 // form
-class FormError extends ReceiveGiftState{
+class FormError extends ReceiveGiftState {
   final String message;
 
   FormError({this.message});
 
   @override
   Map<String, dynamic> toJson() {
-    return{};
+    return {};
   }
-
 }
-class NoImage extends ReceiveGiftState{
+
+class NoImage extends ReceiveGiftState {
   final String message;
 
   NoImage({this.message});
 
   @override
   Map<String, dynamic> toJson() {
-    return{};
+    return {};
   }
-
 }
 
 class ReceiveGiftFormStateInitial extends ReceiveGiftState {
@@ -110,7 +98,6 @@ class ReceiveGiftHandling extends ReceiveGiftState {
   Map<String, dynamic> toJson() {
     return form.toJson();
   }
-
 }
 
 class ReceiveGiftFailure extends ReceiveGiftState {
@@ -119,7 +106,7 @@ class ReceiveGiftFailure extends ReceiveGiftState {
   ReceiveGiftFailure({this.message});
 
   @override
-  Map<String,dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {};
   }
 }
@@ -132,11 +119,17 @@ class ReceiveGifShowTurn extends ReceiveGiftState {
   final SetGiftEntity setSBCurrent;
   final int type;
 
-  ReceiveGifShowTurn({this.type, this.setCurrent, this.setSBCurrent, this.form, this.gifts, this.message});
+  ReceiveGifShowTurn(
+      {this.type,
+      this.setCurrent,
+      this.setSBCurrent,
+      this.form,
+      this.gifts,
+      this.message});
 
   @override
-  Map<String,dynamic> toJson() {
-   return {};
+  Map<String, dynamic> toJson() {
+    return {};
   }
 
   @override
@@ -144,6 +137,7 @@ class ReceiveGifShowTurn extends ReceiveGiftState {
     return 'ReceiveGifShowTurn{form: $form, gifts: $gifts, message: $message, type: $type}';
   }
 }
+
 // GiftEntity
 class ReceiveGiftStateNow extends ReceiveGiftState {
   final FormEntity form;
@@ -152,7 +146,12 @@ class ReceiveGiftStateNow extends ReceiveGiftState {
   final List<GiftEntity> giftSBReceived;
   final int giftAt;
 
-  ReceiveGiftStateNow({this.form, this.giftReceive, this.giftReceived, this.giftSBReceived, this.giftAt});
+  ReceiveGiftStateNow(
+      {this.form,
+      this.giftReceive,
+      this.giftReceived,
+      this.giftSBReceived,
+      this.giftAt});
 
   @override
   Map<String, dynamic> toJson() {
@@ -161,14 +160,14 @@ class ReceiveGiftStateNow extends ReceiveGiftState {
       'form': form.toJson(),
       'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
       "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
-      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived':
+          jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
       'giftAt': giftAt,
     };
   }
-  factory ReceiveGiftStateNow.fromJson(Map<String, dynamic> json){
-    return ReceiveGiftStateNow(
 
-    );
+  factory ReceiveGiftStateNow.fromJson(Map<String, dynamic> json) {
+    return ReceiveGiftStateNow();
   }
 
   @override
@@ -186,17 +185,24 @@ class ReceiveGiftStateWheel extends ReceiveGiftState {
   final List<GiftEntity> giftSBReceived; // gift strong bow da nhan
   final int giftAt;
 
-  ReceiveGiftStateWheel({this.form, this.giftLucky, this.giftReceive, this.giftSBReceived, this.giftReceived, this.giftAt});
+  ReceiveGiftStateWheel(
+      {this.form,
+      this.giftLucky,
+      this.giftReceive,
+      this.giftSBReceived,
+      this.giftReceived,
+      this.giftAt});
 
   @override
   Map<String, dynamic> toJson() {
     return {
       'name': "Wheel",
       'form': form.toJson(),
-      'giftLucky': giftLucky.map((e)=> e.toJson()).toList(),
+      'giftLucky': giftLucky.map((e) => e.toJson()).toList(),
       'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
       "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
-      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived':
+          jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
       'giftAt': giftAt,
     };
   }
@@ -206,6 +212,7 @@ class ReceiveGiftStateWheel extends ReceiveGiftState {
     return 'ReceiveGiftStateWheel{form: $form, giftLucky: $giftLucky, giftReceive: $giftReceive, giftReceived: $giftReceived, giftSBReceived: $giftSBReceived, giftAt: $giftAt}';
   }
 }
+
 class ReceiveGiftStateSBWheel extends ReceiveGiftState {
   final FormEntity form;
   final List<GiftEntity> giftLucky; // gift se nhan trong vong quay
@@ -214,7 +221,13 @@ class ReceiveGiftStateSBWheel extends ReceiveGiftState {
   final List<GiftEntity> giftSBReceived; // gift strong bow da nhan
   final int giftAt;
 
-  ReceiveGiftStateSBWheel({this.form, this.giftLucky, this.giftReceive, this.giftSBReceived, this.giftReceived, this.giftAt});
+  ReceiveGiftStateSBWheel(
+      {this.form,
+      this.giftLucky,
+      this.giftReceive,
+      this.giftSBReceived,
+      this.giftReceived,
+      this.giftAt});
 
   @override
   Map<String, dynamic> toJson() {
@@ -224,7 +237,8 @@ class ReceiveGiftStateSBWheel extends ReceiveGiftState {
       'giftLucky': giftLucky.map((e) => e.toJson()).toList(),
       'giftReceive': jsonEncode(giftReceive.map((e) => e.toJson()).toList()),
       "giftReceived": jsonEncode(giftReceived.map((e) => e.toJson()).toList()),
-      'giftSBReceived': jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
+      'giftSBReceived':
+          jsonEncode(giftSBReceived.map((e) => e.toJson()).toList()),
       'giftAt': giftAt,
     };
   }
@@ -255,9 +269,10 @@ class ReceiveGiftStateResult extends ReceiveGiftState {
 class ReceiveGiftNotCondition extends ReceiveGiftState {
   @override
   Map<String, dynamic> toJson() {
-   return {};
+    return {};
   }
 }
+
 class ReceiveGiftInLastSet extends ReceiveGiftState {
   final String message;
 
@@ -266,19 +281,16 @@ class ReceiveGiftInLastSet extends ReceiveGiftState {
   Map<String, dynamic> toJson() {
     throw UnimplementedError();
   }
-
 }
+
 class ReceiveGiftOutRange extends ReceiveGiftState {
   final String message;
 
   ReceiveGiftOutRange({this.message});
 
   @override
-  Map<String, dynamic > toJson() {
+  Map<String, dynamic> toJson() {
     // TODO: implement toJson
     throw UnimplementedError();
   }
-
-
-
 }

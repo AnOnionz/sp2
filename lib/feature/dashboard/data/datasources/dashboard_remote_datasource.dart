@@ -31,16 +31,12 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
 
     Response _resp = await cDio.getResponse(path: 'home/gift');
 
-    print(_resp);
-
     return  (_resp.data['data'] as List<dynamic>).map((e) => GiftEntity.fromJson(e)).toList();
   }
   @override
   Future<List<GiftEntity>> fetchGiftStrongbow() async {
 
     Response _resp = await cDio.getResponse(path: 'home/gift-strongbow');
-
-    print(_resp);
 
     return  (_resp.data['data'] as List<dynamic>).map((e) => GiftEntity.fromJson(e)).toList();
   }
@@ -50,8 +46,6 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
 
     Response _resp = await cDio.getResponse(path: 'home/product');
 
-    print(_resp);
-
     return  (_resp.data['data'] as List<dynamic>).map((e) => ProductEntity.fromJson(e)).toList();
   }
 
@@ -60,35 +54,32 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
 
     Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift');
 
-    print(_resp);
-
     return (_resp.data['data'] as List<dynamic>).map((e) => SetGiftEntity.fromJson(e)).toList();
 
   }
 
   @override
   Future<SetGiftEntity> fetchSetGiftCurrent() async {
-    Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift-current');
 
-    print(_resp);
+    Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift-current');
 
     return SetGiftEntity.fromJson(_resp.data['data']);
   }
 
   @override
   Future<List<RivalProductEntity>> fetchRivalProduct() async{
+
     Response _resp = await cDio.getResponse(path: 'home/rival-product');
 
-    print(_resp);
 
     return (_resp.data['data'] as List<dynamic>).map((e) => RivalProductEntity.fromJson(e)).toList();
   }
 
   @override
   Future<List<SetGiftEntity>> fetchSBSetGift() async {
+
     Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift-strongbow');
 
-    print(_resp);
 
     return _resp.data['data'] !=null ?  (_resp.data['data'] as List<dynamic>).map((e) => SetGiftEntity.fromJson(e)).toList() : [];
 
@@ -96,9 +87,8 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
 
   @override
   Future<SetGiftEntity> fetchSetGiftSBCurrent() async {
-    Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift-strongbow-current');
 
-    print(_resp);
+    Response _resp = await cDio.getResponse(path: 'home/outlet-set-gift-strongbow-current');
 
     return SetGiftEntity.fromJson(_resp.data['data']);
   }
@@ -107,6 +97,7 @@ class DashBoardRemoteDataSourceImpl implements DashBoardRemoteDataSource {
   @override
   Future<KpiEntity> fetchKpi() async {
     Response _resp = await cDio.getResponse(path: '/home/kpi');
+
     return KpiEntity.fromJson(_resp.data['data']);
   }
 

@@ -14,7 +14,9 @@ abstract class SyncLocalDataSource{
   Future<void> removeSync({int type, int value});
 }
 class SyncLocalDataSourceImpl implements SyncLocalDataSource{
+  // ignore: close_sinks
   StreamController<int> _streamController = StreamController<int>.broadcast();
+
   @override
   SyncEntity getSync() {
     Box<SyncEntity> box = Hive.box<SyncEntity>(AuthenticationBloc.outlet.id.toString() + SYNC_BOX);

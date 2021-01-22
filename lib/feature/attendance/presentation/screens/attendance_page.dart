@@ -9,7 +9,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sp_2021/core/common/colors.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
-import 'package:sp_2021/core/platform/date_time.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
@@ -18,7 +17,9 @@ import 'package:sp_2021/feature/attendance/presentation/blocs/attendance_bloc.da
 import 'package:sp_2021/feature/attendance/presentation/blocs/map_bloc.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/img_button.dart';
 import 'package:sp_2021/feature/attendance/presentation/widgets/preview_image_dialog.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/tab_bloc.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 
 import '../../../../di.dart';
 import '../../../../no_internet_page.dart';
@@ -69,6 +70,7 @@ class _AttendancePageState extends State<AttendancePage>
 
   @override
   Widget build(BuildContext context) {
+    print(int.parse('${DateTime.now().hour}${DateTime.now().minute}'));
     return Scaffold(
         body: StreamBuilder<DataConnectionStatus>(
             stream: networkInfo.listener,
@@ -175,8 +177,11 @@ class _AttendancePageState extends State<AttendancePage>
                             height: 130,
                             child: BlocListener<CheckAttendanceBloc,
                                     CheckAttendanceState>(
-                                listener: (context, checkState) {
-                                  if(checkState is EarlyTime){
+                                listener: (context, checkState) async {
+                                  if(checkState is CheckAttendanceSuccess){
+                                    final end = AuthenticationBloc.outlet.end !=null ? int.parse(AuthenticationBloc.outlet.end.toString().replaceAll(":", "").replaceAll('h', '').replaceAll('H', '')): 0;
+                                    final now = int.parse('${DateTime.now().hour}${DateTime.now().minute}');
+                                   if(now < end && sl<DashBoardLocalDataSource>().dataToday.checkIn)
                                         showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
@@ -408,7 +413,6 @@ class _AttendancePageState extends State<AttendancePage>
                                               context: context,
                                               content: state.error,
                                               reTry: () {
-                                                Navigator.pop(context);
                                                 BlocProvider.of<
                                                     AttendanceBloc>(
                                                     context)
@@ -538,96 +542,114 @@ class _AttendancePageState extends State<AttendancePage>
                                                     ),
                                                   ));
                                             }
-                                            return Material(
-                                              color: checkState.type is CheckIn
-                                                  ? Color(0xFF008319)
-                                                  : Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              child: InkWell(
-                                                onTap: () async {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(
-                                                          FocusNode());
-                                                  if (_image == null) {
-                                                    await showDialog(
-                                                        context: context,
-                                                        barrierDismissible:
-                                                            false,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return ZoomIn(
-                                                            delay: Duration(
-                                                                milliseconds:
-                                                                    100),
-                                                            child:
-                                                                CupertinoAlertDialog(
-                                                              title: Text(
-                                                                  "Hình ảnh trống"),
-                                                              content: Text(
-                                                                "Bạn phải chụp ảnh để tiếp tục chấm công",
-                                                                style:
-                                                                    Subtitle1black,
-                                                              ),
-                                                              actions: [
-                                                                CupertinoDialogAction(
-                                                                    isDefaultAction:
-                                                                        true,
-                                                                    textStyle: TextStyle(
-                                                                        color: Colors
-                                                                            .red),
-                                                                    onPressed:
-                                                                        () {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    },
-                                                                    child: Text(
-                                                                        "Đóng")),
-                                                                CupertinoDialogAction(
-                                                                    isDefaultAction:
-                                                                        true,
-                                                                    onPressed:
-                                                                        () {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      getImage();
-                                                                    },
-                                                                    child: Text(
-                                                                      "Chụp hình",
-                                                                    )),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        });
-                                                    return;
-                                                  }
-                                                  BlocProvider.of<
-                                                              AttendanceBloc>(
-                                                          context)
-                                                      .add(
-                                                          Attendance(
-                                                              type: checkState
-                                                                  .type.value,
-                                                              position: MapBloc
-                                                                  .position,
-                                                              img: _image));
-                                                },
-                                                borderRadius:
+                                            return BlocBuilder<MapBloc,
+                                                MapState>(
+                                              builder:
+                                                  (context, state) {
+                                                if (state is MapLoaded) {
+                                                  return Material(
+                                                    color: checkState.type is CheckIn
+                                                        ? Color(0xFF008319)
+                                                        : Colors.red,
+                                                    borderRadius:
                                                     BorderRadius.circular(5),
-                                                child: Container(
+                                                    child: InkWell(
+                                                      onTap: () async {
+                                                        FocusScope.of(context)
+                                                            .requestFocus(
+                                                            FocusNode());
+                                                        if (_image == null) {
+                                                          await showDialog(
+                                                              context: context,
+                                                              barrierDismissible:
+                                                              false,
+                                                              builder: (BuildContext
+                                                              context) {
+                                                                return ZoomIn(
+                                                                  delay: Duration(
+                                                                      milliseconds:
+                                                                      100),
+                                                                  child:
+                                                                  CupertinoAlertDialog(
+                                                                    title: Text(
+                                                                        "Hình ảnh trống"),
+                                                                    content: Text(
+                                                                      "Bạn phải chụp ảnh để tiếp tục chấm công",
+                                                                      style:
+                                                                      Subtitle1black,
+                                                                    ),
+                                                                    actions: [
+                                                                      CupertinoDialogAction(
+                                                                          isDefaultAction:
+                                                                          true,
+                                                                          textStyle: TextStyle(
+                                                                              color: Colors
+                                                                                  .red),
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.pop(
+                                                                                context);
+                                                                          },
+                                                                          child: Text(
+                                                                              "Đóng")),
+                                                                      CupertinoDialogAction(
+                                                                          isDefaultAction:
+                                                                          true,
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.pop(
+                                                                                context);
+                                                                            getImage();
+                                                                          },
+                                                                          child: Text(
+                                                                            "Chụp hình",
+                                                                          )),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              });
+                                                          return;
+                                                        }
+                                                        BlocProvider.of<
+                                                            AttendanceBloc>(
+                                                            context)
+                                                            .add(
+                                                            Attendance(
+                                                                type: checkState
+                                                                    .type.value,
+                                                                position: MapBloc
+                                                                    .position,
+                                                                img: _image));
+                                                      },
+                                                      borderRadius:
+                                                      BorderRadius.circular(5),
+                                                      child: Container(
+                                                        height: 45,
+                                                        width: double.infinity,
+                                                        alignment: Alignment.center,
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                            BorderRadius.circular(
+                                                                5)),
+                                                        child: Text(
+                                                          checkState.type.name,
+                                                          style: notiTitle,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                return Container(
                                                   height: 45,
                                                   width: double.infinity,
                                                   alignment: Alignment.center,
                                                   decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  child: Text(
-                                                    checkState.type.name,
-                                                    style: notiTitle,
+                                                    color: Colors.black26,
+                                                    borderRadius:
+                                                    BorderRadius.circular(5),
                                                   ),
-                                                ),
-                                              ),
+                                                );
+                                              },
                                             );
                                           },
                                         ),

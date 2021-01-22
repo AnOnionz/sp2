@@ -107,7 +107,11 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        FocusScopeNode currentFocus = FocusScope.of(context);
+
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
       },
       child: Scaffold(
         key: _scaffoldKey,
@@ -120,7 +124,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
               ),
             ),
             padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: _form.products.isEmpty || local.fetchSetGiftCurrent() == null
+            child: _form.products.isEmpty || local.fetchSetGiftCurrent() == null || local.fetchSetGift().isEmpty
                 ? Stack(
                   children: [
                     Center(
@@ -229,6 +233,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                   onChanged: (gender value) {
                                                     setState(() {
                                                       sex = value;
+                                                      _form.customer.gender = "1";
                                                     });
                                                   },
                                                 ),
@@ -250,6 +255,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                   onChanged: (gender value) {
                                                     setState(() {
                                                       sex = value;
+                                                      _form.customer.gender = "2";
                                                     });
                                                   },
                                                 ),
@@ -376,6 +382,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                               is18: is18 == i18.yes,
                               products: _form.products,
                               nextFocus: voucherFocus,
+                              pContext: context,
                             ),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 15),
@@ -421,6 +428,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                   inputType: TextInputType.number,
                                                   inputFormatter: <
                                                       TextInputFormatter>[
+                                                    LengthLimitingTextInputFormatter(10),
                                                     FilteringTextInputFormatter
                                                         .digitsOnly,
                                                     FilteringTextInputFormatter
@@ -1102,13 +1110,13 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                             ),
                                                             InkWell(
                                                                 onTap:
-                                                                    () async {
-                                                                  BlocProvider.of<
-                                                                              ReceiveGiftBloc>(
-                                                                          context)
-                                                                      .add(ReceiveGiftOnlyBuyProducts(
-                                                                          form:
-                                                                              state.form));
+                                                                    () {
+//                                                                  BlocProvider.of<
+//                                                                              ReceiveGiftBloc>(
+//                                                                          context)
+//                                                                      .add(ReceiveGiftOnlyBuyProducts(
+//                                                                          form:
+//                                                                              state.form));
                                                                   Navigator.pop(
                                                                       context);
                                                                   Navigator.pop(
@@ -1180,6 +1188,42 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                           ? () async {
                                               FocusScope.of(context)
                                                   .requestFocus(FocusNode());
+                                              if(_form.products.any((element) => element is StrongBowPack6 && element.buyQty > 3)){
+                                                showDialog(
+                                                    context: context,
+                                                    barrierDismissible: false,
+                                                    builder: (_) {
+                                                      return WillPopScope(
+                                                        onWillPop: () async => false,
+                                                        child: ZoomIn(
+                                                          duration: const Duration(milliseconds: 100),
+                                                          child: CupertinoAlertDialog(
+                                                            title: Text("Thông báo"),
+                                                            content: Padding(
+                                                              padding: const EdgeInsets.all(8.0),
+                                                              child: Text(
+                                                                '''Số lượng lốc 6 lon Strongbow tối đa là 3
+                                                      Mỗi 4 lốc Strongbow được quy đổi thành 
+                                                      1 STRONGBOW THÙNG 
+                                                         Vui lòng quy đổi và nhập lại vào 
+                                                         ô STRONGBOW THÙNG phía trên.''',
+                                                                style: Subtitle1black,
+                                                              ),
+                                                            ),
+                                                            actions: [
+                                                              CupertinoDialogAction(
+                                                                child: Text("Đã hiểu"),
+                                                                onPressed:() {
+                                                                  Navigator.pop(context);
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    });
+                                                return ;
+                                              }
                                               BlocProvider.of<ReceiveGiftBloc>(
                                                       context)
                                                   .add(ReceiveGiftSubmitForm(

@@ -22,8 +22,6 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource{
 
   Response _resp = await cDio.postResponse(path: 'auth/login', data: _requestBody);
 
-  print(_resp);
-
   return LoginModel.fromJson(_resp.data['data']);
 
 }
@@ -31,8 +29,6 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource{
   Future<bool> logout() async {
 
     Response _resp = await cDio.getResponse(path:'home/logout');
-
-    print(_resp.statusCode);
 
     return _resp.data["success"];
 

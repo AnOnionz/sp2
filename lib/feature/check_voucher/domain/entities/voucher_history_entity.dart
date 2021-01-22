@@ -14,9 +14,9 @@ class VoucherHistoryEntity extends Equatable {
     return VoucherHistoryEntity(
         time: DateTime.fromMillisecondsSinceEpoch(json['used_at'] * 1000),
         qty: json['number_voucher'],
-        outletName: 'Cửa hàng Bình Lợi',//json['outlet']['name'],
-        address: 'Bình thạnh, Hồ Chí Minh' ,//json['outlet']['address'],
-        spName: 'Nguyễn Văn Thị');//json['outlet']['se_name']);
+        outletName: json['outlet_name'],
+        address: json['outlet_address'],
+        spName: json['sp_name']);
   }
   @override
   String toString() {

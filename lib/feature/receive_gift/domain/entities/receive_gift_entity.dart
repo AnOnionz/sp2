@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
@@ -36,21 +37,18 @@ class ReceiveGiftEntity {
     return {
       'name': "Result",
       'outletCode': outletCode,
-      'customer': customer.toJson(),
-      'products': products.map((e) => {"id": e.productId, "buyQty": e.buyQty}).toList(),
+      'customer': customer.toCacheJson(),
+      'products': products.map((e) => ({"id": e.productId, "buy": e.buyQty})).toList(),
+      'gifts': gifts.map((e) =>{'id': e.id, 'name': e.name, 'img_url': e.image, 'receive': e.amountReceive}).toList(),
       //'productImage': productImage.map((e) => {'id': e.path}).toList(),
-      'customerImage': customerImage.map((e) => {'id': e.path}).toList(),
+      'customerImage': customerImage.map((e) => e.path).toList(),
       'voucherReceived': voucherReceived,
-      'voucherPhone': voucher.phone,
-      'voucherQty': voucher.qty,
+//      'voucherPhone':  voucher != null ? voucher.phone : customer.phoneNumber,
+//      'voucherQty': voucher != null ? voucher.qty : 0 ,
+      'voucher': voucher == null ? null : voucher?.toJson()
     };
   }
 
-  factory ReceiveGiftEntity.fromJson(Map<String, dynamic> json) {
-    return ReceiveGiftEntity(
-
-    );
-  }
 
   @override
   String toString() {

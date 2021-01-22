@@ -13,12 +13,13 @@ abstract class NotificationLocalDataSource {
 
 }
 class NotificationLocalDataSourceImpl implements NotificationLocalDataSource{
+  // ignore: close_sinks
   StreamController<int> _controller = StreamController<int>.broadcast();
+
   @override
   Future<void> cacheNotification({FcmEntity fcm}) async {
    Box<FcmEntity> box = Hive.box<FcmEntity>(AuthenticationBloc.outlet.id.toString() + NOTIFICATION_BOX);
    await box.add(fcm);
-   print(box.values.toList());
    _controller.sink.add(numberOfNotify());
   }
   @override
