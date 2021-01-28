@@ -20,7 +20,7 @@ class LoginRepositoryImpl implements LoginRepository{
     if (await networkInfo.isConnected) {
       try {
         final loginEntity = await remoteDataSource.login(
-            username: username, password: password, deviceId: password);
+            username: username, password: password, deviceId: deviceId);
         return Right(loginEntity);
       } on InternetException catch(_){
         return Left(InternetFailure());

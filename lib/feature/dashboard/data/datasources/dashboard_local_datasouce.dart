@@ -40,7 +40,7 @@ abstract class DashBoardLocalDataSource {
   SetGiftEntity fetchNewSetGift(int index);
   SetGiftEntity fetchNewSBSetGift(int index);
   KpiEntity fetchKpi();
-  Future<void> updateKpi(int sell);
+  Future<void> updateKpi(List<dynamic> products);
   Future<void> cacheDataToday(
       {bool highLight, bool checkIn, bool checkOut, bool inventory,List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity});
   Future<void> cacheProducts({List<ProductEntity> products});
@@ -66,8 +66,6 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   DataTodayEntity get dataToday {
     Box<DataTodayEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
-//    final todayCached = sharedPrefer.getString(MyDateTime.today);
-//    print(todayCached);
     DataTodayEntity defaultData = DataTodayEntity(checkIn: false, checkOut: false, highLight: false, inventory: false, highlightCached: null, inventoryEntity: null, rivalSalePrice: null, salePrice: null);
     final result = box.get(MyDateTime.today ,defaultValue: defaultData);
     if (result == defaultData) {
@@ -173,7 +171,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
         setCurrent =  SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts.map((e) => e is Voucher ? e.setOver(): e).toList());
       }
     }else{
-      setCurrent = fetchNewSetGift(0);
+      setCurrent = fetchNewSetGift(1);
     }
     return setCurrent;
   }
@@ -185,7 +183,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     if (setCurrent != null) {
       setCurrent = SetGiftEntity(index: setCurrent.index, gifts: setCurrent.gifts);
     }else{
-      setCurrent = AuthenticationBloc.outlet.province =='HN_HCM' ? fetchNewSBSetGift(0) : null;
+      setCurrent = AuthenticationBloc.outlet.province =='HN_HCM' ? fetchNewSBSetGift(1) : null;
     }
     return setCurrent;
 
@@ -193,8 +191,9 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   SetGiftEntity fetchNewSetGift(int index) {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
-    SetGiftEntity set = box.get(index, defaultValue: null);
+    //Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_BOX);
+    final all = fetchSetGift();
+    SetGiftEntity set = all.firstWhere((element) => element.index == index, orElse: ()=> null);
     final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000)).toString();
     print("new set:$set");
     if(set != null) {
@@ -209,8 +208,9 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   SetGiftEntity fetchNewSBSetGift(int index) {
-    Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
-    SetGiftEntity set = box.get(index, defaultValue: null);
+    //Box<SetGiftEntity> box = Hive.box<SetGiftEntity>(AuthenticationBloc.outlet.id.toString() + SET_GIFT_STRONGBOW_BOX);
+    final all = fetchSBSetGift();
+    SetGiftEntity set = all.firstWhere((element) => element.index == index, orElse: ()=> null);
     print("new set:$set");
     if(set != null) {
       set = SetGiftEntity(index: set.index, gifts: set.gifts);
@@ -270,6 +270,9 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     if (box.isNotEmpty) {
       await box.clear();
     }
+    setGifts.sort((a, b) {
+      return a.index.compareTo(b.index);
+    });
     await box.addAll(setGifts);
     cacheChangedSet(false);
   }
@@ -279,6 +282,9 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     if (box.isNotEmpty) {
       await box.clear();
     }
+    setGifts.sort((a, b) {
+      return a.index.compareTo(b.index);
+    });
     await box.addAll(setGifts);
     cacheChangedSet(false);
   }
@@ -300,19 +306,21 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
 
   @override
   bool get isSetOver {
-    final setCurrent = fetchSetGiftCurrent();
+    SetGiftEntity setCurrent = fetchSetGiftCurrent();
+    print('b ${fetchSetGift().isEmpty}');
+    print('a ${setCurrent == null}');
+    if(fetchSetGift().isEmpty || setCurrent == null) return true;
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
-    return setCurrent.index == indexLast && sum == 0 ;
-
+    return setCurrent.index >= indexLast && sum == 0 ;
     }
   @override
   bool get isSetSBOver {
     SetGiftEntity setCurrent = fetchSetGiftSBCurrent();
-    if(setCurrent == null || fetchSBSetGift().isEmpty) return true;
+    if(fetchSBSetGift().isEmpty || setCurrent == null) return true;
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
-    return setCurrent.index == sbIndexLast && sum == 0;
+    return setCurrent.index >= sbIndexLast && sum == 0;
   }
 
   @override
@@ -343,13 +351,14 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   }
 
   @override
-  Future<void> updateKpi(int sell) {
+  Future<void> updateKpi(List<dynamic> products) {
     final kpiStr = sharedPrefer.getString(AuthenticationBloc.outlet.id.toString() + KPI);
     if(kpiStr != null){
       final kpi = KpiEntity.fromJson(jsonDecode(kpiStr));
-      final newKpi = KpiEntity(dayOf: kpi.dayOf, sell: kpi.sell + sell);
+      final all = products.fold(0, (previousValue, element) => previousValue + element['qty']);
+      final sb = products.firstWhere((element) => element['sku_id'] == 157, orElse: () => {'sku_id': 157, 'qty':0})['qty'];
+      final newKpi = KpiEntity(dayOf: kpi.dayOf, sell: kpi.sell + all - sb);
       cacheKpi(kpi: newKpi);
-      _streamController.sink.add(newKpi);
     }
   }
 

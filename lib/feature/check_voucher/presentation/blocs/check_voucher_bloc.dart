@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sp_2021/core/error/failure.dart';
+import 'package:sp_2021/feature/check_voucher/domain/entities/check_voucher_entity.dart';
 import 'package:sp_2021/feature/check_voucher/domain/entities/voucher_history_entity.dart';
 import 'package:sp_2021/feature/check_voucher/domain/usecases/check_voucher_usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
@@ -33,7 +34,7 @@ class CheckVoucherBloc extends Bloc<CheckVoucherEvent, CheckVoucherState> {
 }
 
 Stream<CheckVoucherState> _eitherHistoryToState(
-    Either<Failure, List<VoucherHistoryEntity>> either,
+    Either<Failure, CheckVoucherEntity> either,
     DashboardBloc dashboardBloc,
     AuthenticationBloc authenticationBloc) async* {
   yield either.fold((fail) {
@@ -50,5 +51,5 @@ Stream<CheckVoucherState> _eitherHistoryToState(
       return null;
     }
     return CheckVoucherFailure(message: fail.message);
-  }, (result) => CheckVoucherSuccess(history: result));
+  }, (result) => CheckVoucherSuccess(result: result));
 }

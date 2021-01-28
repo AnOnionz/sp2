@@ -13,7 +13,8 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource{
 
   @override
   Future<bool> uploadToServer(HighlightCacheEntity highlights) async {
-
+    print(highlights);
+    print(highlights.toJson());
     final _resp = await cDio.postResponse(path: 'home/highlight', data: FormData.fromMap(highlights.toJson()));
 
     return _resp.data['success'];

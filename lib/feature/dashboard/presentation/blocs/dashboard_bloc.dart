@@ -76,6 +76,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     if(event is RequireUpdateNewVersion){
       yield DashboardRequiredUpdate();
     }
+    if(event is ThrowFailure){
+     yield DashboardFailure(message: event.message, willPop: 0);
+    }
 
   }
 

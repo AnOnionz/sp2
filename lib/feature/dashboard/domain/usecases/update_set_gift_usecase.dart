@@ -16,6 +16,7 @@ class UpdateDataUseCase extends UseCase<bool, NoParams>{
       try {
         await repository.saveSetGiftFromServer();
         await repository.saveSetGiftSBFromServer();
+        await repository.saveKpiFromServer();
         return Right(true);
       } on InternetException catch (_) {
         return Left(InternetFailure());

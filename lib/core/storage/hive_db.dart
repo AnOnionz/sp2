@@ -47,7 +47,6 @@ import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
     await Hive.openBox<String>(AuthenticationBloc.outlet.id.toString() + SEND_REQUIREMENT);
     await Hive.openBox<SyncEntity>(AuthenticationBloc.outlet.id.toString() + SYNC_BOX);
     await Hive.openBox<DataTodayEntity>(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
-    print(MyDateTime.today);
     await Hive.openBox<CustomerEntity>(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);
 
   }

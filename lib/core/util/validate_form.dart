@@ -6,7 +6,7 @@ class ValidateForm {
 
   Future<Either<Failure, FormEntity>> validateForm(FormEntity form) async {
     // name
-    if(form.customer.name == null || form.customer.name.split('').where((element) {
+    if(form.customer.name == null || form.customer.name.replaceAll(" ", "") == '' || form.customer.name.split('').where((element) {
       if(element == "." || element == "," || element == "!" || element == "|" || element == "|" || element == "@" || element == "'" || element == "=" ||  element == "/" || element == "+" || element == "-" || element == "%" || element == "*" || element == "&") return true;
       return false;
     }).toList().length > 0 || form.customer.name == ""){

@@ -4,9 +4,9 @@ abstract class CheckVoucherState {}
 class CheckVoucherInitial extends CheckVoucherState{}
 class CheckVoucherLoading extends CheckVoucherState{}
 class CheckVoucherSuccess extends CheckVoucherState{
-  final List<VoucherHistoryEntity> history;
+  final CheckVoucherEntity result;
 
-  CheckVoucherSuccess({this.history});
+  CheckVoucherSuccess({this.result});
 }
 class CheckVoucherFailure extends CheckVoucherState{
   final String message;

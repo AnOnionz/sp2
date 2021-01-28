@@ -71,13 +71,14 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                           child: Column(
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 18.0, bottom: 38.0),
+                                padding: const EdgeInsets.only(
+                                    top: 18.0, bottom: 20.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(bottom: 10),
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10),
                                       child: Text(
                                         "Nhập SĐT",
                                         style: TextStyle(
@@ -96,15 +97,22 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                   "Nhập SĐT cần kiểm tra lịch sử",
                                               controller: _controller,
                                               onSubmit: (_) {
-                                                if (_controller.text.length != 10 ||
+                                                if (_controller.text.length !=
+                                                        10 ||
                                                     !RegExp(r'^0[^01]([0-9]+)')
-                                                        .hasMatch(_controller.text)) {
-                                                  _scaffoldKey.currentState.removeCurrentSnackBar();
-                                                  _scaffoldKey.currentState.showSnackBar(
+                                                        .hasMatch(
+                                                            _controller.text)) {
+                                                  _scaffoldKey.currentState
+                                                      .removeCurrentSnackBar();
+                                                  _scaffoldKey.currentState
+                                                      .showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                          'Số điện thoại không chính xác',style: Subtitle1white,),
-                                                      backgroundColor: Colors.red,
+                                                        'Số điện thoại không chính xác',
+                                                        style: Subtitle1white,
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red,
                                                     ),
                                                   );
                                                   return;
@@ -115,9 +123,17 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                               textCapitalization:
                                                   TextCapitalization.characters,
                                               action: TextInputAction.done,
-                                              inputFormatter: <TextInputFormatter>[LengthLimitingTextInputFormatter(10),FilteringTextInputFormatter.digitsOnly,FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
-                                              inputType:
-                                                  TextInputType.numberWithOptions(
+                                              inputFormatter: <
+                                                  TextInputFormatter>[
+                                                LengthLimitingTextInputFormatter(
+                                                    10),
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'[0-9]'))
+                                              ],
+                                              inputType: TextInputType
+                                                  .numberWithOptions(
                                                       decimal: false),
                                               textAlign: TextAlign.left,
                                             ),
@@ -137,11 +153,13 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue,
                                                   borderRadius:
-                                                      BorderRadius.circular(5.0),
+                                                      BorderRadius.circular(
+                                                          5.0),
                                                 ),
                                                 child: Center(
-                                                  child: CupertinoActivityIndicator(),
-                                                  ),
+                                                  child:
+                                                      CupertinoActivityIndicator(),
+                                                ),
                                               );
                                             }
                                             return InkWell(
@@ -149,19 +167,26 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                 print(_controller.text);
                                                 FocusScope.of(context)
                                                     .requestFocus(FocusNode());
-                                          if (_controller.text.length != 10 ||
-                                              !RegExp(r'^0[^01]([0-9]+)')
-                                                  .hasMatch(_controller.text)) {
-                                            _scaffoldKey.currentState.removeCurrentSnackBar();
-                                            _scaffoldKey.currentState.showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Số điện thoại không chính xác', style: Subtitle1white,),
-                                                backgroundColor: Colors.red,
-                                              ),
-                                            );
-                                            return;
-                                          }
+                                                if (_controller.text.length !=
+                                                        10 ||
+                                                    !RegExp(r'^0[^01]([0-9]+)')
+                                                        .hasMatch(
+                                                            _controller.text)) {
+                                                  _scaffoldKey.currentState
+                                                      .removeCurrentSnackBar();
+                                                  _scaffoldKey.currentState
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Số điện thoại không chính xác',
+                                                        style: Subtitle1white,
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
                                                 bloc.add(CheckVoucherStart(
                                                     code: _controller.text));
                                               },
@@ -171,7 +196,8 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue,
                                                   borderRadius:
-                                                      BorderRadius.circular(5.0),
+                                                      BorderRadius.circular(
+                                                          5.0),
                                                 ),
                                                 child: Center(
                                                   child: Text(
@@ -195,102 +221,140 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                                 listener: (context, state) {
                                   if (state is CheckVoucherFailure) {
                                     Dialogs().showSuccessDialog(
-                                        content: state.message, context: context);
+                                        content: state.message,
+                                        context: context);
                                   }
                                 },
                                 child: BlocBuilder(
                                   cubit: bloc,
                                   builder: (context, state) {
                                     if (state is CheckVoucherSuccess) {
-                                      return state.history.length > 0
-                                          ? Expanded(
-                                            child: ListView.builder(
-                                                scrollDirection: Axis.vertical,
-                                                shrinkWrap: true,
-                                                itemCount: state.history.length,
-                                                physics: BouncingScrollPhysics(),
-                                                itemBuilder: (context, index) =>
-                                                    Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      color: Colors.black38,
-                                                      padding:
-                                                          const EdgeInsets.all(8.0),
-                                                      child: Text(
-                                                        DateFormat('hh:mm a dd-MM-yyyy').format(state.history[index].time)
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            fontSize: 20,
-                                                            color: Colors.white),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      height: 1,
-                                                      color: Colors.white,
-                                                    ),
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(
-                                                          left: 30,
-                                                          right: 30,
-                                                          top: 10,
-                                                          bottom: 20),
-                                                      child: Column(
+                                      return Expanded(
+                                        child: Column(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(bottom: 10),
+                                              child: Text(
+                                                  'Mã giảm giá hiện có: ${state.result.qty}', style: Subtitle1white,),
+                                            ),
+                                            state.result.history.length > 0
+                                                ? Expanded(
+                                                    flex: 1,
+                                                    child: ListView.builder(
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      shrinkWrap: true,
+                                                      itemCount: state
+                                                          .result.history.length,
+                                                      physics:
+                                                          BouncingScrollPhysics(),
+                                                      itemBuilder:
+                                                          (context, index) =>
+                                                              Column(
                                                         crossAxisAlignment:
-                                                            CrossAxisAlignment.start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          Text(
-                                                            'Số lượng voucher sử dụng: ${state.history[index].qty} (${state.history[index].qty * 20000} VNĐ)',
-                                                            style: Subtitle1white,
+                                                          Container(
+                                                            color: Colors.black38,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Text(
+                                                              DateFormat(
+                                                                      'hh:mm a dd-MM-yyyy')
+                                                                  .format(state
+                                                                      .result
+                                                                      .history[
+                                                                          index]
+                                                                      .time)
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                  fontSize: 20,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
                                                           ),
-                                                          const SizedBox(
-                                                            height: 3,
+                                                          Container(
+                                                            height: 1,
+                                                            color: Colors.white,
                                                           ),
-                                                          Text(
-                                                            'Tên nhân viên: ${state.history[index].spName}',
-                                                            style: Subtitle1white,
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 3,
-                                                          ),
-                                                          Text(
-                                                            'Tên outlet: ${state.history[index].outletName}',
-                                                            style: Subtitle1white,
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 3,
-                                                          ),
-                                                          Text(
-                                                            'Địa chỉ: ${state.history[index].address}',
-                                                            style: Subtitle1white,
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 30,
+                                                                    right: 30,
+                                                                    top: 10,
+                                                                    bottom: 20),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Text(
+                                                                  'Số lượng voucher sử dụng: ${state.result.history[index].qty} (${state.result.history[index].qty * 20000} VNĐ)',
+                                                                  style:
+                                                                      Subtitle1white,
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Text(
+                                                                  'Tên nhân viên: ${state.result.history[index].spName}',
+                                                                  style:
+                                                                      Subtitle1white,
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Text(
+                                                                  'Tên outlet: ${state.result.history[index].outletName}',
+                                                                  style:
+                                                                      Subtitle1white,
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 3,
+                                                                ),
+                                                                Text(
+                                                                  'Địa chỉ: ${state.result.history[index].address}',
+                                                                  style:
+                                                                      Subtitle1white,
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
-                                          )
-                                          : Expanded(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  height: 200,
-                                                  width: 200,
-                                                  child: FlareActor("assets/images/no_available.flr",
-                                                      alignment: Alignment.center,
-                                                      fit: BoxFit.contain,
-                                                      animation: "Untitled"),
-                                                ),
-                                                Text(
-                                                  "Mã giảm giá này không tồn tại hoặc chưa được sử dụng",
-                                                  style: Subtitle1white,
-                                                ),
-                                              ],
-                                            ),
-                                          );
+                                                  )
+                                                : Expanded(
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Container(
+                                                          height: 200,
+                                                          width: 200,
+                                                          child: FlareActor(
+                                                              "assets/images/no_available.flr",
+                                                              alignment: Alignment
+                                                                  .center,
+                                                              fit: BoxFit.contain,
+                                                              animation:
+                                                                  "Untitled"),
+                                                        ),
+                                                        Text(
+                                                          "Mã giảm giá này không tồn tại hoặc chưa được sử dụng",
+                                                          style: Subtitle1white,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                          ],
+                                        ),
+                                      );
                                     }
                                     return Container();
                                   },
@@ -305,8 +369,7 @@ class _CheckVoucherPageState extends State<CheckVoucherPage> {
                   Positioned(
                       top: 0,
                       left: 0,
-                      child:
-                      Text(MyPackageInfo.packageInfo.version)),
+                      child: Text(MyPackageInfo.packageInfo.version)),
                 ],
               ),
             ),

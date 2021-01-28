@@ -290,7 +290,18 @@ class ReceiveGiftOutRange extends ReceiveGiftState {
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
+    throw UnimplementedError();
+  }
+}
+class ReceiveGiftLoading extends ReceiveGiftState {
+  @override
+  Map<String, dynamic> toJson() {
+    throw UnimplementedError();
+  }
+}
+class ReceiveGiftSuccess extends ReceiveGiftState {
+  @override
+  Map<String, dynamic> toJson() {
     throw UnimplementedError();
   }
 }

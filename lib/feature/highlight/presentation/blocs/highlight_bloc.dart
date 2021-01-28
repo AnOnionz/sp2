@@ -50,7 +50,7 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       yield HighlightLoading();
       final upload = await uploadHighlight(HighlightParams(
           highlights: HighlightCacheEntity(
-              outletCode: '4260936721',
+              outletCode: AuthenticationBloc.outlet.code,
               workContent: event.highlights[0].content,
               workImages: event.highlights[0].images.map((e) => e.path).toList(),
               rivalContent: event.highlights[1].content,

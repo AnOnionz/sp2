@@ -20,10 +20,10 @@ class ProductEntity extends Equatable with HiveObject {
   @HiveField(4)
   int count;
   int buyQty;
-  TextEditingController controller = TextEditingController();
-  TextEditingController countController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
-  FocusNode focus = FocusNode();
+  TextEditingController controller ;
+  TextEditingController countController;
+  TextEditingController priceController;
+  FocusNode focus;
 
   ProductEntity(
       {this.productId,
@@ -35,8 +35,10 @@ class ProductEntity extends Equatable with HiveObject {
     buyQty = buyQty ?? 0;
     count = count ?? 0;
     price = price ?? 0;
-    countController.text = count.toString();
-    priceController.text = price.toString();
+    controller = TextEditingController();
+    countController = TextEditingController();
+    priceController = TextEditingController();
+    focus =  FocusNode();
   }
   factory ProductEntity.create(ProductEntity productEntity) {
     switch (productEntity.productId) {

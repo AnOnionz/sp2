@@ -65,12 +65,15 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
   Stream<ReceiveGiftState> mapEventToState(
     ReceiveGiftEvent event,
   ) async* {
+    final now = DateTime.now().millisecondsSinceEpoch;
     if (event is ReceiveGiftStart) {
+      final a = local.fetchCustomerGift();
+      print(a.length);
       setCurrent = localData.fetchSetGiftCurrent();
       setSBCurrent = localData.fetchSetGiftSBCurrent();
+      print(setSBCurrent);
       final dataToday = localData.dataToday;
       final outlet = AuthenticationBloc.outlet;
-      final now = await MyDateTime.ntpTime;
       if (dataToday.checkIn != true) {
         dashboardBloc.add(RequiredCheckInOrCheckOut(
             message: 'Phải chấm công trước khi đổi quà', willPop: 2));
@@ -84,19 +87,18 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
         dashboardBloc.add(SyncRequired(message: "Yêu cầu đồng bộ dữ liệu trước khi quay quà"));
         return;
       }
-      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (setSBCurrent != null &&!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index)){
+      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (setSBCurrent != null && AuthenticationBloc.outlet.province =='HN_HCM' &&!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index)){
         final sum = setCurrent.gifts.fold(
             0, (previousValue, element) => previousValue + element.amountCurrent);
         final sbSum =setSBCurrent != null ? setSBCurrent.gifts.fold(
             0, (previousValue, element) => previousValue + element.amountCurrent) : 0;
         yield ReceiveGiftInLastSet(
             message: '''${!localData.isSetOver && localData.indexLast == setCurrent.index ? "Set quà chính : đang ở set quà cuối cùng, hiện còn $sum quà trong set":""}
-                             ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null ?  "Set quà Strongbow : đang ở set quà cuối cùng, hiện còn $sbSum quà trong set":""}
+${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null ?  "Set quà Strongbow: đang ở set quà cuối cùng, hiện còn $sbSum quà trong set":""}
                          '''
         );
       }
       ReceiveGiftState stateCached = getState();
-      print(stateCached.toString());
       if(stateCached != null){
         yield stateCached;
       }
@@ -114,15 +116,21 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
       yield* _eitherValidateToState(validator);
     }
     if (event is ReceiveGiftConfirm) {
-      final now = await MyDateTime.ntpTime;
       yield ReceiveGiftHandling(form: event.form);
       CustomerEntity customer = await local.getCustomer(
         gender: event.form.customer.gender,
           name: event.form.customer.name,
           phone: event.form.customer.phoneNumber);
       print(customer);
+      print(now);
+      print(AuthenticationBloc.outlet.startPromotion*1000);
+      print(now < AuthenticationBloc.outlet.startPromotion*1000);
+      print((localData.isSetOver && localData.isSetSBOver));
+      print( localData.fetchSetGift().isEmpty);
+      print('1 ${localData.isSetOver}');
+      print('2 ${localData.isSetSBOver}');
       event.form.customer = customer;
-      if ((localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().length == 0 || now < AuthenticationBloc.outlet.startPromotion*1000) {
+      if (now < AuthenticationBloc.outlet.startPromotion*1000 || (localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().isEmpty) {
         yield ReceiveGiftNotCondition();
         add(ReceiveGiftOnlyBuyProducts(form: event.form));
       } else {
@@ -157,11 +165,12 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
                 setSBCurrent: result.setSBCurrent,
                 message:
                     "Hôm nay bạn có ${result.gifts.length < customer.inTurn + customer.inSBTurn ? result.gifts.length : customer.inTurn + customer.inSBTurn} lượt nhận quà",
-                type: 1): today == lastDay ? ReceiveGiftNotCondition() :ReceiveGifShowTurn(
-                form: event.form,
-                gifts: [],
-                message: "Hôm nay bạn đã hết lượt nhận quà",
-                type: 2);
+                type: 1): ReceiveGiftNotCondition() ;
+//            : ReceiveGifShowTurn(
+//            form: event.form,
+//            gifts: [],
+//            message: "Hôm nay bạn đã hết lượt nhận quà",
+//            type: 2);
           });
         }
       }
@@ -310,8 +319,8 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
           giftAt: event.giftAt);
     }
     if (event is ReceiveGiftResult) {
-      localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
-      localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
+      await localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
+      await localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       List<GiftEntity> gifts = [];
       List<GiftEntity> giftReceived = event.receiveGiftEntity.gifts;
       // gift had in list
@@ -345,20 +354,23 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
     }
     if (event is ReceiveGiftSubmit) {
       _removeState();
-      localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
-      localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
+      await localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
+      await localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       final finish = await handleReceiveGift(HandleReceiveGiftParams(
           receiveGiftEntity: event.receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
       yield finish.fold((fail) {
         if (fail is UnAuthenticateFailure) {
           authenticationBloc.add(ShutDown(willPop: 1));
-          return null;
         }
         if (fail is InternalFailure) {
-          dashboardBloc.add(InternalServer());
-          return null;
+          dashboardBloc.add(InternalServer(willPop: 0));
         }
-        return ReceiveGiftFailure(message: fail.message);
+        if (fail is InternetFailure) {
+          dashboardBloc.add(AccessInternet());
+        }else{
+          dashboardBloc.add(ThrowFailure(message: fail.message,));
+        }
+        return null;
       }, (r) {
         return null;
       });
@@ -426,7 +438,7 @@ Stream<ReceiveGiftState> _eitherCheckVoucherToState(
       return null;
     }
     if (fail is InternalFailure) {
-      dashboardBloc.add(InternalServer());
+      dashboardBloc.add(InternalServer(willPop: 0));
       return null;
     }
     return UseVoucherFailure();

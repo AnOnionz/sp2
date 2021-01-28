@@ -57,9 +57,4 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     }
   }
 
-  @override
-  void onTransition(Transition<MapEvent, MapState> transition) {
-    print(transition);
-    super.onTransition(transition);
-  }
 }

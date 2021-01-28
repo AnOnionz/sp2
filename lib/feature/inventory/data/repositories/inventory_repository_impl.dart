@@ -35,7 +35,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
           return Right(false);
         }
         await remote.updateInventory(inventory.inInventory);
-        await remote.updateInventory(inventory.outInventory);
+        await remote.updateEndInventory(inventory.outInventory);
         await dashboardLocal.cacheDataToday(
             inventory: true, inventoryEntity: inventory);
         return Right(true);
@@ -81,6 +81,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
       }
       await local.clearAllInventory();
     }
+    return Right(true);
   }
 
   @override

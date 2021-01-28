@@ -6,6 +6,7 @@ import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/util/custom_dialog.dart';
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
+import 'package:sp_2021/feature/receive_gift/data/datasources/receive_gift_local_datasource.dart';
 import 'package:sp_2021/feature/sync_data/domain/entities/sync_entity.dart';
 import 'package:sp_2021/feature/sync_data/presentation/blocs/sync_data_bloc.dart';
 
@@ -176,14 +177,15 @@ class _SyncDataPageState extends State<SyncDataPage> {
                 if(state is SyncDataSuccess){
                   Navigator.pop(context);
                   setState(() {
-                    print('success');
                     sync = local.getSync();
-                    print(sync);
                   });
                   Dialogs().showSuccessDialog(context: context, content: "Đồng bộ hoàn tất");
                 }
                 if(state is SyncDataFailure){
                   Navigator.pop(context);
+                  setState(() {
+                    sync = local.getSync();
+                  });
                   Dialogs().showFailureDialog(context: context, content: '''Đồng bộ Thất bại
                                                                             ${state.message} ''');
                 }

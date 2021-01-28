@@ -99,11 +99,11 @@ Stream<CheckAttendanceState> _eitherCheckAttendanceState(
     }
     return CheckAttendanceFailure(error: failure.message);
   }, (type) {
-    MyDateTime.ntpTime.then((value) {
+    if(type is CheckIn){
+      dashboardBloc.add(SaveServerDataToLocalData());
+    }
       if(!Hive.isBoxOpen(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX)){
         Hive.openBox<CustomerEntity>(AuthenticationBloc.outlet.id.toString() + MyDateTime.today + CUSTOMER_BOX);}
-    }
-    );
     return CheckAttendanceSuccess(type: type);
   });
 }
@@ -135,5 +135,6 @@ Stream<AttendanceState> _eitherAttendanceState(
       return AttendanceInventoryNullFailure(message: failure.message);
     }
     return AttendanceFailure(error: failure.message);
-  }, (status) => AttendanceSuccess());
+  }, (status) {
+    return AttendanceSuccess();});
 }

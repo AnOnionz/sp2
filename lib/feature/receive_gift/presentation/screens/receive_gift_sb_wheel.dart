@@ -87,7 +87,7 @@ class _ReceiveGiftSBWheelState extends State<ReceiveGiftSBWheelPage>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 11),
+                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 10.5),
                       child: GestureDetector(
                         onTap: doAnimation ? _animation :(){},
                         child: AnimatedBuilder(

@@ -58,7 +58,7 @@ class _ReceiveGiftWheelState extends State<ReceiveGiftWheelPage>
       _items.insert(3, nen);
     }
     _lucky = widget.giftLucky.map<int>((e) {
-      return _items.indexOf(_items.firstWhere((element) => element.giftId == e.giftId, orElse: ()=> null),);
+      return _items.indexOf(_items.firstWhere((element) => element.giftId == e.giftId, orElse: () => null),);
     }).toList();
     var _duration = Duration(milliseconds: 2500);
     _ctrl = AnimationController(duration: _duration, vsync: this)

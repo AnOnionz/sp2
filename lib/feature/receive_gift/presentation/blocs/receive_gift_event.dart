@@ -2,7 +2,8 @@ part of 'receive_gift_bloc.dart';
 
 @immutable
 abstract class ReceiveGiftEvent extends Equatable{
-  @override
+@override
+
   List<Object> get props => [];
 }
 class ReceiveGiftStart extends ReceiveGiftEvent {}
@@ -16,16 +17,22 @@ class ReceiveGiftSubmitForm extends ReceiveGiftEvent {
   final FormEntity form;
 
   ReceiveGiftSubmitForm({this.form});
+  @override
+  List<Object> get props => [];
+
 }
 class ReceiveGiftConfirm extends ReceiveGiftEvent {
   final FormEntity form;
 
   ReceiveGiftConfirm({this.form});
+  @override
+  List<Object> get props => [DateTime.now()];
 }
 class ReceiveGiftOnlyBuyProducts extends ReceiveGiftEvent{
     final FormEntity form;
 
     ReceiveGiftOnlyBuyProducts({this.form});
+
 }
 class ShowGiftWheel extends ReceiveGiftEvent {
   final FormEntity form;

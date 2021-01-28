@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:sp_2021/core/api/myDio.dart';
 import 'package:sp_2021/core/entities/set_gift_entity.dart';
+import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/customer_gift_entity.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart';
 
@@ -17,11 +18,10 @@ class ReceiveGiftRemoteDataSourceImpl implements ReceiveGiftRemoteDataSource{
 
   @override
   Future<bool> updateCustomerGiftToServer(CustomerGiftEntity customerGiftEntity) async {
+      Response _resp = await cDio.postResponse(path: 'home/customer',
+          data: FormData.fromMap(customerGiftEntity.toJson()));
 
-    print(customerGiftEntity.toJson());
-    Response _resp = await cDio.postResponse(path: 'home/customer', data: FormData.fromMap(customerGiftEntity.toJson()));
-
-    return _resp.data['success'];
+      return _resp.data['success'];
   }
 
   @override
@@ -43,6 +43,7 @@ class ReceiveGiftRemoteDataSourceImpl implements ReceiveGiftRemoteDataSource{
     Response _resp = await cDio.postResponse(path: 'home/outlet-set-gift-strongbow-current', data: setGiftEntity.toJson());
 
     return _resp.data['success'];
+
   }
 
 }

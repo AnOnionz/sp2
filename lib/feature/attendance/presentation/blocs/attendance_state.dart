@@ -1,14 +1,11 @@
 part of 'attendance_bloc.dart';
 
 @immutable
-class AttendanceState extends Equatable {
-  @override
-  List<Object> get props => [];
+class AttendanceState  {
+
 }
 @immutable
-class CheckAttendanceState extends Equatable {
-  @override
-  List<Object> get props => [];
+class CheckAttendanceState  {
 }
 class CheckAttendanceInitial extends CheckAttendanceState{}
 class CheckAttendanceSuccess extends CheckAttendanceState{

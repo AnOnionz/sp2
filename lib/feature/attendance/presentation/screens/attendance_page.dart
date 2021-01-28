@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:animate_do/animate_do.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +36,6 @@ class _AttendancePageState extends State<AttendancePage>
   TextEditingController ctlMaNV = TextEditingController();
   NetworkInfo networkInfo = sl<NetworkInfo>();
   final picker = ImagePicker();
-  bool isConnected = true;
   File _image;
 
 
@@ -70,7 +70,6 @@ class _AttendancePageState extends State<AttendancePage>
 
   @override
   Widget build(BuildContext context) {
-    print(int.parse('${DateTime.now().hour}${DateTime.now().minute}'));
     return Scaffold(
         body: StreamBuilder<DataConnectionStatus>(
             stream: networkInfo.listener,
@@ -187,28 +186,24 @@ class _AttendancePageState extends State<AttendancePage>
                                             builder: (BuildContext context) {
                                               return WillPopScope(
                                                 onWillPop: () async => false,
-                                                child: ZoomIn(
-                                                  duration: const Duration(milliseconds: 100),
-                                                  child: CupertinoAlertDialog(
-                                                    title: Text("Thông báo"),
-                                                    content: Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Text(
-                                                        '''Chưa hết thời gian làm việc
-                                                      bạn có chắc muốn chấm công ra ?''',
-                                                        style: Subtitle1black,
-                                                      ),
+                                                child: CupertinoAlertDialog(
+                                                  title: Text("Thông báo"),
+                                                  content: Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text(
+                                                      '''Chưa hết thời gian làm việc
+                                                    bạn có chắc muốn chấm công ra ?''',
+                                                      style: Subtitle1black,
                                                     ),
-                                                    actions: [
-                                                      CupertinoDialogAction(
-                                                        child: Text("Đồng ý"),
-                                                        onPressed:() {
-                                                          FocusScope.of(context).requestFocus(FocusNode());
-                                                          Navigator.pop(context);
-                                                        },
-                                                      ),
-                                                    ],
                                                   ),
+                                                  actions: [
+                                                    CupertinoDialogAction(
+                                                      child: Text("Đồng ý"),
+                                                      onPressed:() {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ],
                                                 ),
                                               );
                                             });
@@ -428,20 +423,49 @@ class _AttendancePageState extends State<AttendancePage>
                                             );
                                           }
                                           if (state is AttendanceSuccess) {
-                                            Dialogs().showSuccessDialog(
-                                                content: "Chấm công thành công",
+                                            showDialog(
                                                 context: context,
-                                                onPress: () {
-                                                  Navigator.pop(context);
-                                                  sl<TabBloc>().add(
-                                                      TabPressed(index: 0));
+                                                builder: (BuildContext context) {
+                                                  return WillPopScope(
+                                                    onWillPop: () async => false,
+                                                    child: ZoomIn(
+                                                      duration: const Duration(milliseconds: 100),
+                                                      child: CupertinoAlertDialog(
+                                                        title: Container(
+                                                          height: 70,
+                                                          width: 70,
+                                                          child: FlareActor("assets/images/correct.flr",
+                                                              alignment: Alignment.center,
+                                                              fit: BoxFit.contain,
+                                                              animation: "go"),
+                                                        ),
+                                                        content: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: Text(
+                                                            'Chấm công thành công',
+                                                            style: Subtitle1black,
+                                                          ),
+                                                        ),
+                                                        actions: [
+                                                          CupertinoDialogAction(
+                                                            child: Text("Đóng"),
+                                                            onPressed: () {
+                                                              Navigator.pop(context);
+                                                              sl<TabBloc>().add(
+                                                                  TabPressed(index: 0));
+                                                                },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
                                                 });
                                           }
                                           if (state
                                               is AttendanceInventoryNullFailure) {
                                             showDialog(
                                               context: context,
-                                              builder: (_) {
+                                              builder: (context) {
                                                 return CupertinoAlertDialog(
                                                   title: Text('Yêu cầu thông tin tồn kho '),
                                                   content: Text(
@@ -480,7 +504,7 @@ class _AttendancePageState extends State<AttendancePage>
                                               is AttendanceHighlightNullFailure) {
                                             showDialog(
                                               context: context,
-                                              builder: (_) {
+                                              builder: (context) {
                                                 return CupertinoAlertDialog(
                                                   title: Text('Yêu cầu thông tin cuối ngày'),
                                                   content: Text(
@@ -565,47 +589,41 @@ class _AttendancePageState extends State<AttendancePage>
                                                               false,
                                                               builder: (BuildContext
                                                               context) {
-                                                                return ZoomIn(
-                                                                  delay: Duration(
-                                                                      milliseconds:
-                                                                      100),
-                                                                  child:
-                                                                  CupertinoAlertDialog(
-                                                                    title: Text(
-                                                                        "Hình ảnh trống"),
-                                                                    content: Text(
-                                                                      "Bạn phải chụp ảnh để tiếp tục chấm công",
-                                                                      style:
-                                                                      Subtitle1black,
-                                                                    ),
-                                                                    actions: [
-                                                                      CupertinoDialogAction(
-                                                                          isDefaultAction:
-                                                                          true,
-                                                                          textStyle: TextStyle(
-                                                                              color: Colors
-                                                                                  .red),
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.pop(
-                                                                                context);
-                                                                          },
-                                                                          child: Text(
-                                                                              "Đóng")),
-                                                                      CupertinoDialogAction(
-                                                                          isDefaultAction:
-                                                                          true,
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.pop(
-                                                                                context);
-                                                                            getImage();
-                                                                          },
-                                                                          child: Text(
-                                                                            "Chụp hình",
-                                                                          )),
-                                                                    ],
+                                                                return CupertinoAlertDialog(
+                                                                  title: Text(
+                                                                      "Hình ảnh trống"),
+                                                                  content: Text(
+                                                                    "Bạn phải chụp ảnh để tiếp tục chấm công",
+                                                                    style:
+                                                                    Subtitle1black,
                                                                   ),
+                                                                  actions: [
+                                                                    CupertinoDialogAction(
+                                                                        isDefaultAction:
+                                                                        true,
+                                                                        textStyle: TextStyle(
+                                                                            color: Colors
+                                                                                .red),
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
+                                                                        child: Text(
+                                                                            "Đóng")),
+                                                                    CupertinoDialogAction(
+                                                                        isDefaultAction:
+                                                                        true,
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          getImage();
+                                                                        },
+                                                                        child: Text(
+                                                                          "Chụp hình",
+                                                                        )),
+                                                                  ],
                                                                 );
                                                               });
                                                           return;

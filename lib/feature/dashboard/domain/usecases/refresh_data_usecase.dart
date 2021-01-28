@@ -20,6 +20,8 @@ class RefreshDataUseCase implements UseCase<bool, NoParams>{
         await repository.saveRivalProductFromServer();
         await repository.saveSetGiftFromServer();
         await repository.saveSetGiftSBFromServer();
+        await repository.saveSetGiftCurrentFromServer();
+        await repository.saveSetGiftSBCurrentFromServer();
         await repository.saveKpiFromServer();
         return Right(true);
       } on InternetException catch (_) {

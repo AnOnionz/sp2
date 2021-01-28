@@ -25,7 +25,11 @@ class RequiredCheckInOrCheckOut extends DashboardEvent {
 class RequireUpdateNewVersion extends DashboardEvent{
 
 }
+class ThrowFailure extends DashboardEvent {
+  final String message;
 
+  ThrowFailure({this.message});
+}
 
 
 

@@ -10,7 +10,7 @@ part 'customer_gift_entity.g.dart';
 // ignore: must_be_immutable
 class CustomerGiftEntity extends Equatable with HiveObject{
   @HiveField(0)
-  final String outletCode;
+  String outletCode;
   @HiveField(1)
   CustomerEntity customer;
   @HiveField(2)

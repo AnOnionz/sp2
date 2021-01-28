@@ -15,16 +15,14 @@ class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
   Future<bool> updateInventory(List<dynamic> beginInventory) async {
     Response _resp = await cDio.postResponse(path: 'home/oos',
         data: beginInventory);
-    print(_resp);
 
     return _resp.data['success'];
   }
   @override
   Future<bool> updateEndInventory(List<dynamic>endInventory) async {
-    Response _resp = await cDio.postResponse(path: 'home/oos',
+    //Response _resp = await cDio.postResponse(path: 'home/oos-end',
+    Response _resp = await cDio.postResponse(path: 'home/oos-end',
         data: endInventory);
-    print(_resp);
-
     return _resp.data['success'];
   }
 }

@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/simple_bloc_observer.dart';
 import 'package:wakelock/wakelock.dart';
-import 'core/platform/date_time.dart';
 import 'di.dart' as di;
 import 'package:sp_2021/core/storage/hive_db.dart' as hive;
 import 'my_application.dart';
@@ -33,7 +32,6 @@ Future<void> main() async {
   });
   cacheFlare();
   await di.init();
-  await MyDateTime.ntpTime;
   await hive.init();
   MyPackageInfo().getPackageInfo();
   SystemChrome.setPreferredOrientations(

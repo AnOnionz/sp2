@@ -23,7 +23,7 @@ abstract class ReceiveGiftLocalDataSource{
   Future<HandleGiftEntity> handleSBGift({StrongBowPack6 strongBowPack6, CustomerEntity customer, SetGiftEntity setCurrent});
   Future<HandleWheelEntity> handleWheel({List<GiftEntity> giftReceived, SetGiftEntity setCurrent});
   Future<HandleWheelEntity> handleStrongBowWheel({List<GiftEntity> giftReceived, SetGiftEntity setCurrent});
-  Future<List<CustomerGiftEntity>> fetchCustomerGift();
+  List<CustomerGiftEntity> fetchCustomerGift();
   Future<void> cacheCustomerGift({CustomerGiftEntity customerGiftEntity});
   Future<void> clearCustomerGift();
   Future<void> clearAllCustomerGift();
@@ -45,6 +45,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     print(lastDay);
     // check set current
     setCurrent = getSetGift(setCurrent);
+    print(setCurrent);
     // set current is last set and over gift
     if (setCurrent == null) {
       if(!local.isSetSBOver && AuthenticationBloc.outlet.province == 'HN_HCM'){
@@ -53,10 +54,11 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
         print("gift Strong bow will receive: ${strongbowGift.gifts}");
         print('all gift receive:  ${[...resultGift, ...strongbowGift.gifts]}');
         return HandleGiftEntity(gifts: [...resultGift, ...strongbowGift.gifts], setCurrent: setCurrent, setSBCurrent: strongbowGift.setSBCurrent);
+      }else{
+        throw(SetOver());
       }
     }
     // count all gift inset
-
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);
     print('set co $sum món');
@@ -107,7 +109,6 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       print(local.indexLast);
       resultGift = resultGift.sublist(0, sum);
     }
-    print("gift will receive: $resultGift");
     if(!local.isSetSBOver && AuthenticationBloc.outlet.province == 'HN_HCM'){
       StrongBowPack6 sb = products.firstWhere((element) => element is StrongBowPack6,orElse: ()=> StrongBowPack6()..buyQty=0);
       final strongbowGift = await handleSBGift(strongBowPack6: sb, customer: customer, setCurrent: setSBCurrent);
@@ -115,6 +116,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       print('all gift receive:  ${[...resultGift, ...strongbowGift.gifts]}');
       return HandleGiftEntity(gifts: [...resultGift, ...strongbowGift.gifts], setCurrent: setCurrent, setSBCurrent: strongbowGift.setSBCurrent);
     }
+    print("gift will receive: $resultGift");
     return HandleGiftEntity(gifts: resultGift, setCurrent: setCurrent);
   }
   @override
@@ -199,14 +201,13 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
     final today = DateFormat.yMd().format(MyDateTime.day);
     final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
     if(today == lastDay){lucky.removeWhere((element) => element is Voucher);}
-    print(lucky);
     if (lucky.isEmpty) {
       if (noLucky.isNotEmpty) {
         lucky = noLucky;
       }
       if (noLucky.isEmpty) {
         int index = setCurrent.index;
-        setCurrent = local.fetchNewSetGift(index);
+        setCurrent = local.fetchNewSetGift(index + 1);
         if (setCurrent == null) {
           throw(SetOver());
         }
@@ -256,7 +257,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
       }
       if (noLucky.isEmpty) {
         int index = setCurrent.index;
-        setCurrent = local.fetchNewSBSetGift(index);
+        setCurrent = local.fetchNewSBSetGift(index+1);
         if (setCurrent == null) {
           throw(SetOver());
         }
@@ -295,7 +296,7 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   }
 
   @override
-  Future<List<CustomerGiftEntity>> fetchCustomerGift() async{
+  List<CustomerGiftEntity> fetchCustomerGift() {
     Box<CustomerGiftEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + CUSTOMER_GIFT_BOX);
     return box.values.toList();
   }
@@ -396,13 +397,13 @@ class ReceiveGiftLocalDataSourceImpl implements ReceiveGiftLocalDataSource {
   }
   SetGiftEntity getSetGift(SetGiftEntity setCurrent){
     final setGift = setCurrent.gifts
-        .every((element) => element.amountCurrent == 0) ? local.fetchNewSetGift(setCurrent.index) : setCurrent;
+        .every((element) => element.amountCurrent == 0) ? local.fetchNewSetGift(setCurrent.index + 1) : setCurrent;
       return setGift;
   }
   SetGiftEntity getSetGiftSB(SetGiftEntity setSBCurrent){
     final setGift = setSBCurrent.gifts
         .every((element) => element.amountCurrent == 0)
-        ? local.fetchNewSBSetGift(setSBCurrent.index) : setSBCurrent;
+        ? local.fetchNewSBSetGift(setSBCurrent.index + 1) : setSBCurrent;
     // set current is last set and over gift
       return setGift;
   }

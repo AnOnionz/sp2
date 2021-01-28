@@ -124,7 +124,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
               ),
             ),
             padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: _form.products.isEmpty || local.fetchSetGiftCurrent() == null || local.fetchSetGift().isEmpty
+            child: _form.products.isEmpty || local.fetchSetGift().isEmpty
                 ? Stack(
                   children: [
                     Center(
@@ -447,26 +447,23 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                     showDialog(
                                                         context: context,
                                                         barrierDismissible: true,
-                                                        builder: (context) => ZoomIn(
-                                                          duration: Duration(milliseconds: 100),
-                                                          child: CupertinoAlertDialog(
-                                                            title: Text("Sắp hết quà"),
-                                                            content: Padding(
-                                                              padding: const EdgeInsets.all(8.0),
-                                                              child: Text(
-                                                               state.message,
-                                                                style: Subtitle1black,
-                                                              ),
+                                                        builder: (context) => CupertinoAlertDialog(
+                                                          title: Text("Sắp hết quà"),
+                                                          content: Padding(
+                                                            padding: const EdgeInsets.all(8.0),
+                                                            child: Text(
+                                                             state.message,
+                                                              style: Subtitle1black,
                                                             ),
-                                                            actions: [
-                                                              CupertinoDialogAction(
-                                                                  isDefaultAction: true,
-                                                                  onPressed: () {
-                                                                    Navigator.pop(context);
-                                                                  },
-                                                                  child: Text("Đồng ý")),
-                                                            ],
                                                           ),
+                                                          actions: [
+                                                            CupertinoDialogAction(
+                                                                isDefaultAction: true,
+                                                                onPressed: () {
+                                                                  Navigator.pop(context);
+                                                                },
+                                                                child: Text("Đồng ý")),
+                                                          ],
                                                         ));
                                                   }
                                               if (state is UseVoucherSuccess) {
@@ -904,8 +901,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                               ),
                                                               Expanded(
                                                                 child: InkWell(
-                                                                    onTap:
-                                                                        () async {
+                                                                    onTap: (){
                                                                       BlocProvider.of<ReceiveGiftBloc>(
                                                                               context)
                                                                           .add(ReceiveGiftConfirm(
@@ -995,14 +991,10 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                                   fontSize: 15),
                                                             ),
                                                             InkWell(
-                                                              onTap: () async {
+                                                              onTap: () {
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop();
-                                                                await Future.delayed(
-                                                                    Duration(
-                                                                        milliseconds:
-                                                                            500));
                                                                 BlocProvider.of<
                                                                             ReceiveGiftBloc>(
                                                                         context)

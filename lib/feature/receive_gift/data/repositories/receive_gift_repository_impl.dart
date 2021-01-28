@@ -93,31 +93,27 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
   Future<Either<Failure, bool>> handleReceiveGift(
       {ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent}) async {
     final time = DateTime.now();
-    receiveGiftEntity.outletCode = AuthenticationBloc.outlet.code; //AuthenticationBloc.outlet.code;
+   receiveGiftEntity.outletCode = AuthenticationBloc.outlet.code; //AuthenticationBloc.outlet.code;
     receiveGiftEntity.customer.deviceCreatedAt =
         time.millisecondsSinceEpoch ~/ 1000;
     if (await networkInfo.isConnected) {
       try {
         await local.cacheCustomer(customer: receiveGiftEntity.customer);
-        print(receiveGiftEntity.toCustomerGift());
-        final updateCustomerGift = await remote
-            .updateCustomerGiftToServer(receiveGiftEntity.toCustomerGift());
-        final updateSetCurrent = !dashboardLocal.isSetOver
-            ? await remote.updateSetGiftCurrentToServer(setCurrent)
-            : true;
-        final updateSetSBCurrent = !dashboardLocal.isSetSBOver && AuthenticationBloc.outlet.province == 'HN_HCM'
+        final updateSetCurrent = setCurrent != null ? await remote.updateSetGiftCurrentToServer(setCurrent) : true;
+        final updateSetSBCurrent = setSBCurrent !=null && AuthenticationBloc.outlet.province == 'HN_HCM'
             ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
             : true;
+        final updateCustomerGift = await remote
+            .updateCustomerGiftToServer(receiveGiftEntity.toCustomerGift());
         await updateSetGift(NoParams());
         dashboardLocal.cacheChangedSet(false);
        // print(receiveGiftEntity.toCustomerGift().products.fold(0, (previousValue, element) => previousValue + element['qty']));
-        dashboardLocal.updateKpi(receiveGiftEntity.toCustomerGift().products.fold(0, (previousValue, element) => previousValue + element['qty']));
         return Right(updateCustomerGift);
       } on InternetException catch (_) {
         await local.cacheCustomerGift(
             customerGiftEntity: receiveGiftEntity.toCustomerGift());
         await local.cacheCustomer(customer: receiveGiftEntity.customer);
-        return Left(FailureAndCachedToLocal());
+        return Left(InternetFailure());
       } on InternalException catch (_) {
         await local.cacheCustomerGift(
             customerGiftEntity: receiveGiftEntity.toCustomerGift());
@@ -138,28 +134,27 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
       await local.cacheCustomerGift(
           customerGiftEntity: receiveGiftEntity.toCustomerGift());
       await local.cacheCustomer(customer: receiveGiftEntity.customer);
-      return Left(FailureAndCachedToLocal());
+      return Left(InternetFailure());
     }
   }
 
   @override
   Future<void> syncReceiveGift() async {
     if (await hasSync()) {
-      final data = await local.fetchCustomerGift();
+      final data = local.fetchCustomerGift();
       final setCurrent = dashboardLocal.fetchSetGiftCurrent();
       final setSBCurrent = dashboardLocal.fetchSetGiftSBCurrent();
+      final updateSetCurrent = setCurrent != null ? await remote.updateSetGiftCurrentToServer(setCurrent) : true;
+      final updateSetSBCurrent = setSBCurrent !=null && AuthenticationBloc.outlet.province == 'HN_HCM'
+          ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
+          : true;
       for (CustomerGiftEntity cf in data){
         cf.customer.gender = cf.customer.gender ?? '1';
+        cf.outletCode = AuthenticationBloc.outlet.code;
         await remote.updateCustomerGiftToServer(cf);
-        final updateSetCurrent = !dashboardLocal.isSetOver
-            ? await remote.updateSetGiftCurrentToServer(setCurrent)
-            : true;
-        final updateSetSBCurrent = !dashboardLocal.isSetSBOver && AuthenticationBloc.outlet.province == 'HN_HCM'
-            ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
-            : true;
         await local.clearCustomerGift();
         dashboardLocal.cacheChangedSet(false);
-        dashboardLocal.updateKpi(cf.products.fold(0, (previousValue, element) => previousValue + element['qty']));
+        dashboardLocal.updateKpi(cf.products);
       }
       await local.clearAllCustomerGift();
       await updateSetGift(NoParams());

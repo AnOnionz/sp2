@@ -26,7 +26,6 @@ class _InventoryPageState extends State<InventoryPage> {
   int page = 0;
   PageController _controller;
 
-
   @override
   void initState() {
     _controller = PageController(
@@ -42,8 +41,6 @@ class _InventoryPageState extends State<InventoryPage> {
     List.castFrom(products.map((e) => e.copyWith(count: dataToday.inventoryEntity.inInventory.firstWhere((element) => element['sku_id'] == e.productId)['qty'])).toList());
     outProducts = dataToday.inventoryEntity == null ? List.castFrom(products.map((e) => e.copyWith(count: 0)).toList()) :
     List.castFrom(products.map((e) => e.copyWith(count: dataToday.inventoryEntity.outInventory.firstWhere((element) => element['sku_id'] == e.productId)['qty'])).toList());
-    print(inProducts);
-    print(outProducts);
   }
 
   @override

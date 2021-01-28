@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ota_update/ota_update.dart';
-import 'package:sp_2021/core/platform/notify.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/attendance/data/datasources/attendance_remote_datasource.dart';
@@ -24,6 +23,7 @@ import 'package:sp_2021/update_ver_page.dart';
 import 'core/api/myDio.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/login_bloc.dart';
 import 'core/common/text_styles.dart';
+import 'core/platform/notify.dart';
 import 'di.dart';
 import 'feature/attendance/domain/entities/attendance_type.dart';
 import 'feature/attendance/presentation/blocs/map_bloc.dart';
@@ -75,6 +75,9 @@ class _MyApplicationState extends State<MyApplication> {
           isClick: false,
         );
         _saveFcmToLocal(fcm);
+        if(fcm.tab == 6){
+          sl<SaveDataToLocalUseCase>()(NoParams());
+        }
       },
       onBackgroundMessage: NotifyManager.myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {

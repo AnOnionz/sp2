@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/date_time.dart';
-import 'package:sp_2021/core/platform/package_info.dart';
 import 'package:sp_2021/core/usecases/usecase.dart';
 import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:sp_2021/feature/login/domain/entities/login_entity.dart';
@@ -67,7 +66,6 @@ Stream<LoginState> _eitherLoginOrErrorState(
     return LoginFailure(message: failure.message);
   },
       (user) {
-        MyDateTime.ntpTime.then((value) => null);
         return LoginSuccess(user: user);
   });
 }
