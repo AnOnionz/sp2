@@ -11,6 +11,15 @@ import 'package:sp_2021/feature/send_requirement/domain/repositories/send_requir
 import 'package:sp_2021/feature/sync_data/data/datasources/sync_local_data_source.dart';
 import 'package:sp_2021/feature/sync_data/domain/repositories/sync_repository.dart';
 
+import '../../../highlight/data/datasources/highlight_local_datasource.dart';
+import '../../../inventory/data/datasources/inventory_local_data_source.dart';
+import '../../../inventory/domain/entities/inventory_entity.dart';
+import '../../../receive_gift/data/datasources/receive_gift_local_datasource.dart';
+import '../../../receive_gift/domain/entities/customer_gift_entity.dart';
+import '../../../receive_gift/domain/entities/receive_gift_entity.dart';
+import '../../../rival_sale_price/data/datasources/rival_sale_price_local_data_source.dart';
+import '../../../sale_price/data/datasources/sale_price_local_data_source.dart';
+
 class SyncRepositoryImpl implements SyncRepository {
   final RivalSalePriceRepository rivalSalePriceRepository;
   final SalePriceRepository salePriceRepository;
@@ -18,19 +27,18 @@ class SyncRepositoryImpl implements SyncRepository {
   final ReceiveGiftRepository receiveGiftRepository;
   final SendRequirementRepository sendRequirementRepository;
   final InventoryRepository inventoryRepository;
+  final RivalSalePriceLocalDataSource rivalSalePriceLocalDataSource;
+  final SalePriceLocalDataSource salePriceLocalDataSource;
+  final HighLightLocalDataSource highLightLocalDataSource;
+  final ReceiveGiftLocalDataSource receiveGiftLocalDataSource;
+  final InventoryLocalDataSource inventoryLocalDataSource;
   final NetworkInfo networkInfo;
   final SyncLocalDataSource local;
 
-  SyncRepositoryImpl(
-      {this.networkInfo,
-      this.salePriceRepository,
-      this.highlightRepository,
-      this.inventoryRepository,
-      this.sendRequirementRepository,
-      this.rivalSalePriceRepository,
-      this.receiveGiftRepository,
-      this.local}
-  );
+  SyncRepositoryImpl({this.rivalSalePriceRepository, this.salePriceRepository, this.highlightRepository, this.receiveGiftRepository, this.sendRequirementRepository, this.inventoryRepository, this.rivalSalePriceLocalDataSource, this.salePriceLocalDataSource, this.highLightLocalDataSource, this.receiveGiftLocalDataSource,
+  this.inventoryLocalDataSource, this.networkInfo, this.local});
+
+
 
   @override
   Future<Either<Failure, bool>> synchronous() async {
@@ -68,5 +76,21 @@ class SyncRepositoryImpl implements SyncRepository {
         await salePriceRepository.hasSync() ||
         await highlightRepository.hasSync() ||
         await receiveGiftRepository.hasSync();
+  }
+
+  @override
+  Future<Map<String, dynamic>> restData() async  {
+    final rival = await rivalSalePriceRepository.hasSync() ? rivalSalePriceLocalDataSource.fetchRivalSalePrice() : [];
+    final price = await salePriceRepository.hasSync() ? salePriceLocalDataSource.fetchSalePrice() : [];
+    final highlight = await highlightRepository.hasSync() ? highLightLocalDataSource.fetchHighlight() : null;
+    final inventory = await inventoryRepository.hasSync() ? inventoryLocalDataSource.fetchInventory() : <InventoryEntity>[];
+    final receive = await receiveGiftRepository.hasSync() ? receiveGiftLocalDataSource.fetchCustomerGift() : <CustomerGiftEntity>[];
+    return {
+      'rival': rival,
+      'price': price,
+      'highlight': highlight,
+      'inventory': inventory,
+      'receive': receive
+    };
   }
 }

@@ -40,7 +40,7 @@ class RivalSalePriceLocalDataSourceImpl implements RivalSalePriceLocalDataSource
   @override
   List<dynamic> fetchRivalSalePrice() {
     Box<List<dynamic>> box = Hive.box<List<dynamic>>(AuthenticationBloc.outlet.id.toString() + RIVAL_SALE_PRICE_BOX);
-    return box.values.toList().first;
+    return box.values.toList().last;
   }
 
   @override

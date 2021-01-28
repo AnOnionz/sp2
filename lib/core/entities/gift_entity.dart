@@ -256,7 +256,7 @@ class GiftEntity extends Gift with HiveObject {
       case 1:
         return Nen(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Nến',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -265,7 +265,7 @@ class GiftEntity extends Gift with HiveObject {
       case 2:
         return Voucher(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Mã giảm giá',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -274,7 +274,7 @@ class GiftEntity extends Gift with HiveObject {
       case 3:
         return StrongBowGift(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Lon Strongbow',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -283,7 +283,7 @@ class GiftEntity extends Gift with HiveObject {
       case 4:
         return Pack4(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String  ?? '4 lon Tiger',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -292,7 +292,7 @@ class GiftEntity extends Gift with HiveObject {
       case 5:
         return Pack6(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? '6 lon Heineken',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -301,7 +301,7 @@ class GiftEntity extends Gift with HiveObject {
       case 6:
         return Alu(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Alu',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -311,7 +311,7 @@ class GiftEntity extends Gift with HiveObject {
         return Magnum(
           giftId: json['id'] as int,
           name: json['name'] as String,
-          image: json["img_url"] as String,
+          image: json["img_url"] as String ?? 'Magnum',
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_magnum",
@@ -319,7 +319,7 @@ class GiftEntity extends Gift with HiveObject {
       case 23:
         return Glass(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Ly',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -328,7 +328,7 @@ class GiftEntity extends Gift with HiveObject {
       case 24:
         return CanvasBag(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Túi canvas',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
@@ -337,7 +337,7 @@ class GiftEntity extends Gift with HiveObject {
       case 25:
         return TravelBags(
           giftId: json['id'] as int,
-          name: json['name'] as String,
+          name: json['name'] as String ?? 'Túi du lịch',
           image: json["img_url"] as String,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,

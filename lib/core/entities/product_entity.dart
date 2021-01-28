@@ -213,84 +213,84 @@ class ProductEntity extends Equatable with HiveObject {
       case 8:
         return HeinekenOriginal(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Heineken',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 9:
         return Heineken0(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Heineken0.0',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 10:
         return HeinekenSilver(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'HeinekenSilver',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 11:
         return TigerRegular(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Tiger',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 12:
         return TigerCrystal(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'TigerCrystal',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 13:
         return StrongBow(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Strongbow',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 14:
         return Larue(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Larue',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 15:
         return BiaViet(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Bia Viet',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 16:
         return BivinaExport(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'BivinaExport',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 155:
         return LarueSpecial(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'LarueSpecial',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 156:
         return Bivina(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? 'Bivina',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
       case 157:
         return StrongBowPack6(
           productId: json['id'] as int,
-          productName: json['name'] as String,
+          productName: json['name'] as String ?? '6 lon Strongbow',
           imgUrl: json["img_url"] as String,
           buyQty: json['buy'] as int,
         );
