@@ -18,11 +18,11 @@ class CustomerEntityAdapter extends TypeAdapter<CustomerEntity> {
     };
     return CustomerEntity(
       name: fields[0] as String,
+      gender: fields[1] as String,
       phoneNumber: fields[2] as String,
       inTurn: fields[5] as int,
       inSBTurn: fields[6] as int,
     )
-      ..gender = fields[1] as String
       ..uuid = fields[3] as String
       ..deviceCreatedAt = fields[4] as int;
   }

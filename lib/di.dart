@@ -161,7 +161,7 @@ Future<void> init() async {
   // Data Source
   sl.registerLazySingleton<SyncLocalDataSource>(() => SyncLocalDataSourceImpl());
   // Repository
-  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(local: sl(),highLightLocalDataSource: sl(),inventoryLocalDataSource: sl(), rivalSalePriceLocalDataSource: sl(),salePriceLocalDataSource: sl(),receiveGiftLocalDataSource: sl(), networkInfo: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
+  sl.registerLazySingleton<SyncRepository>(() => SyncRepositoryImpl(local: sl(),dashBoardLocalDataSource: sl(), highLightLocalDataSource: sl(),inventoryLocalDataSource: sl(), rivalSalePriceLocalDataSource: sl(),salePriceLocalDataSource: sl(),receiveGiftLocalDataSource: sl(), networkInfo: sl(), salePriceRepository: sl(),inventoryRepository: sl(), rivalSalePriceRepository: sl(), sendRequirementRepository: sl(), highlightRepository: sl(),receiveGiftRepository: sl()));
   // UseCase
   sl.registerLazySingleton<SyncUseCase>(() => SyncUseCase(repository: sl()));
   // Bloc

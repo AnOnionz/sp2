@@ -16,6 +16,8 @@ import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
 import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/dashboard/domain/entities/kpi_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/customer_gift_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/receive_gift_entity.dart';
 
 
 abstract class DashBoardLocalDataSource {
@@ -42,7 +44,7 @@ abstract class DashBoardLocalDataSource {
   KpiEntity fetchKpi();
   Future<void> updateKpi(List<dynamic> products);
   Future<void> cacheDataToday(
-      {bool highLight, bool checkIn, bool checkOut, bool inventory,List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity});
+      {bool highLight, bool checkIn, bool checkOut, bool inventory,List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity, CustomerGiftEntity customerGiftEntity});
   Future<void> cacheProducts({List<ProductEntity> products});
   Future<void> cacheRivalProducts({List<RivalProductEntity> products});
   Future<void> cacheGiftsStrongbow({List<GiftEntity> gifts});
@@ -66,7 +68,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   DataTodayEntity get dataToday {
     Box<DataTodayEntity> box = Hive.box(AuthenticationBloc.outlet.id.toString() + DATA_DAY);
-    DataTodayEntity defaultData = DataTodayEntity(checkIn: false, checkOut: false, highLight: false, inventory: false, highlightCached: null, inventoryEntity: null, rivalSalePrice: null, salePrice: null);
+    DataTodayEntity defaultData = DataTodayEntity(checkIn: false, checkOut: false, highLight: false, inventory: false, highlightCached: null, inventoryEntity: null, rivalSalePrice: null, salePrice: null, receiveGift: null);
     final result = box.get(MyDateTime.today ,defaultValue: defaultData);
     if (result == defaultData) {
       box.put(MyDateTime.today, result);
@@ -76,7 +78,7 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   
   @override
   Future<void> cacheDataToday(
-      {bool highLight, bool checkIn, bool checkOut, bool inventory, List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity}) async {
+      {bool highLight, bool checkIn, bool checkOut, bool inventory, List<dynamic> salePrice, List<dynamic> rivalSalePrice, HighlightCacheEntity highlightCacheEntity, InventoryEntity inventoryEntity, CustomerGiftEntity customerGiftEntity}) async {
     final data = dataToday;
     data.checkOut = checkOut ?? data.checkOut;
     data.checkIn = checkIn ?? data.checkIn;
@@ -86,6 +88,10 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
     data.inventoryEntity = inventoryEntity ?? data.inventoryEntity;
     data.salePrice = salePrice ?? data.salePrice;
     data.rivalSalePrice = rivalSalePrice ?? data.rivalSalePrice;
+    data.receiveGift = data.receiveGift ?? [];
+    if(customerGiftEntity!=null){
+      data.receiveGift.add(customerGiftEntity);
+    }
     await data.save();
     //sharedPrefer.setString(MyDateTime.today, jsonEncode(data.toJson()));
     print(data);

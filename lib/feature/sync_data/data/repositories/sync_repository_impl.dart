@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:sp_2021/core/error/Exception.dart';
 import 'package:sp_2021/core/error/failure.dart';
 import 'package:sp_2021/core/platform/network_info.dart';
+import 'package:sp_2021/feature/dashboard/data/datasources/dashboard_local_datasouce.dart';
 import 'package:sp_2021/feature/highlight/domain/repositories/highlight_repository.dart';
 import 'package:sp_2021/feature/inventory/domain/repositories/inventory_repository.dart';
 import 'package:sp_2021/feature/receive_gift/domain/repositories/receive_gift_repository.dart';
@@ -16,7 +17,6 @@ import '../../../inventory/data/datasources/inventory_local_data_source.dart';
 import '../../../inventory/domain/entities/inventory_entity.dart';
 import '../../../receive_gift/data/datasources/receive_gift_local_datasource.dart';
 import '../../../receive_gift/domain/entities/customer_gift_entity.dart';
-import '../../../receive_gift/domain/entities/receive_gift_entity.dart';
 import '../../../rival_sale_price/data/datasources/rival_sale_price_local_data_source.dart';
 import '../../../sale_price/data/datasources/sale_price_local_data_source.dart';
 
@@ -33,10 +33,11 @@ class SyncRepositoryImpl implements SyncRepository {
   final ReceiveGiftLocalDataSource receiveGiftLocalDataSource;
   final InventoryLocalDataSource inventoryLocalDataSource;
   final NetworkInfo networkInfo;
+  final DashBoardLocalDataSource dashBoardLocalDataSource;
   final SyncLocalDataSource local;
 
   SyncRepositoryImpl({this.rivalSalePriceRepository, this.salePriceRepository, this.highlightRepository, this.receiveGiftRepository, this.sendRequirementRepository, this.inventoryRepository, this.rivalSalePriceLocalDataSource, this.salePriceLocalDataSource, this.highLightLocalDataSource, this.receiveGiftLocalDataSource,
-  this.inventoryLocalDataSource, this.networkInfo, this.local});
+  this.inventoryLocalDataSource, this.networkInfo, this.local, this.dashBoardLocalDataSource});
 
 
 
@@ -80,11 +81,13 @@ class SyncRepositoryImpl implements SyncRepository {
 
   @override
   Future<Map<String, dynamic>> restData() async  {
-    final rival = await rivalSalePriceRepository.hasSync() ? rivalSalePriceLocalDataSource.fetchRivalSalePrice() : [];
-    final price = await salePriceRepository.hasSync() ? salePriceLocalDataSource.fetchSalePrice() : [];
-    final highlight = await highlightRepository.hasSync() ? highLightLocalDataSource.fetchHighlight() : null;
-    final inventory = await inventoryRepository.hasSync() ? inventoryLocalDataSource.fetchInventory() : <InventoryEntity>[];
-    final receive = await receiveGiftRepository.hasSync() ? receiveGiftLocalDataSource.fetchCustomerGift() : <CustomerGiftEntity>[];
+    final dataToday = dashBoardLocalDataSource.dataToday;
+    print(dataToday.receiveGift);
+    final rival = dataToday.rivalSalePrice != null ? dataToday.rivalSalePrice : [];
+    final price = dataToday.salePrice !=null ? dataToday.salePrice : [];
+    final highlight = dataToday.highlightCached !=null ? dataToday.highlightCached : null;
+    final inventory = dataToday.inventoryEntity !=null ? dataToday.inventoryEntity : null;
+    final receive = dataToday.receiveGift != null ? dataToday.receiveGift : <CustomerGiftEntity>[];
     return {
       'rival': rival,
       'price': price,

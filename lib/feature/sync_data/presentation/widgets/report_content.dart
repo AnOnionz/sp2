@@ -1,20 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import '../../../../core/common/text_styles.dart';
 import '../../../../core/entities/gift_entity.dart';
 import '../../../../core/entities/product_entity.dart';
-import '../../../../core/entities/product_entity.dart';
-import '../../../../core/entities/product_entity.dart';
-import '../../../../core/entities/rival_product_entity.dart';
 import '../../../../di.dart';
 import '../../../dashboard/data/datasources/dashboard_local_datasouce.dart';
 import '../../../highlight/domain/entities/highlight_cache_entity.dart';
-import '../../../highlight/domain/entities/highlight_cache_entity.dart';
 import '../../../inventory/domain/entities/inventory_entity.dart';
 import '../../../receive_gift/domain/entities/customer_gift_entity.dart';
-import '../../../receive_gift/domain/entities/receive_gift_entity.dart';
 
 class ReportContent extends StatelessWidget {
   final Map<String, dynamic> report;
@@ -23,7 +17,7 @@ class ReportContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final receive = (report['receive'] as List<CustomerGiftEntity>).length;
-    final inventory = (report['inventory'] as List<InventoryEntity>).length;
+    final inventory = (report['inventory'] as InventoryEntity) !=null;
     final price = (report['price'] as List).length;
     final rival = (report['rival'] as List).length;
     final highlight = (report['highlight'] as HighlightCacheEntity) != null;
@@ -32,13 +26,13 @@ class ReportContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          receive > 0 || inventory > 0 || price > 0 || rival > 0 || highlight
+          receive > 0 || inventory || price > 0 || rival > 0 || highlight
               ? Text(
-                  'Dữ liệu chưa đồng bộ',
+                  'Dữ liệu hiện có',
                   style: Subtitle1black,
                 )
               : Text(
-                  'Không có dữ liệu chưa đồng bộ',
+                  'Không có dữ liệu',
                   style: Subtitle1black,
                 ),
           receive > 0
@@ -61,6 +55,8 @@ class ReportContent extends StatelessWidget {
                               ),
                               child: Column(
                                 children: [
+                                  Text('Thời gian: ${DateFormat('hh:mm a dd-MM-yyyy')
+                                  .format(DateTime.fromMillisecondsSinceEpoch(e.customer.deviceCreatedAt*1000))}'),
                                   Text('Khách hàng : ${e.customer.name}'),
                                   Text('SĐT : ${e.customer.phoneNumber}'),
                                   Text(
@@ -82,8 +78,12 @@ class ReportContent extends StatelessWidget {
                                           'Mã giảm giá : ${e.voucherPhone}, Số lượng: ${e.voucherQty}')
                                       : Container(),
                                   e.customerImage.length > 0
-                                      ? Image.file(File(e.customerImage.first),
-                                          fit: BoxFit.cover)
+                                      ? Container(
+                                    height: 50,
+                                        width: 50,
+                                        child: Image.file(File(e.customerImage.first),
+                                            fit: BoxFit.cover),
+                                      )
                                       : Container(),
                                 ],
                               ),
@@ -92,10 +92,10 @@ class ReportContent extends StatelessWidget {
                       .toList()
                 ])
               : Container(),
-          inventory > 0
+          inventory
               ? Column(children: [
                   ...[Text('Bia Tồn', style: TextStyle(fontSize: 15))],
-                  ...(report['inventory'] as List<InventoryEntity>)
+                  ...[(report['inventory'] as InventoryEntity)]
                       .map((e) => Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [

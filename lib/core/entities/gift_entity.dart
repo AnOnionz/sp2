@@ -310,8 +310,8 @@ class GiftEntity extends Gift with HiveObject {
       case 7:
         return Magnum(
           giftId: json['id'] as int,
-          name: json['name'] as String,
-          image: json["img_url"] as String ?? 'Magnum',
+          name: json['name'] as String ?? 'Magnum',
+          image: json["img_url"] as String ,
           amountCurrent: json['qty'] as int ?? 0,
           amountReceive: json['receive'] as int ?? 1,
           assetGift: "hn_magnum",

@@ -25,13 +25,14 @@ class DataTodayEntityAdapter extends TypeAdapter<DataTodayEntity> {
       highlightCached: fields[4] as HighlightCacheEntity,
       salePrice: (fields[6] as List)?.cast<dynamic>(),
       rivalSalePrice: (fields[7] as List)?.cast<dynamic>(),
+      receiveGift: (fields[8] as List)?.cast<CustomerGiftEntity>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, DataTodayEntity obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.checkIn)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class DataTodayEntityAdapter extends TypeAdapter<DataTodayEntity> {
       ..writeByte(6)
       ..write(obj.salePrice)
       ..writeByte(7)
-      ..write(obj.rivalSalePrice);
+      ..write(obj.rivalSalePrice)
+      ..writeByte(8)
+      ..write(obj.receiveGift);
   }
 
   @override

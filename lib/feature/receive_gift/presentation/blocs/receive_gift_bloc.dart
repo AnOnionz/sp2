@@ -29,6 +29,8 @@ import 'package:sp_2021/feature/receive_gift/domain/usecases/handle_wheel_usecas
 import 'package:sp_2021/feature/receive_gift/domain/usecases/use_voucher_usecase.dart';
 import 'package:sp_2021/feature/receive_gift/domain/usecases/validate_form_usecase.dart';
 
+import '../../../../di.dart';
+
 part 'receive_gift_event.dart';
 part 'receive_gift_state.dart';
 
@@ -157,7 +159,9 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
           }, (result) {
             final today =  DateFormat.yMd().format(MyDateTime.day);
             final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
-            if(result.gifts.length == 0 ){add(ReceiveGiftOnlyBuyProducts(form: event.form));}
+            if(result.gifts.length == 0 ){
+              add(ReceiveGiftOnlyBuyProducts(form: event.form));
+            }
             return result.gifts.length > 0 ? ReceiveGifShowTurn(
                 form: event.form,
                 gifts: result.gifts,
@@ -185,6 +189,8 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
         //productImage: event.form.images,
         customerImage: [],
       );
+      receiveGiftEntity.customer.deviceCreatedAt = DateTime.now().millisecondsSinceEpoch ~/1000;
+      sl<DashBoardLocalDataSource>().cacheDataToday(customerGiftEntity: receiveGiftEntity.toCustomerGift());
       await handleReceiveGift(HandleReceiveGiftParams(
           receiveGiftEntity: receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
     }
@@ -353,7 +359,10 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
       yield result;
     }
     if (event is ReceiveGiftSubmit) {
+
       _removeState();
+      event.receiveGiftEntity.customer.deviceCreatedAt = DateTime.now().millisecondsSinceEpoch ~/1000;
+      sl<DashBoardLocalDataSource>().cacheDataToday(customerGiftEntity: event.receiveGiftEntity.toCustomerGift());
       await localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
       await localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       final finish = await handleReceiveGift(HandleReceiveGiftParams(

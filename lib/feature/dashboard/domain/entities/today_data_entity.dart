@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:sp_2021/feature/highlight/domain/entities/highlight_cache_entity.dart';
 import 'package:sp_2021/feature/inventory/domain/entities/inventory_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/customer_gift_entity.dart';
+import 'package:sp_2021/feature/receive_gift/domain/entities/receive_gift_entity.dart';
 part 'today_data_entity.g.dart';
 
 @HiveType(typeId: 15)
@@ -23,10 +25,12 @@ class DataTodayEntity extends Equatable with HiveObject {
   List<dynamic> salePrice;
   @HiveField(7)
   List<dynamic> rivalSalePrice;
+  @HiveField(8)
+  List<CustomerGiftEntity> receiveGift;
 
 
   DataTodayEntity(
-      {this.checkIn, this.checkOut, this.inventory, this.highLight, this.inventoryEntity, this.highlightCached, this.salePrice, this.rivalSalePrice});
+      {this.checkIn, this.checkOut, this.inventory, this.highLight, this.inventoryEntity, this.highlightCached, this.salePrice, this.rivalSalePrice, this.receiveGift});
   @override
   List<Object> get props =>
       [
@@ -38,6 +42,7 @@ class DataTodayEntity extends Equatable with HiveObject {
         inventoryEntity,
         salePrice,
         rivalSalePrice,
+        receiveGift
       ];
   factory DataTodayEntity.fromJson(Map<String, dynamic> json){
     return DataTodayEntity(
@@ -67,6 +72,6 @@ class DataTodayEntity extends Equatable with HiveObject {
 
   @override
   String toString() {
-    return 'DataTodayEntity{checkIn: $checkIn, checkOut: $checkOut, inventory: $inventory, highLight: $highLight, highlightCached: $highlightCached, inventoryEntity: $inventoryEntity, salePrice: $salePrice, rivalSalePrice: $rivalSalePrice,}';
+    return 'DataTodayEntity{checkIn: $checkIn, checkOut: $checkOut, inventory: $inventory, highLight: $highLight, highlightCached: $highlightCached, inventoryEntity: $inventoryEntity, salePrice: $salePrice, rivalSalePrice: $rivalSalePrice, receiveGift: $receiveGift}';
   }
 }
