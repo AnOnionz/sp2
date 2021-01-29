@@ -13,11 +13,6 @@ import 'package:sp_2021/feature/sync_data/presentation/blocs/sync_data_bloc.dart
 import 'package:sp_2021/feature/sync_data/presentation/widgets/report_content.dart';
 
 import '../../../../di.dart';
-import '../../../highlight/domain/entities/highlight_cache_entity.dart';
-import '../../../highlight/domain/entities/highlight_entity.dart';
-import '../../../highlight/domain/entities/highlight_entity.dart';
-import '../../../highlight/domain/entities/highlight_entity.dart';
-import '../../domain/repositories/sync_repository.dart';
 import '../../domain/repositories/sync_repository.dart';
 
 class SyncDataPage extends StatefulWidget {
@@ -38,7 +33,7 @@ class _SyncDataPageState extends State<SyncDataPage> {
     bloc = sl<SyncDataBloc>();
     repository = sl<SyncRepository>();
     sync = local.getSync();
-    print(sync);
+
   }
 
   @override
@@ -134,69 +129,79 @@ class _SyncDataPageState extends State<SyncDataPage> {
                       ],
                     ),
                   ),
-                  InkWell(
-                    onTap: () async {
-                      final data = await repository.restData();
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return ZoomIn(
-                              duration: const Duration(milliseconds: 100),
-                              child: CupertinoAlertDialog(
-                                title: Container(
-                                  height: 70,
-                                  width: 70,
-                                  child: FlareActor("assets/images/notification.flr",
-                                      alignment: Alignment.center,
-                                      fit: BoxFit.contain,
-                                      animation: "go"),
-                                ),
-                                content: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ReportContent(report: data,),
-                                ),
-                                actions: [
-                                  CupertinoDialogAction(
-                                    child: Text("Đóng"),
-                                    onPressed: () {
-                                      FocusScope.of(context)
-                                          .requestFocus(FocusNode());
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          });
-                    },
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 3,
-                      padding: const EdgeInsets.only(top: 60, bottom: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            spacing: 10,
-                            children: [
-                              Container(
-                                  height: 20,
-                                  width: 20,
-                                  color: const Color(0xffFF2B00)),
-                              Text('chưa đồng bộ', style: notiTitle)
-                            ],
+          InkWell(
+              onTap: () async {
+                final data = await repository.restData();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ZoomIn(
+                        duration: const Duration(milliseconds: 100),
+                        child: SimpleDialog(
+                          title: Container(
+                            height: 70,
+                            width: 70,
+                            child: FlareActor("assets/images/notification.flr",
+                                alignment: Alignment.center,
+                                fit: BoxFit.contain,
+                                animation: "go"),
                           ),
-                          SizedBox(height: 10),
-                          Wrap(
-                            spacing: 10,
-                            children: [
-                              Container(
-                                  height: 20, width: 20, color: Colors.white),
-                              Text('đã đồng bộ', style: notiTitle)
-                            ],
+                          children: [Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ReportContent(report: data,),
                           ),
-                        ],
+                            CupertinoDialogAction(
+                              child: Text("Đóng"),
+                              onPressed: () {
+                                FocusScope.of(context)
+                                    .requestFocus(FocusNode());
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+//                          actions: [
+//                            CupertinoDialogAction(
+//                              child: Text("Đóng"),
+//                              onPressed: () {
+//                                FocusScope.of(context)
+//                                    .requestFocus(FocusNode());
+//                                Navigator.pop(context);
+//                              },
+//                            ),
+//                          ],
+                        ),
+                      );
+                    });
+              },
+
+              child: Container(
+                        width: MediaQuery.of(context).size.width / 3,
+                        padding: const EdgeInsets.only(top: 60, bottom: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: 10,
+                              children: [
+                                Container(
+                                    height: 20,
+                                    width: 20,
+                                    color: const Color(0xffFF2B00)),
+                                Text('chưa đồng bộ', style: notiTitle)
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              children: [
+                                Container(
+                                    height: 20, width: 20, color: Colors.white),
+                                Text('đã đồng bộ', style: notiTitle)
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ),
                   Text(
                       '* Chú thích: dữ liệu chưa đồng bộ trên tổng số dữ liệu trong ca làm việc',
@@ -258,14 +263,14 @@ class _SyncDataPageState extends State<SyncDataPage> {
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
                 child: Material(
                   color:
-                      sync.nonSynchronized > 0 || sync.imageNonSynchronized > 0
+                      sync.nonSynchronized != 0 || sync.imageNonSynchronized != 0
                           ? const Color(0xffFF2B00)
                           : Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(3)),
                   child: InkWell(
                     onTap: () {
-                      if (sync.nonSynchronized > 0 ||
-                          sync.imageNonSynchronized > 0) {
+                      if (sync.nonSynchronized != 0 ||
+                          sync.imageNonSynchronized != 0) {
                         bloc.add(SyncStart());
                       }
                     },
@@ -278,8 +283,8 @@ class _SyncDataPageState extends State<SyncDataPage> {
                         'Đồng bộ',
                         style: TextStyle(
                           fontSize: 16,
-                          color: sync.nonSynchronized > 0 ||
-                                  sync.imageNonSynchronized > 0
+                          color: sync.nonSynchronized != 0 ||
+                                  sync.imageNonSynchronized != 0
                               ? Colors.white
                               : Colors.black,
                           fontWeight: FontWeight.w600,

@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ota_update/ota_update.dart';
 import 'package:sp_2021/core/common/text_styles.dart';
 import 'package:sp_2021/core/platform/package_info.dart';
-import 'package:sp_2021/feature/dashboard/presentation/blocs/dashboard_bloc.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sp_2021/feature/setting/domain/entities/update_entity.dart';
 import 'package:sp_2021/feature/setting/presentation/blocs/setting_bloc.dart';

@@ -48,6 +48,7 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
   gender sex = gender.Nam;
   FormEntity _form;
   List<VoucherEntity> _vouchers;
+  bool isUseMagnum = false;
 
 //  Future getImage() async {
 //    if (_form.images.length < 5) {
@@ -579,89 +580,31 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                 ],
                               ),
                             ),
-//                            Padding(
-//                              padding: const EdgeInsets.only(bottom: 15),
-//                              child: Row(
-//                                children: <Widget>[
-//                                  Expanded(
-//                                      child: const Text(
-//                                          'khách hàng và sản phẩm',
-//                                          style: formText)),
-//                                  Expanded(
-//                                    child: Container(
-//                                      child: Row(
-//                                        children: <Widget>[
-//                                          Material(
-//                                            borderRadius: BorderRadius.all(
-//                                                Radius.circular(5)),
-//                                            child: InkWell(
-//                                              onTap: is18 == i18.yes
-//                                                  ? () {
-//                                                      getImage();
-//                                                    }
-//                                                  : () {},
-//                                              borderRadius: BorderRadius.all(
-//                                                  Radius.circular(5)),
-//                                              child: Container(
-//                                                height: 60,
-//                                                width: 60,
-//                                                padding:
-//                                                    const EdgeInsets.all(15),
-//                                                child: Image.asset(
-//                                                    'assets/images/camera.png'),
-//                                              ),
-//                                            ),
-//                                          ),
-//                                          SizedBox(width: 10),
-//                                          Expanded(
-//                                            child: Container(
-//                                              height: 60,
-//                                              child: ListView(
-//                                                scrollDirection:
-//                                                    Axis.horizontal,
-//                                                physics:
-//                                                    BouncingScrollPhysics(),
-//                                                children: _form.images.map((e) {
-//                                                  return GestureDetector(
-//                                                    onTap: () {
-//                                                      previewImage(
-//                                                          e,
-//                                                          _form.images
-//                                                              .indexOf(e));
-//                                                    },
-//                                                    child: Container(
-//                                                      height: 60,
-//                                                      width: 60,
-//                                                      margin: _form.images
-//                                                                  .indexOf(e) ==
-//                                                              _form.images
-//                                                                      .length -
-//                                                                  1
-//                                                          ? const EdgeInsets
-//                                                              .only(right: 0)
-//                                                          : const EdgeInsets
-//                                                              .only(right: 10),
-//                                                      child: ClipRRect(
-//                                                        borderRadius:
-//                                                            BorderRadius.all(
-//                                                                Radius.circular(
-//                                                                    5)),
-//                                                        child: Image.file(e,
-//                                                            fit: BoxFit.cover),
-//                                                      ),
-//                                                    ),
-//                                                  );
-//                                                }).toList(),
-//                                              ),
-//                                            ),
-//                                          ),
-//                                        ],
-//                                      ),
-//                                    ),
-//                                  ),
-//                                ],
-//                              ),
-//                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                      child: const Text(
+                                          'Tặng quà Magnum',
+                                          style: formText)),
+                                  Expanded(
+                                    child: Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Checkbox(value: isUseMagnum, onChanged: (value){
+                                            setState(() {
+                                              isUseMagnum = !isUseMagnum;
+                                            });
+                                          })
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Container(
                               height: 1,
                               color: Colors.white,
@@ -902,6 +845,8 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                                               Expanded(
                                                                 child: InkWell(
                                                                     onTap: (){
+                                                                      Navigator.pop(context);
+                                                                      state.form.isUseMagnum = isUseMagnum;
                                                                       BlocProvider.of<ReceiveGiftBloc>(
                                                                               context)
                                                                           .add(ReceiveGiftConfirm(
@@ -1164,7 +1109,6 @@ class _ReceiveGiftFormPageState extends State<ReceiveGiftFormPage> {
                                       }
                                     }
                                     if (state is ReceiveGiftNotCondition) {
-                                      Navigator.pop(context);
                                       Navigator.pop(context);
                                     }
                                     if(state is ReceiveGiftOutRange){

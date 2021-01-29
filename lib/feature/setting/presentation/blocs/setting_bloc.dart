@@ -12,8 +12,8 @@ part 'setting_state.dart';
 class SettingBloc extends Bloc<SettingEvent, SettingState> {
   final SettingUseCase checkVersion;
   SettingBloc({this.checkVersion}) : super(SettingInitial()){
-    add(SettingStart());
-    add(CheckVersion());
+    //add(SettingStart());
+    //add(CheckVersion());
   }
 
   @override

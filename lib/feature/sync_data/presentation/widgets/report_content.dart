@@ -41,7 +41,8 @@ class ReportContent extends StatelessWidget {
                     Text(
                       'Quay Quà',
                       style: TextStyle(fontSize: 15),
-                    )
+                    ),
+                    Text('${sl<DashBoardLocalDataSource>().fetchSetGiftCurrent().gifts.map((e) => '${e.name} : ${e.amountCurrent}').toList()}'),
                   ],
                   ...(report['receive'] as List<CustomerGiftEntity>)
                       .map((e) => Padding(

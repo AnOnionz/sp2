@@ -11,6 +11,7 @@ class FormEntity extends Equatable {
   List<ProductEntity> products;
   VoucherEntity voucher;
   bool isCheckedVoucher;
+  bool isUseMagnum;
 //  List<File> images;
 
   FormEntity(
@@ -18,6 +19,7 @@ class FormEntity extends Equatable {
       @required this.products,
       this.voucher,
       this.isCheckedVoucher = false,
+        this.isUseMagnum = false,
      });
 
   Map<String, dynamic> toJson(){
@@ -40,10 +42,10 @@ class FormEntity extends Equatable {
 
   @override
   List<Object> get props =>
-      [customer, products, voucher, isCheckedVoucher,];
+      [customer, products, voucher, isCheckedVoucher,isUseMagnum];
 
   @override
   String toString() {
-    return 'FormEntity{customer: $customer, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher,}';
+    return 'FormEntity{customer: $customer, products: $products, voucher: $voucher, isCheckedVoucher: $isCheckedVoucher, isUseMagnum: $isUseMagnum}';
   }
 }

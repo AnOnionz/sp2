@@ -313,8 +313,6 @@ class DashBoardLocalDataSourceImpl implements DashBoardLocalDataSource {
   @override
   bool get isSetOver {
     SetGiftEntity setCurrent = fetchSetGiftCurrent();
-    print('b ${fetchSetGift().isEmpty}');
-    print('a ${setCurrent == null}');
     if(fetchSetGift().isEmpty || setCurrent == null) return true;
     final sum = setCurrent.gifts.fold(
         0, (previousValue, element) => previousValue + element.amountCurrent);

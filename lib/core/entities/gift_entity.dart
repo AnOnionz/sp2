@@ -224,9 +224,9 @@ class GiftEntity extends Gift with HiveObject {
     return g;
   }
 
-  GiftEntity downCurrent() {
+  GiftEntity downCurrent(int value) {
     GiftEntity g = GiftEntity.create(this);
-    g.amountCurrent -=1;
+    g.amountCurrent -=value;
     return g;
   }
 

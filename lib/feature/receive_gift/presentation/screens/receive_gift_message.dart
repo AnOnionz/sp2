@@ -40,7 +40,7 @@ class _ReceiveGiftMessageState extends State<ReceiveGiftMessagePage> {
   @override
   Widget build(BuildContext context) {
     final gift =
-        [...widget.giftReceived, ...widget.giftSBReceived][widget.giftAt];
+        widget.giftReceived[widget.giftAt];
     return Scaffold(
       body: SafeArea(
         child: Container(

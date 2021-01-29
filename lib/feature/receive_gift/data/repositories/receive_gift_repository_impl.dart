@@ -93,13 +93,14 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
   Future<Either<Failure, bool>> handleReceiveGift(
       {ReceiveGiftEntity receiveGiftEntity, SetGiftEntity setCurrent, SetGiftEntity setSBCurrent}) async {
     final time = DateTime.now();
-   receiveGiftEntity.outletCode = AuthenticationBloc.outlet.code; //AuthenticationBloc.outlet.code;
+    receiveGiftEntity.outletCode = AuthenticationBloc.outlet.code; //AuthenticationBloc.outlet.code;
     receiveGiftEntity.customer.deviceCreatedAt =
         time.millisecondsSinceEpoch ~/ 1000;
     if (await networkInfo.isConnected) {
       try {
+        print(receiveGiftEntity.toCustomerGift());
         await local.cacheCustomer(customer: receiveGiftEntity.customer);
-        final updateSetCurrent = setCurrent != null ? await remote.updateSetGiftCurrentToServer(setCurrent) : true;
+        await remote.updateSetGiftCurrentToServer(setCurrent) ;
         final updateSetSBCurrent = setSBCurrent !=null && AuthenticationBloc.outlet.province == 'HN_HCM'
             ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
             : true;
@@ -144,7 +145,7 @@ class ReceiveGiftRepositoryImpl implements ReceiveGiftRepository {
       final data = local.fetchCustomerGift();
       final setCurrent = dashboardLocal.fetchSetGiftCurrent();
       final setSBCurrent = dashboardLocal.fetchSetGiftSBCurrent();
-      final updateSetCurrent = setCurrent != null ? await remote.updateSetGiftCurrentToServer(setCurrent) : true;
+      await remote.updateSetGiftCurrentToServer(setCurrent);
       final updateSetSBCurrent = setSBCurrent !=null && AuthenticationBloc.outlet.province == 'HN_HCM'
           ? await remote.updateSetGiftSBCurrentToServer(setSBCurrent)
           : true;

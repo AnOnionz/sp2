@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:sp_2021/core/entities/gift_entity.dart';
 import 'package:sp_2021/core/entities/product_entity.dart';
+import 'package:sp_2021/feature/login/presentation/blocs/authentication_bloc.dart';
 import 'package:sp_2021/feature/receive_gift/domain/entities/voucher_entity.dart';
 
 import 'customer_gift_entity.dart';
@@ -22,7 +23,7 @@ class ReceiveGiftEntity {
 
   CustomerGiftEntity toCustomerGift(){
     return CustomerGiftEntity(
-      outletCode: outletCode,
+      outletCode: AuthenticationBloc.outlet.code,
       customer: customer,
       products: products.map((e) => e.toBuyQtyJson()).toList(),
       gifts: gifts.isNotEmpty ? gifts.map((e) => e.toJsonReceive()).toList() : gifts,

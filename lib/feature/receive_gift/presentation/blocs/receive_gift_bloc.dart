@@ -69,36 +69,13 @@ class ReceiveGiftBloc extends Bloc<ReceiveGiftEvent, ReceiveGiftState> {
   ) async* {
     final now = DateTime.now().millisecondsSinceEpoch;
     if (event is ReceiveGiftStart) {
-      final a = local.fetchCustomerGift();
-      print(a.length);
       setCurrent = localData.fetchSetGiftCurrent();
-      setSBCurrent = localData.fetchSetGiftSBCurrent();
-      print(setSBCurrent);
       final dataToday = localData.dataToday;
       final outlet = AuthenticationBloc.outlet;
       if (dataToday.checkIn != true) {
         dashboardBloc.add(RequiredCheckInOrCheckOut(
             message: 'Phải chấm công trước khi đổi quà', willPop: 2));
         return ;
-      }
-      if(now > outlet.endPromotion*1000){
-        yield ReceiveGiftOutRange(message: "Ngoài thời gian áp dụng chương trình");
-        return ;
-      }
-      if(localData.isChangeSet && local.isRequireSync()){
-        dashboardBloc.add(SyncRequired(message: "Yêu cầu đồng bộ dữ liệu trước khi quay quà"));
-        return;
-      }
-      if((!localData.isSetOver && localData.indexLast == setCurrent.index) || (setSBCurrent != null && AuthenticationBloc.outlet.province =='HN_HCM' &&!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index)){
-        final sum = setCurrent.gifts.fold(
-            0, (previousValue, element) => previousValue + element.amountCurrent);
-        final sbSum =setSBCurrent != null ? setSBCurrent.gifts.fold(
-            0, (previousValue, element) => previousValue + element.amountCurrent) : 0;
-        yield ReceiveGiftInLastSet(
-            message: '''${!localData.isSetOver && localData.indexLast == setCurrent.index ? "Set quà chính : đang ở set quà cuối cùng, hiện còn $sum quà trong set":""}
-${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSBCurrent != null ?  "Set quà Strongbow: đang ở set quà cuối cùng, hiện còn $sbSum quà trong set":""}
-                         '''
-        );
       }
       ReceiveGiftState stateCached = getState();
       if(stateCached != null){
@@ -118,67 +95,33 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
       yield* _eitherValidateToState(validator);
     }
     if (event is ReceiveGiftConfirm) {
-      yield ReceiveGiftHandling(form: event.form);
-      CustomerEntity customer = await local.getCustomer(
-        gender: event.form.customer.gender,
-          name: event.form.customer.name,
-          phone: event.form.customer.phoneNumber);
-      print(customer);
-      print(now);
-      print(AuthenticationBloc.outlet.startPromotion*1000);
-      print(now < AuthenticationBloc.outlet.startPromotion*1000);
-      print((localData.isSetOver && localData.isSetSBOver));
-      print( localData.fetchSetGift().isEmpty);
-      print('1 ${localData.isSetOver}');
-      print('2 ${localData.isSetSBOver}');
-      event.form.customer = customer;
-      if (now < AuthenticationBloc.outlet.startPromotion*1000 || (localData.isSetOver && localData.isSetSBOver) || localData.fetchSetGift().isEmpty) {
+      final pd = event.form.products.where((element) => element is! StrongBowPack6).toList().fold(0, (previousValue, element) => previousValue + element.buyQty);
+      if (setCurrent.gifts.firstWhere((element) => element is Magnum).amountCurrent == 0 || localData.isSetOver || pd < 5 || !event.form.isUseMagnum ) {
         yield ReceiveGiftNotCondition();
         add(ReceiveGiftOnlyBuyProducts(form: event.form));
       } else {
-        if (customer.inTurn == 0 && customer.inSBTurn == 0) {
-          add(ReceiveGiftOnlyBuyProducts(form: event.form));
-            yield ReceiveGifShowTurn(
-                form: event.form,
-                gifts: [],
-                message: "Hôm nay bạn đã hết lượt nhận quà",
-                type: 2);
-        }
-        if (customer.inTurn > 0 || customer.inSBTurn > 0) {
-          final gifts = await handleGift(HandleGiftParams(
-              products: merge(event.form.products),
-              customer: customer,
-              setCurrent: setCurrent,
-              setSBCurrent: setSBCurrent));
-          yield gifts.fold((l) {
-            if (l is SetOverFailure) {
-              add(ReceiveGiftOnlyBuyProducts(form: event.form));
-              return ReceiveGiftNotCondition();
-            }
-            return ReceiveGiftFailure();
-          }, (result) {
-            final today =  DateFormat.yMd().format(MyDateTime.day);
-            final lastDay = DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(AuthenticationBloc.outlet.endPromotion*1000));
-            if(result.gifts.length == 0 ){
-              add(ReceiveGiftOnlyBuyProducts(form: event.form));
-            }
-            return result.gifts.length > 0 ? ReceiveGifShowTurn(
-                form: event.form,
-                gifts: result.gifts,
-                setCurrent: result.setCurrent,
-                setSBCurrent: result.setSBCurrent,
-                message:
-                    "Hôm nay bạn có ${result.gifts.length < customer.inTurn + customer.inSBTurn ? result.gifts.length : customer.inTurn + customer.inSBTurn} lượt nhận quà",
-                type: 1): ReceiveGiftNotCondition() ;
-//            : ReceiveGifShowTurn(
-//            form: event.form,
-//            gifts: [],
-//            message: "Hôm nay bạn đã hết lượt nhận quà",
-//            type: 2);
-          });
+        final mn = pd ~/ 5 < setCurrent.gifts.firstWhere((element) => element is Magnum).amountCurrent ? pd ~/ 5 : setCurrent.gifts.firstWhere((element) => element is Magnum).amountCurrent ;
+        yield ReceiveGiftStateNow(
+          form: event.form,
+          giftAt: 0,
+          giftReceive: [Magnum(
+            giftId: 7,
+            name: 'Chai Magnum',
+            amountReceive: mn,
+            assetGift: 'hn_magnum',
+            image: 'https://sptt21.imark.vn/image/sku/HinhQua/Magnum.png',
+          )],
+          giftReceived: [Magnum(
+            giftId: 7,
+            name: 'Chai Magnum',
+            amountReceive: mn,
+            assetGift: 'hn_magnum',
+            image: 'https://sptt21.imark.vn/image/sku/HinhQua/Magnum.png',
+          )],
+          giftSBReceived: [],
+        );
         }
       }
-    }
     if(event is ReceiveGiftOnlyBuyProducts){
       final ReceiveGiftEntity receiveGiftEntity = ReceiveGiftEntity(
           customer: event.form.customer,
@@ -195,29 +138,17 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
           receiveGiftEntity: receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
     }
     if (event is GiftNext) {
-      setCurrent = event.setCurrent ?? setCurrent;
-      setSBCurrent = event.setSBCurrent ?? setSBCurrent;
-      if(event.giftAt == 0){
-        event.giftReceive.forEach((gift) {
-          gift is NormalGift ? setCurrent = SetGiftEntity(
+         setCurrent = SetGiftEntity(
               index: setCurrent.index,
               gifts: setCurrent.gifts
-                  .map((e) => gift.id == e.giftId ? e.downCurrent() : e)
-                  .toList()) :
-          setSBCurrent = setSBCurrent != null ? SetGiftEntity(
-              index: setSBCurrent.index,
-              gifts: setSBCurrent.gifts
-                  .map((e) => gift.id == e.giftId ? e.downCurrent() : e)
-                  .toList()) : null;
-        });
-      }
+                  .map((e) => e.giftId == 7 ? e.downCurrent(event.giftReceived[0].amountReceive) : e)
+                  .toList());
+
       if (event.giftAt == event.giftReceive.length) {
-        event.form.customer.inSBTurn -= event.giftSBReceived.length;
-        event.form.customer.inTurn -= event.giftReceived.length;
         add(ReceiveGiftResult(
             receiveGiftEntity: ReceiveGiftEntity(
                 customer: event.form.customer,
-                gifts: [...event.giftReceived, ...event.giftSBReceived],
+                gifts: event.giftReceived,
                 products: event.form.products,
                 //productImage: event.form.images,
                 voucher: event.form.voucher,
@@ -306,12 +237,12 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
         event.gift is NormalGift ? setCurrent = SetGiftEntity(
             index: setCurrent.index,
             gifts: setCurrent.gifts
-                .map((e) => event.gift.id == e.giftId ? e.downCurrent() : e)
+                .map((e) => event.gift.id == e.giftId ? e.downCurrent(e.amountReceive) : e)
                 .toList()) :
         setSBCurrent = SetGiftEntity(
             index: setSBCurrent.index,
             gifts: setSBCurrent.gifts
-                .map((e) => event.gift.id == e.giftId ? e.downCurrent() : e)
+                .map((e) => event.gift.id == e.giftId ? e.downCurrent(e.amountReceive) : e)
                 .toList());
       }
       yield ReceiveGiftStateNow(
@@ -326,32 +257,14 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
     }
     if (event is ReceiveGiftResult) {
       await localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
-      await localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
-      List<GiftEntity> gifts = [];
-      List<GiftEntity> giftReceived = event.receiveGiftEntity.gifts;
-      // gift had in list
-      giftReceived.forEach((element) {
-        if(gifts.isEmpty){
-          gifts.add(element);
-        }else{
-          final listID = gifts.map((e) => e.giftId).toList();
-          if(listID.contains(element.giftId)){
-            int index = listID.indexOf(element.giftId);
-            gifts[index] = gifts[index].upReceive();
-          }else{
-            gifts.add(element);
-          }
-        }
-      });
       print("setCurrent final: $setCurrent");
-      print("setSBCurrent final: $setSBCurrent");
       ReceiveGiftState result = ReceiveGiftStateResult(
           receiveGiftEntity: ReceiveGiftEntity(
             customer: event.receiveGiftEntity.customer,
             voucher: event.receiveGiftEntity.voucher,
             products: event.receiveGiftEntity.products,
-            gifts: gifts,
-            voucherReceived: gifts.firstWhere((element) => element is Voucher, orElse: () => Voucher(amountReceive: 0)).amountReceive,
+            gifts: event.receiveGiftEntity.gifts,
+            voucherReceived: 0,
             //productImage: event.receiveGiftEntity.productImage,
             customerImage: event.receiveGiftEntity.customerImage,
           ));
@@ -359,12 +272,10 @@ ${!localData.isSetSBOver && localData.sbIndexLast == setSBCurrent.index && setSB
       yield result;
     }
     if (event is ReceiveGiftSubmit) {
-
       _removeState();
       event.receiveGiftEntity.customer.deviceCreatedAt = DateTime.now().millisecondsSinceEpoch ~/1000;
       sl<DashBoardLocalDataSource>().cacheDataToday(customerGiftEntity: event.receiveGiftEntity.toCustomerGift());
       await localData.cacheSetGiftCurrent(setGiftEntity: setCurrent);
-      await localData.cacheSetGiftSBCurrent(setGiftEntity: setSBCurrent);
       final finish = await handleReceiveGift(HandleReceiveGiftParams(
           receiveGiftEntity: event.receiveGiftEntity, setCurrent: setCurrent, setSBCurrent: setSBCurrent));
       yield finish.fold((fail) {
